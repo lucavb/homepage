@@ -1,3 +1,5 @@
+import type { ImageMetadata } from 'astro';
+
 export interface IMetaHead {
     title: string;
     description: string;
@@ -24,7 +26,7 @@ export interface IExperiences {
 export interface IProject {
     title: string;
     isFeatured: boolean;
-    thumbnail: string;
+    thumbnail: string | ImageMetadata;
     githubUrl: string;
     liveUrl: string;
 }

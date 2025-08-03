@@ -1,3 +1,5 @@
+import aicommitsImage from '../assets/images/aicommits.png';
+
 export const info = {
     baseUrl: 'https://luca-becker.me',
     name: 'Luca Becker',
@@ -116,7 +118,7 @@ Currently, I am leading a team from a technical standpoint and managing the infr
             githubUrl: 'https://github.com/lucavb/aicommits',
             isFeatured: true,
             liveUrl: 'https://www.npmjs.com/package/@lucavb/aicommits',
-            thumbnail: '/assets/images/aicommits.png',
+            thumbnail: aicommitsImage,
             title: '@lucavb/aicommits',
         },
         {

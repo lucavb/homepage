@@ -1,12 +1,16 @@
 ---
 import { info } from '@data';
 import Layout from '@layouts/Layout.astro';
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import Footer from '@components/home/Footer.astro';
 import Header from '@components/home/Header.astro';
 import PageHero from '@components/general/PageHero.astro';
+import aicommitsImage from '../assets/images/aicommits.png';
+import type { ImageMetadata } from 'astro';
 
-// Extended project data to match the mockup design
+const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata =>
+    typeof src === 'object' && src !== null && 'src' in src && 'width' in src && 'height' in src;
+
 const enhancedProjects = [
     {
         title: 'AI-Powered Commit Message Generator',
@@ -20,7 +24,7 @@ const enhancedProjects = [
         technologies: ['TypeScript', 'Node.js', 'OpenAI API', 'CLI', 'Git'],
         githubUrl: 'https://github.com/lucavb/aicommits',
         liveUrl: 'https://www.npmjs.com/package/@lucavb/aicommits',
-        thumbnail: '/assets/images/aicommits.png',
+        thumbnail: aicommitsImage,
     },
     {
         title: 'Wollwerk E-Commerce Platform',
@@ -126,14 +130,27 @@ const enhancedProjects = [
                             enhancedProjects.map((project) => (
                                 <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300">
                                     <div class="h-64 relative overflow-hidden bg-gray-100 dark:bg-gray-700">
-                                        <Image
-                                            src={project.thumbnail}
-                                            alt={`${project.title} project thumbnail`}
-                                            class="w-full h-full object-cover"
-                                            width={600}
-                                            height={256}
-                                            loading="lazy"
-                                        />
+                                        {isImageMetadata(project.thumbnail) ? (
+                                            <Picture
+                                                alt={`${project.title} project thumbnail`}
+                                                class="w-full h-full object-cover"
+                                                formats={['avif', 'webp', 'jpg']}
+                                                height={256}
+                                                loading="lazy"
+                                                src={project.thumbnail}
+                                                width={600}
+                                                widths={[400, 600, 800]}
+                                            />
+                                        ) : (
+                                            <img
+                                                alt={`${project.title} project thumbnail`}
+                                                class="w-full h-full object-cover"
+                                                height="256"
+                                                loading="lazy"
+                                                src={project.thumbnail}
+                                                width="600"
+                                            />
+                                        )}
                                         <div class="absolute inset-0 bg-black bg-opacity-20" />
                                         <div class="absolute top-6 left-6">
                                             <span class="bg-white bg-opacity-90 text-gray-800 px-4 py-2 rounded-full text-sm font-medium">
