@@ -1,0 +1,168 @@
+---
+title: "RAG Isn't as Complex as You Think: Building a Zendesk Chatbot in 90 Minutes"
+description: 'How I went from thinking RAG required custom search APIs to building a functional knowledge base chatbot in one evening, using AI-assisted development to demystify vector embeddings.'
+publishDate: 2025-08-03
+tags: ['rag', 'ai development', 'embeddings', 'developer tools', 'cursor', 'typescript', 'vector search']
+heroImagePath: 'rag-isnt-as-complex-as-you-think/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/rag-isnt-as-complex-as-you-think/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Diagram showing RAG workflow: documents being converted to embeddings, vector search with similarity matching, and AI assistant providing answers"
+    loading="eager"
+/>
+
+You know that feeling when you've been avoiding a technology because it seems overly complex, only to discover it's actually quite straightforward? That happened to me last night with RAG (Retrieval-Augmented Generation).
+
+I'd been putting off diving deep into RAG implementations, partly because of some fundamental misconceptions about how it works. We'd even built a "Zendesk RAG" proof of concept previously, but we did it the hard way - manually searching through Zendesk's search API before sending results to the LLM. It worked, but felt clunky.
+
+Then I spent 90 minutes last night and built a proper RAG system that actually understands our knowledge base. Here's what I learned, and why you shouldn't let RAG intimidate you anymore.
+
+## The Misconception That Held Me Back
+
+My biggest misunderstanding was thinking that the LLM itself would perform the searches, or that I needed to handle search operations beforehand using traditional APIs. When we built our first Zendesk integration, we were literally calling Zendesk's search endpoint, getting results, and then asking the LLM to work with whatever came back.
+
+It wasn't until I started chatting with TAIA (our company's privacy-friendly AI tool - think Open WebUI but built at TNG with all conversations stored locally in the browser) that the lightbulb went off. RAG works through embeddings - mathematical representations of text that capture semantic meaning. Instead of keyword matching, you're finding content that's conceptually similar to the user's question.
+
+Suddenly, everything made much more sense. No wonder our first approach felt limited!
+
+## The AI-to-AI Workflow That Changed Everything
+
+Here's where things got interesting. After learning about embeddings through TAIA, I decided I wanted to see it in action. So I asked TAIA to generate a prompt that I could use with Cursor to build a TypeScript proof of concept.
+
+The prompt it generated was remarkably comprehensive:
+
+<details>
+<summary><strong>Click to expand the full TAIA-generated prompt</strong></summary>
+
+```
+Create a TypeScript CLI application that implements RAG (Retrieval-Augmented Generation) for chatting with Zendesk articles.
+
+Requirements:
+- Fetch articles from Zendesk API and convert HTML to plain text
+- Split articles into chunks and create embeddings using OpenAI-compatible API
+- Store embeddings locally in JSON file for persistence
+- Implement simple vector search using cosine similarity
+- Interactive CLI chat interface using inquirer
+- Generate contextual responses referencing source articles
+- Commands: chat, exit, reindex, clear history
+
+Technical stack:
+- TypeScript with Node.js
+- OpenAI SDK for embeddings and chat completions
+- Axios for Zendesk API calls
+- Cheerio for HTML parsing
+- Inquirer for CLI interaction
+- Simple file-based vector store (no external DB needed)
+
+Project structure:
+- src/index.ts (main CLI orchestrator)
+- src/zendesk.ts (API client)
+- src/embeddings.ts (embedding service)
+- src/vectorstore.ts (simple vector storage/search)
+- src/chat.ts (chat service with history)
+- src/types.ts (TypeScript interfaces)
+
+Environment variables needed:
+- OPENAI_API_KEY, OPENAI_BASE_URL
+- ZENDESK_SUBDOMAIN, ZENDESK_EMAIL, ZENDESK_API_TOKEN
+
+Key features:
+- Rate limiting for API calls
+- Error handling and retry logic
+- Source attribution in responses
+- Persistent embedding storage
+- Chat history context
+- Chunking strategy for long articles
+
+Make it production-ready with proper error handling, logging, and TypeScript types.
+```
+
+</details>
+
+The prompt included project structure, environment variables, and even mentioned production concerns like rate limiting and error handling. Cursor delivered something remarkably solid right out of the gate.
+
+## The 90-Minute Build
+
+What struck me most was how quickly this came together:
+
+- **30 minutes**: Getting the basic structure working and understanding the embedding flow
+- **45 minutes**: Iterating on the similarity threshold and chunking parameters
+- **15 minutes**: Fine-tuning and adding some quality-of-life improvements
+
+I made a few adjustments along the way - switching to Zendesk OAuth (simpler for our setup), adding Zod for validation, migrating to ESLint, and using Node's `--experimental-strip-types` flag to skip the TypeScript compilation step entirely.
+
+But the core RAG functionality? That worked almost immediately.
+
+## The Devil in the Similarity Details
+
+Here's where things got educational. Initially, RAG kept telling me it couldn't find matching articles for perfectly reasonable questions. The issue wasn't the questions - it was the similarity threshold.
+
+Cursor had hardcoded a similarity value of 0.7, and I discovered this threshold is highly dependent on your embedding model. Through experimentation, I found significant differences:
+
+| Embedding Model                   | Optimal Similarity Threshold | Notes                                          |
+| --------------------------------- | ---------------------------- | ---------------------------------------------- |
+| BAAI/bge-large-en-v1.5            | 0.7                          | Works well with higher thresholds              |
+| Alibaba-NLP/gte-Qwen2-7B-instruct | 0.3                          | Requires much lower threshold for same content |
+
+Same chunk size (1000 characters) and overlap (200 characters), completely different similarity requirements. This isn't documented anywhere obvious - it's the kind of thing you only discover through hands-on experimentation.
+
+For production use, I suspect we'd need an even lower threshold (maybe 0.2-0.3) to avoid the frustrating "I don't know" responses that kill user engagement.
+
+These dramatic differences between models got me curious about systematic performance testing. What started as casual experimentation with a couple of embedding models evolved into a fascination with benchmarking—but that's a story for another blog post.
+
+## Real-World Performance
+
+Testing with our actual Zendesk content revealed both the power and limitations of this approach. When I asked questions about topics I knew were covered, the results were impressive - relevant articles with proper source attribution and contextually appropriate responses.
+
+But there's a catch: I knew what to ask because I'm familiar with our knowledge base. Naive users might struggle more with query formulation, which argues for even more permissive similarity thresholds.
+
+The responses can also be quite verbose when similarity scores are high, since the system includes more context. It's a trade-off between precision and comprehensiveness that depends on your user experience goals.
+
+Performance-wise, the system felt a bit slow without streaming responses, but that's a 15-minute fix with another Cursor prompt. The embedding storage (16MB for our knowledge base) loads into RAM instantly, so search is fast once everything's indexed.
+
+## Production Reality Check
+
+This 90-minute proof of concept got me excited about RAG's potential, but also clarified what's needed for production deployment:
+
+**What works well for prototyping:**
+
+- JSON file storage is brilliantly simple - no Docker, no database setup, just works
+- Embedding generation and storage is straightforward
+- Vector similarity search is fast enough for interactive use
+- Source attribution provides necessary transparency
+- Modern AI tools make implementation surprisingly accessible
+
+**What needs work for production:**
+
+- **Conversational context**: The current implementation treats each question independently. Real chat requires maintaining conversation history and using previous questions as context for better responses.
+- **Proper vector storage**: While JSON files are perfect for getting started, production systems should use something like PostgreSQL with pgvector for scalability, concurrent access, and proper indexing.
+- **Similarity threshold tuning**: Requires domain-specific experimentation with real user queries
+- **User query optimization**: Users don't always know how to ask good questions
+- **Response streaming**: Better perceived performance for longer responses
+- **Cost optimization**: Embedding API calls can add up at scale
+
+## The Bigger Picture
+
+This experience reinforced something I've been seeing across AI development: the barrier to entry for sophisticated AI applications has dropped dramatically. What would have required weeks of research and custom infrastructure a year ago can now be prototyped in an evening.
+
+The combination of AI-assisted development (TAIA → Cursor workflow) and mature embedding APIs makes RAG genuinely accessible. The complexity isn't in the implementation anymore - it's in the tuning and user experience optimization.
+
+Next week, I'm applying this to legal document analysis for a client project. Having built this proof of concept, I feel much more confident about tackling domain-specific challenges like precision requirements and specialized terminology.
+
+## Key Takeaways
+
+If you've been intimidated by RAG implementations, here's what I wish I'd known sooner:
+
+1. **Embeddings are the secret sauce** - forget complex search APIs, vector similarity is where the magic happens
+2. **Start stupidly simple** - JSON file storage beats database complexity for initial prototyping
+3. **Similarity thresholds are model-dependent** - budget time for experimentation with your specific embedding model
+4. **AI-assisted development workflows are powerful** - using one AI to generate prompts for another AI is surprisingly effective
+5. **The implementation is the easy part** - the real challenge is in conversational context, tuning, and user experience
+6. **Plan your production path early** - pgvector, conversation history, and streaming responses will be needed sooner than you think
+
+_Have you experimented with RAG implementations? I'm particularly curious about similarity threshold tuning with different embedding models, and how you handle conversational context in production systems. The [complete proof of concept code](https://github.com/lucavb/rag-poc) is available if you want to try it yourself._
