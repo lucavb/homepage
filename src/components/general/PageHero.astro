@@ -1,0 +1,75 @@
+---
+import BackToHomeLink from './BackToHomeLink.astro';
+
+export interface Props {
+    title: string;
+    description: string;
+    showBackLink?: boolean;
+    backLinkText?: string;
+    backLinkHref?: string;
+    publishDate?: Date;
+    tags?: string[];
+}
+
+const {
+    title,
+    description,
+    showBackLink = true,
+    backLinkText = 'Back to Home',
+    backLinkHref = '/',
+    publishDate,
+    tags,
+} = Astro.props;
+
+const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    }).format(date);
+};
+---
+
+<section class="py-20 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 relative">
+    {showBackLink && <BackToHomeLink text={backLinkText} href={backLinkHref} />}
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-16">
+            <div class="text-center">
+                <h1 class="text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed">
+                    {title}
+                </h1>
+                <div class="w-32 h-1 bg-blue-600 mx-auto mb-8"></div>
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-6">
+                    {description}
+                </p>
+                {
+                    publishDate && (
+                        <div class="flex items-center justify-center text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                            </svg>
+                            Published on {formatDate(publishDate)}
+                        </div>
+                    )
+                }
+                {
+                    tags && tags.length > 0 && (
+                        <div class="flex flex-wrap justify-center gap-2">
+                            {tags.map((tag) => (
+                                <span class="px-3 py-1 text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    </div>
+</section>

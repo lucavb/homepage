@@ -1,0 +1,58 @@
+---
+title: 'Check Your TypeScript Packages Before You Ship Them'
+description: "Don't let sneaky module resolution issues ruin your users' day. Here's a CLI tool that catches TypeScript package problems before you publish."
+publishDate: 2025-06-26
+tags: ['typescript', 'npm', 'publishing', 'cli tools', 'developer tools']
+heroImagePath: 'check-your-typescript-packages/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/check-your-typescript-packages/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="TypeScript detective examining npm packages for module resolution issues - illustration showing a developer with magnifying glass inspecting TypeScript code"
+    loading="eager"
+/>
+
+I recently stumbled across [@arethetypeswrong/cli](https://www.npmjs.com/package/@arethetypeswrong/cli) when Cursor suggested using it in one of my projects. At first I was like "are the types wrong... what?" But after trying it out, I'm genuinely impressed and wanted to share this little gem.
+
+## What It Actually Does
+
+This CLI tool is basically a detective 🕵️‍♂️ for your npm packages. It analyzes your TypeScript packages for those sneaky module resolution issues that'll make your users hate you – the kind that work perfectly in your dev environment but explode in production.
+
+It catches 12 different problems, from missing types (❌) to packages masquerading as the wrong module type (🎭👺).
+
+## Dead Simple Usage
+
+You can install it globally:
+
+```bash
+npm i -g @arethetypeswrong/cli
+attw --pack .
+```
+
+Or just run it without installing (my preferred way):
+
+```bash
+npx --yes @arethetypeswrong/cli --pack .
+```
+
+There's also a web version at [arethetypeswrong.github.io](https://arethetypeswrong.github.io) where you can check already published packages without touching the command line.
+
+## Why This Actually Matters
+
+Here's the thing: module resolution in JavaScript is a complete nightmare. ESM, CommonJS, different bundlers, Node versions – what works for you might be totally broken for your users.
+
+With the whole CJS/ESM situation, it's quite easy to lose sight of all the edge cases and compatibility issues that can pop up across different environments. This tool catches those issues before you ship.
+
+## Honestly Pretty Useful
+
+After using it on a few projects, I'm definitely adding that npx command to all my pre-publish workflows. It's one of those tools that just makes sense once you see it in action.
+
+So yeah, if you're shipping TypeScript packages, give this a shot. Beats getting angry GitHub issues later.
+
+---
+
+_This tool has saved me from several potential publishing disasters. Give it a try in your next TypeScript package project – your future self (and your users) will thank you._

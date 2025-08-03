@@ -1,0 +1,63 @@
+/* ========== import font source ========== */
+@import 'fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========== tailwind custom styles ========== */
+@layer base {
+    html {
+        font-family:
+            'Inter',
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            Roboto,
+            sans-serif;
+    }
+}
+
+@layer components {
+    body {
+        @apply bg-white dark:bg-gray-900;
+    }
+    .container {
+        @apply max-w-[1112px] mx-auto px-4;
+    }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family:
+            'Outfit',
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            Roboto,
+            sans-serif;
+    }
+    h1 {
+        @apply text-6xl sm:text-8xl;
+    }
+    h2 {
+        @apply text-xl font-semibold;
+    }
+    p,
+    li,
+    a {
+        font-family:
+            'Inter',
+            -apple-system,
+            BlinkMacSystemFont,
+            'Segoe UI',
+            Roboto,
+            sans-serif;
+        @apply text-gray-700 dark:text-gray-300;
+    }
+    .footer-icons {
+        @apply dark:text-white flex items-center border border-gray-800 dark:border-white p-4 rounded-lg justify-center;
+    }
+}

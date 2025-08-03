@@ -1,0 +1,150 @@
+---
+title: "Building a Better AI Commit Tool: When the Original Just Isn't Cutting It"
+description: "Sometimes the best solution is to fork it yourself. Here's how I rebuilt aicommits from the ground up to handle real-world consulting requirements - and why it took just two weeks with AI assistance."
+publishDate: 2025-07-10
+tags: ['ai tools', 'developer experience', 'consulting', 'typescript', 'automation']
+heroImagePath: 'building-better-ai-commit-tool/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/building-better-ai-commit-tool/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="AI-powered commit message generation showing multiple providers and configuration options"
+    loading="eager"
+/>
+
+# Building a Better AI Commit Tool: When the Original Just Isn't Cutting It
+
+_Sometimes the best solution is to fork it yourself. Here's how I rebuilt aicommits from the ground up to handle real-world consulting requirements - and why it took just two weeks with AI assistance._
+
+You know that feeling when you find a tool that's _almost_ perfect? That was me with the original aicommits - a tool that generates AI-powered commit messages from your git diffs. It worked, sure, but trying to configure it for different AI providers felt like wrestling with environment variables in a dark room. As a consultant who needs to juggle client privacy requirements, internal models, and personal projects, "almost perfect" wasn't cutting it.
+
+So I did what any reasonable developer would do: I forked it and rebuilt it properly.
+
+## The Consulting Reality Check
+
+Here's the thing about consulting work - every client has different requirements. Some want everything running on their internal infrastructure for privacy reasons. Others are fine with external APIs. At TNG, we have our own private LLMs that we prefer for client work, but for personal projects, I might want to use Claude or GPT-4.
+
+The original aicommits was clearly a weekend project that worked for its creator's specific setup. But configuring the URL, API key, and prompt all at once? Not happening. You'd end up with a mess of environment variables that you'd constantly need to juggle.
+
+**The breaking point**: Needing to `export OPENAI_API_KEY=...` and `export OPENAI_BASE_URL=...` every time I switched contexts. It was getting ridiculous.
+
+## What I Actually Wanted
+
+My requirements were pretty straightforward:
+
+1. **Multi-provider support** - OpenAI, Anthropic, and Ollama (which covers most use cases)
+2. **Profile-based configuration** - like AWS CLI profiles, but for AI providers
+3. **Re-prompting capability** - because sometimes you need to give the AI more context
+4. **Privacy-first options** - for client work where data can't leave the building
+5. **No environment variable hell** - everything should be configurable through the tool itself
+6. **Proper testing and automation** - because maintaining tools shouldn't be a chore
+
+The re-prompting feature was particularly important. Even Cursor doesn't have this, and it's something I genuinely miss when using other tools. Sometimes the AI generates a decent commit message but misses the _why_ behind the changes. Being able to say "actually, this was a refactor to improve performance" makes a huge difference.
+
+## The Two-Week Sprint (Thanks, Cursor)
+
+With Cursor as my AI pair programming partner, this project moved _fast_. What would have taken me weeks of manual coding became a two-week side project. The feature list grew organically:
+
+- **Multi-provider support** for OpenAI, Anthropic, and Ollama
+- **Re-prompting functionality** to add context or clarify intent
+- **Multiple profiles** for different projects/environments
+- **Completely customizable parameters** for each provider
+- **Streaming responses** so you see the commit message as it's generated
+- **Interactive setup command** that actually works
+- **Vitest testing** with reasonable test coverage
+- **Renovate bot** for automated dependency updates
+- **Semantic-release** for automated publishing
+
+The beauty of supporting OpenAI's API format is that it opens doors to tons of other providers. Since we can freely configure the base URL, any OpenAI-compatible endpoint works out of the box.
+
+## The Automation That Actually Matters
+
+Here's where things get interesting from a maintenance perspective. I didn't just want to build a tool - I wanted to build a tool I wouldn't have to babysit.
+
+**Testing with Vitest**: Getting reasonable test coverage was crucial. I've seen too many CLI tools break in subtle ways, and with multiple providers and configuration options, manual testing wasn't going to cut it.
+
+**Renovate Bot**: I absolutely do not want to deal with updating ESLint, TypeScript, or any of the other dependencies manually. Renovate handles all of that automatically. If the pipeline passes, I'm happy. It's that simple.
+
+**Semantic-release**: This was a bit of a hassle to set up initially, but Cursor got it done. Now I don't have to think about versioning or publishing anymore. Conventional commits trigger the appropriate version bumps, and everything gets published automatically.
+
+The combination of these three means the tool basically maintains itself. Dependencies stay updated, tests catch regressions, and releases happen automatically based on commit messages. It's the kind of setup that makes you wonder why you ever did it manually.
+
+## The Profile Game-Changer
+
+The profile system works exactly like AWS CLI profiles, and it's been a game-changer for my workflow:
+
+```bash
+# Client work with internal models
+aic --profile tng
+
+# Personal projects with Claude
+aic --profile anthropic
+
+# Quick local testing
+aic --profile ollama
+```
+
+I ran the setup command three times to create these configurations, and now switching contexts is effortless. My default profile points to TNG's internal models because I want privacy-friendly to be the default behavior - external providers like OpenAI should be an active opt-in, not something I could accidentally use when working with client code.
+
+## When Cursor Struggled (And When It Shined)
+
+Most of the development was smooth sailing, but Cursor had its moments. The biggest struggle was building a dependency injection system - I wanted something Java-like where you define an interface and the framework provides the implementing class. Cursor kept trying to build overly complicated solutions instead of the simple, clean approach I had in mind.
+
+Setting up semantic-release was also a bit of a hassle initially - lots of configuration files and GitHub Actions setup. But once Cursor understood what I wanted, it handled all the tedious configuration work.
+
+But for everything else? **Absolutely incredible.** Features that would have taken hours to implement manually were done in minutes. The streaming functionality, the interactive setup, the configuration management, even the test setup - all of it came together faster than I could have imagined.
+
+## The Conventional Commits Connection
+
+I kept the conventional commits support because I'm a big believer in them. They immediately convey the intention of a commit and enable tools like semantic-release, which I find incredibly convenient. Plus, it maintains compatibility with teams already using this standard.
+
+The AI actually does a decent job with conventional commit formatting, especially when you're making focused changes. And now that semantic-release is handling versioning automatically based on these commit types, the whole workflow feels seamless.
+
+## Real-World Impact
+
+My commit messages are definitely more expressive now. The AI captures the _what_ really well, though it sometimes misses the _why_ - which is where the re-prompting feature shines. I can add context like "this refactor improves performance" or "this change fixes a security vulnerability."
+
+For dependency updates, it's particularly helpful. Instead of generic "bump dependencies" messages, I get detailed descriptions of what was actually updated, which makes searching through commit history much easier.
+
+## Provider Performance Notes
+
+After using all three providers extensively, **Anthropic (Claude) seems to perform better** for commit message generation. At TNG, I mostly use Llama 3.3 because it's performant and well-rounded, but Claude 4 outperforms it in conciseness and intention recognition.
+
+**Example**: When I reorder properties in JavaScript objects, Llama 3.3 sometimes thinks I've added new properties. Claude 4 correctly identifies it as a reordering operation. These subtle differences matter when you're trying to maintain clean commit history.
+
+## The Bigger Picture
+
+This project reinforced something I've been thinking about a lot lately: **AI-assisted development isn't just about writing code faster - it's about building tools that actually fit your workflow.**
+
+The original aicommits worked for its creator's specific use case. But in consulting, you need flexibility. You need to adapt to different client requirements, different privacy constraints, different technical stacks. Building tools that can handle this complexity used to be prohibitively time-consuming.
+
+With AI assistance, it's not anymore. And with proper automation, maintaining them doesn't have to be a burden either.
+
+## What's Next
+
+I'll be speaking about this tool at the TypeScript Munich Meetup, partly because I haven't gotten much user feedback yet. If you're dealing with similar multi-provider, multi-context challenges, I'd love to hear about your experience.
+
+The tool is available as [@lucavb/aicommits](https://www.npmjs.com/package/@lucavb/aicommits) on npm, and the source is on [GitHub](https://github.com/lucavb/aicommits/). The setup is straightforward:
+
+```bash
+npm install -g @lucavb/aicommits
+aicommits setup
+```
+
+Or use the `aic` alias if you're as lazy as I am about typing long command names.
+
+## The Real Win
+
+The biggest success isn't the technical features - it's that I actually _want_ to use this tool. It fits my workflow instead of fighting it. When switching between client work and personal projects is as simple as adding `--profile anthropic` to a command, you know you've built something that solves a real problem.
+
+And knowing that it maintains itself through automated testing, dependency updates, and releases? That's the kind of setup that lets you focus on building instead of maintaining.
+
+Sometimes the best solution really is to fork it yourself.
+
+---
+
+_Have you built tools to solve your own workflow problems? I'd love to hear about your experiences with AI-assisted development and the tools you've created to make your life easier._

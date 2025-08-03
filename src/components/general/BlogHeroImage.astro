@@ -1,0 +1,49 @@
+---
+export interface Props {
+    src: string;
+    alt: string;
+    loading?: 'lazy' | 'eager';
+    decoding?: 'async' | 'sync' | 'auto';
+    class?: string;
+}
+
+const {
+    src,
+    alt,
+    loading = 'lazy',
+    decoding = 'async',
+    class: className = 'w-full h-auto object-cover rounded-lg',
+} = Astro.props;
+
+// Extract the blog post slug from the src path for the existing optimized images
+const blogPostSlug = src.replace('/assets/images/blog/', '').split('/')[0];
+const basePath = `/assets/images/blog/${blogPostSlug}`;
+---
+
+<picture>
+    <source
+        media="(min-width: 800px)"
+        srcset={`${basePath}/1024.avif 1024w, ${basePath}/800.avif 800w`}
+        sizes="(min-width: 1200px) 800px, (min-width: 800px) 600px, 400px"
+        type="image/avif"
+    />
+    <source
+        media="(min-width: 800px)"
+        srcset={`${basePath}/1024.webp 1024w, ${basePath}/800.webp 800w`}
+        sizes="(min-width: 1200px) 800px, (min-width: 800px) 600px, 400px"
+        type="image/webp"
+    />
+    <source
+        media="(max-width: 799px)"
+        srcset={`${basePath}/600.avif 600w, ${basePath}/400.avif 400w`}
+        sizes="(min-width: 600px) 600px, 400px"
+        type="image/avif"
+    />
+    <source
+        media="(max-width: 799px)"
+        srcset={`${basePath}/600.webp 600w, ${basePath}/400.webp 400w`}
+        sizes="(min-width: 600px) 600px, 400px"
+        type="image/webp"
+    />
+    <img src={`${basePath}/800.jpg`} alt={alt} class={className} loading={loading} decoding={decoding} />
+</picture>

@@ -1,0 +1,77 @@
+---
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+export interface Props {
+    thumbnail?: string;
+    heroImagePath?: string;
+    title: string;
+}
+
+const { thumbnail, heroImagePath, title } = Astro.props;
+
+let thumbnailSrc: string | undefined;
+let thumbnailAvif: string | undefined;
+
+// Always use heroImagePath workflow, ignore legacy thumbnail prop
+if (heroImagePath) {
+    try {
+        const heroImages = import.meta.glob('../../assets/images/blog/**/hero.{jpg,jpeg,png,webp}', { eager: true });
+        const heroImageKey = `../../assets/images/blog/${heroImagePath}`;
+        const heroImageModule = heroImages[heroImageKey];
+
+        const isImageModule = (module: unknown): module is { default: ImageMetadata } => {
+            return typeof module === 'object' && module !== null && 'default' in module;
+        };
+
+        if (isImageModule(heroImageModule)) {
+            const optimizedWebp = await getImage({
+                src: heroImageModule.default,
+                width: 600,
+                height: 400,
+                format: 'webp',
+                quality: 85,
+            });
+
+            const optimizedAvif = await getImage({
+                src: heroImageModule.default,
+                width: 600,
+                height: 400,
+                format: 'avif',
+                quality: 85,
+            });
+
+            thumbnailSrc = optimizedWebp.src;
+            thumbnailAvif = optimizedAvif.src;
+        }
+    } catch (error) {
+        console.warn(`Could not load hero image for thumbnail:`, error);
+    }
+}
+---
+
+{
+    thumbnailSrc ? (
+        <picture>
+            {thumbnailAvif && <source srcset={thumbnailAvif} type="image/avif" />}
+            <img
+                src={thumbnailSrc}
+                alt={`${title} blog post thumbnail`}
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
+                loading="lazy"
+                decoding="async"
+            />
+        </picture>
+    ) : (
+        <div class="text-blue-600 dark:text-blue-400">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+            </svg>
+        </div>
+    )
+}

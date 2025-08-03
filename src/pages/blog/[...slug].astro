@@ -1,0 +1,168 @@
+---
+import { getCollection } from 'astro:content';
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/home/Header.astro';
+import Footer from '@components/home/Footer.astro';
+import PageHero from '@components/general/PageHero.astro';
+
+export async function getStaticPaths() {
+    const blogEntries = await getCollection('blog');
+
+    return blogEntries.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+let ogImageUrl = entry.data.thumbnail || '/assets/images/og-image.jpg';
+
+if (!entry.data.thumbnail && entry.data.heroImagePath) {
+    try {
+        const heroImages = import.meta.glob('../../assets/images/blog/**/hero.{jpg,jpeg,png,webp}', { eager: true });
+        const heroImageKey = `../../assets/images/blog/${entry.data.heroImagePath}`;
+        const heroImageModule = heroImages[heroImageKey];
+
+        const isImageModule = (module: unknown): module is { default: ImageMetadata } => {
+            return typeof module === 'object' && module !== null && 'default' in module;
+        };
+
+        if (isImageModule(heroImageModule)) {
+            const optimizedOgImage = await getImage({
+                src: heroImageModule.default,
+                width: 1200,
+                height: 630,
+                format: 'jpg',
+                quality: 85,
+            });
+
+            ogImageUrl = optimizedOgImage.src;
+        }
+    } catch (error) {
+        console.warn(`Could not load hero image for og:image:`, error);
+    }
+}
+---
+
+<Layout
+    title={entry.data.title}
+    description={entry.data.description}
+    ogImageUrl={ogImageUrl}
+    publishDate={entry.data.publishDate}
+    tags={entry.data.tags}
+    isArticle={true}
+    robots={entry.data.draft ? 'noindex, nofollow' : 'index, follow'}
+>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Header isHomePage={false} />
+
+        <main class="pt-16">
+            <PageHero
+                title={entry.data.title}
+                description={entry.data.description}
+                backLinkText="Back to Blog"
+                backLinkHref="/blog"
+                publishDate={entry.data.publishDate}
+                tags={entry.data.tags}
+            />
+
+            <!-- Blog Content -->
+            <section class="py-20 bg-white dark:bg-gray-900">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {
+                        entry.data.draft && (
+                            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mb-8">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg
+                                            class="h-5 w-5 text-yellow-600 dark:text-yellow-400"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                                clip-rule="evenodd"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
+                                            Draft Preview
+                                        </h3>
+                                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                            This post is currently in draft mode and not visible on the blog listing or
+                                            homepage. Share this URL with reviewers for feedback before publishing.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    }
+                    <div class="prose prose-lg dark:prose-invert prose-blue max-w-none">
+                        <Content />
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <Footer />
+    </div>
+</Layout>
+
+<style>
+    /* Custom prose styles for better readability */
+    .prose {
+        @apply text-gray-900 dark:text-gray-100;
+    }
+
+    .prose h1,
+    .prose h2,
+    .prose h3,
+    .prose h4,
+    .prose h5,
+    .prose h6 {
+        @apply text-gray-900 dark:text-white font-bold;
+    }
+
+    .prose h2 {
+        @apply text-2xl mt-8 mb-4 border-b border-gray-200 dark:border-gray-700 pb-2;
+    }
+
+    .prose h3 {
+        @apply text-xl mt-6 mb-3;
+    }
+
+    .prose p {
+        @apply mb-4 leading-relaxed;
+    }
+
+    .prose a {
+        @apply text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 no-underline hover:underline;
+    }
+
+    .prose ul,
+    .prose ol {
+        @apply mb-4;
+    }
+
+    .prose li {
+        @apply mb-2;
+    }
+
+    .prose blockquote {
+        @apply border-l-4 border-blue-600 dark:border-blue-400 pl-4 italic text-gray-700 dark:text-gray-300;
+    }
+
+    .prose pre {
+        @apply bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto;
+    }
+
+    .prose pre code {
+        @apply bg-transparent p-0;
+    }
+</style>

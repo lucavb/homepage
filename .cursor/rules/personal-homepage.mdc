@@ -1,0 +1,116 @@
+---
+description: Personal homepage development guidelines and workflows
+alwaysApply: true
+---
+
+# Personal Homepage Development Guidelines
+
+This is Luca Becker's personal homepage built with Astro, TypeScript, and Tailwind CSS. Follow these guidelines to maintain consistency and quality.
+
+## Layout and Structure
+
+- **ALWAYS use the existing Layout.astro** from `src/layouts/Layout.astro` for all pages
+- Maintain the established component structure:
+  - General components in `src/components/general/`
+  - Home-specific components in `src/components/home/`
+  - Use the existing Props interfaces and patterns
+- Follow the existing dark/light mode implementation
+- Use the established color scheme and gradient classes
+- Maintain the responsive design patterns already in place
+
+## Image Optimization with ImageMagick
+
+### Image Processing Workflow
+
+When adding new images to the project, ALWAYS generate multiple formats and sizes:
+
+```bash
+# For blog post images, generate 4 sizes in 3 formats
+# Replace 'image-name' with your actual image name
+
+# Generate AVIF format (most efficient)
+magick input.jpg -resize 400x400 -quality 85 public/assets/images/blog/post-name/400.avif
+magick input.jpg -resize 600x600 -quality 85 public/assets/images/blog/post-name/600.avif
+magick input.jpg -resize 800x800 -quality 85 public/assets/images/blog/post-name/800.avif
+magick input.jpg -resize 1024x1024 -quality 85 public/assets/images/blog/post-name/1024.avif
+
+# Generate WebP format (good fallback)
+magick input.jpg -resize 400x400 -quality 90 public/assets/images/blog/post-name/400.webp
+magick input.jpg -resize 600x600 -quality 90 public/assets/images/blog/post-name/600.webp
+magick input.jpg -resize 800x800 -quality 90 public/assets/images/blog/post-name/800.webp
+magick input.jpg -resize 1024x1024 -quality 90 public/assets/images/blog/post-name/1024.webp
+
+# Generate JPG format (universal fallback)
+magick input.jpg -resize 400x400 -quality 85 public/assets/images/blog/post-name/400.jpg
+magick input.jpg -resize 600x600 -quality 85 public/assets/images/blog/post-name/600.jpg
+magick input.jpg -resize 800x800 -quality 85 public/assets/images/blog/post-name/800.jpg
+magick input.jpg -resize 1024x1024 -quality 85 public/assets/images/blog/post-name/1024.jpg
+```
+
+### Image Organization
+
+- Blog images: `public/assets/images/blog/[post-slug]/`
+- Project thumbnails: `public/assets/images/`
+- Always create a dedicated folder for each blog post's images
+- Use descriptive filenames and maintain the size naming convention
+
+### Picture Element Usage
+
+Always use the picture element with proper source sets:
+
+```astro
+<picture>
+    <source srcset="/assets/images/blog/post-name/800.avif" type="image/avif" />
+    <source srcset="/assets/images/blog/post-name/800.webp" type="image/webp" />
+    <img
+        src="/assets/images/blog/post-name/800.jpg"
+        alt="Descriptive alt text"
+        class="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
+    />
+</picture>
+```
+
+## Styling Guidelines
+
+- Use Tailwind CSS classes exclusively
+- Follow the established color scheme:
+  - Primary: Blue (blue-600, blue-700)
+  - Secondary: Indigo (indigo-100, indigo-700, indigo-800)
+  - Gray scale for text and backgrounds
+- Maintain dark mode support with `dark:` prefixes
+- Use established gradient classes defined in Layout.astro
+- Follow the existing spacing and typography patterns
+
+## Component Development
+
+- Keep components focused and reusable
+- Use TypeScript interfaces for props (see `src/types/index.ts`)
+- Follow the existing naming conventions
+- Maintain the established animation patterns (fade-in, hover effects)
+- Use consistent class structures for cards and sections
+
+## Content Management
+
+- Blog posts go in `src/content/blog/`
+- Update `src/data/info.ts` for personal information, projects, and experience
+- Maintain consistent formatting and structure
+- Use proper frontmatter for blog posts
+
+## Performance Considerations
+
+- Always include `loading="lazy"` and `decoding="async"` for images
+- Use appropriate image sizes for different breakpoints
+- Maintain the established CSS animations and transitions
+- Keep bundle sizes minimal
+
+## Development Workflow
+
+1. Use the existing component patterns
+2. Test both light and dark modes
+3. Ensure responsive behavior across devices
+4. Optimize images using the ImageMagick workflow
+5. Follow the established TypeScript and Astro conventions
+
+Remember: Consistency is key. Always reference existing components and maintain the established patterns and design language.

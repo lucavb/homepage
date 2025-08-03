@@ -1,0 +1,44 @@
+{
+    "name": "luca-becker.me",
+    "version": "0.0.1",
+    "description": "Personal website and technical blog of Luca Becker - Senior Software Consultant sharing insights on AI-assisted development, modern web technologies, and full-stack engineering.",
+    "author": "Luca Becker <luca@luca-becker.me>",
+    "homepage": "https://luca-becker.me",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/lucavb/luca-becker.me.git"
+    },
+    "keywords": [
+        "personal-website",
+        "tech-blog",
+        "ai-development",
+        "full-stack",
+        "software-consulting",
+        "astro",
+        "typescript",
+        "tailwind-css"
+    ],
+    "license": "UNLICENSED",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro build",
+        "preview": "astro preview",
+        "astro": "astro"
+    },
+    "dependencies": {
+        "@astrojs/mdx": "4.3.1",
+        "@astrojs/rss": "4.0.12",
+        "@astrojs/sitemap": "3.4.1",
+        "@astrojs/tailwind": "6.0.2",
+        "@tailwindcss/typography": "0.5.16",
+        "astro": "5.11.0",
+        "astro-robots-txt": "1.0.0"
+    },
+    "devDependencies": {
+        "prettier": "3.6.2",
+        "prettier-plugin-astro": "0.14.1"
+    }
+}

@@ -1,0 +1,153 @@
+---
+title: 'AI Agent PoC Speedrun [Any%]: 90 Minutes to Working Demo'
+description: 'From weekend curiosity to client opportunity: How we built a working Postgres AI agent in 1.5 hours while chatting, and what it teaches us about the reality of AI-assisted development.'
+publishDate: 2025-07-24
+tags: ['ai agents', 'postgres', 'consulting', 'typescript', 'cursor', 'llm']
+heroImagePath: 'ai-agent-poc-speedrun-any-90-minutes-to-working-demo/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/ai-agent-poc-speedrun-any-90-minutes-to-working-demo/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Business professionals asking an AI agent about SQL queries, with a computer screen showing analytics and the question 'How many orders from Germany?' with the corresponding SQL query."
+    loading="eager"
+/>
+
+# AI Agent PoC Speedrun [Any%]: 90 Minutes to Working Demo
+
+_Or: How we spent 1.5 hours chatting while Cursor built something actually useful_
+
+---
+
+## The Weekend Rabbit Hole
+
+You know that feeling when you're supposed to be relaxing, but instead you find yourself knee-deep in a side project that "should only take an hour"? That was me last weekend, trying to migrate my AI commit tool to an agent-based approach.
+
+I wanted to understand this whole "AI agent" thing beyond the marketing fluff. Sure, I could read about LangChain's SQL agents or watch another demo of autonomous systems that definitely-aren't-just-fancy-chatbots. But as a consultant, I've learned that the only way to really understand a technology is to get your hands dirty with it.
+
+So I built a simple agent POC. Nothing fancy – just enough to see what all the fuss was about. Little did I know this weekend curiosity project would turn into a real client opportunity just a few days later.
+
+## The Business Problem (AKA Why PMs Are Sad)
+
+Fast forward to Wednesday. Our client's senior engineering manager approaches us with a familiar pain point: the engineering team (both consultants and internal employees) is drowning in requests from product managers and market representatives. Simple questions like "How large is the area of fields in Germany?" or "How many rows are we missing location data for?" require going through the engineers, who are already stretched thin trying to connect different data sources.
+
+The current process? Submit a request, wait hours (sometimes days) for someone to write the query, get the answer, then realize you need a follow-up question. Rinse and repeat. It's the kind of workflow that makes everyone involved want to pull their hair out.
+
+Then the senior engineering manager proposed an intriguing solution: "What if we could build an AI agent that helps our PMs get answers themselves?" As a good consulting company, we immediately jumped at the opportunity – not just to provide additional value to our client, but because we were eager to work with agents ourselves!
+
+Little did he know that I had just built an agent POC that weekend for completely unrelated reasons. Sometimes the universe aligns perfectly.
+
+## The 1.5 Hour Implementation
+
+Here's where it gets interesting. By Friday, I handed my weekend POC to two colleagues and said, "Can you add Postgres support, conversation context, and some error handling?"
+
+Their response after the fact? **"We spent 1.5 hours on this and were chatting while Cursor was making it happen."**
+
+That's not a humble brag about our coding skills – that's a testament to where AI-assisted development has gotten us. The baseline agent POC was already there, but adding:
+
+- PostgreSQL connection and schema introspection
+- Context manager for multi-turn conversations
+- SQL retry mechanism for fixing hallucinated queries
+
+...took exactly 90 minutes of relaxed pair programming.
+
+## Why We Chose Vercel's AI SDK (And Why It Mattered)
+
+You might be wondering: "Why not just use LangChain's SQL agent?" Valid question. LangChain has mature, battle-tested database agents with sophisticated error recovery and schema handling.
+
+But here's the thing – we wanted to _learn_ this space, not just implement someone else's solution. When clients ask us hard questions about how these systems work, what their limitations are, and whether they're ready for production, we need answers based on hands-on experience, not documentation.
+
+The AI SDK hit the sweet spot for learning:
+
+- Not too much abstraction (like LangChain's full agent framework)
+- Not too little (like raw OpenAI API calls)
+- Just enough scaffolding to focus on the actual problem
+
+Plus, working in TypeScript meant we could move fast in familiar territory. Sometimes the best learning tool isn't the most popular one – it's the one that lets you think about the problem, not fight the framework.
+
+## What Actually Works (And What Doesn't)
+
+### The Good News
+
+For well-structured business questions with common domains (users, orders, prices), this approach works surprisingly well. We gave the AI a tool to introspect the database schema, and it handled queries like:
+
+```sql
+-- "How many orders did we have last month?"
+SELECT COUNT(*) FROM orders
+WHERE created_at >= '2024-06-01' AND created_at < '2024-07-01';
+```
+
+**Schema understanding is impressive.** The AI quickly grasps table relationships, foreign keys, and data types. It can navigate complex joins across multiple tables without explicit instruction.
+
+**Error recovery actually works.** When the AI generates a query with a non-existent column, our retry mechanism kicks in, the AI reads the error message, and usually fixes it on the second attempt.
+
+**Conversation context works well.** Users can ask follow-up questions like "What about France?" and the agent remembers what "that" refers to. This creates a surprisingly natural experience for non-technical users.
+
+### The Reality Check
+
+But let's be honest about the limitations:
+
+**Domain-specific language is still challenging.** Our complex database with multiple tables and relationships worked well for common business queries. Real business domains with specialized terminology? That's where things get interesting. The AI needs serious context about what "field area" means in your agricultural dataset.
+
+**Hallucination is still a thing.** GPT-4 occasionally invents column names that don't exist. Our retry mechanism catches most of these, but it's a reminder that we're still working with probabilistic systems.
+
+**Prompt engineering is harder than it looks.** Getting the agent to behave consistently across different query types required more iteration than expected. We're still at the beginning of figuring out best practices here.
+
+## The Client Reaction (AKA Validation)
+
+Sometimes the best measure of whether you're onto something isn't the technology – it's the human reaction. When my colleague Marco presented the POC to our client's senior engineering manager, the reaction was pure amazement.
+
+The senior engineering manager couldn't believe we had gone from his Wednesday proposal to a working proof of concept by Friday – just 5-6 days after I'd built the original POC on a weekend. He was completely stunned by the turnaround time – the kind of reaction that tells you you've hit on something significant.
+
+That's the kind of response that changes how people think about what's possible with AI-assisted development. The amazement wasn't just about the speed – it was about seeing a concrete solution to a problem that had been frustrating his teams for months, delivered faster than anyone expected possible.
+
+## The Production Reality Check
+
+Our 1.5-hour POC proves the concept works, but there's a big difference between "impressive demo" and "tool that PMs use daily."
+
+The reality is that production would need significant work: proper web interface, query safety for large datasets, multi-database support, and extensive domain-specific language tuning. Our client's agricultural terminology alone would require substantial iteration to get right.
+
+But that's exactly the point – we now have credible answers about what works, what doesn't, and what the real challenges would be.
+
+## What We Learned
+
+**Building beats reading.** You can study AI agent frameworks for weeks, but nothing replaces the clarity that comes from actually implementing one – even a simple one.
+
+**Choose the right tool for the job.** Sometimes telling the LLM explicit steps works better than giving it agent-level autonomy. Agents shine when you need dynamic decision-making, but they add complexity.
+
+**Speed creates opportunity.** When you can demo a working solution that directly addresses a client's pain point – built in days, not months – it changes the entire conversation.
+
+## Where We Are (Honestly)
+
+Writing a proof of concept has never been easier. The combination of AI-assisted development and modern frameworks means you can go from idea to demo in hours, not days.
+
+But let's be clear: **this is not yet production-ready.**
+
+The success rate is good enough to impress stakeholders and validate the approach. It's not good enough to replace your data team (nor should it). What it _can_ do is handle the routine questions that bog down your experts, freeing them to work on the complex stuff that actually requires human judgment.
+
+## The Consulting Reality
+
+The real value right now is in learning. Having built something real – even a simple POC – gives us credibility when clients ask about capabilities, limitations, and readiness. We're moving from "interesting experiment" to "useful tool" – but we're not there yet.
+
+## Next Steps: Exploring Production-Ready Solutions
+
+While our Vercel AI SDK approach proved perfect for learning and rapid prototyping, the next logical step is evaluating production-ready alternatives. Two key areas we plan to investigate:
+
+**AWS Bedrock & Pricing Analysis**: AWS Bedrock is particularly well-suited for our client's use case since they're not generating constant requests—their product managers and market representatives need occasional data queries rather than high-volume, continuous processing. [AWS Bedrock's flexible pricing models](https://aws.amazon.com/bedrock/pricing/) include on-demand token-based pricing that's perfect for sporadic usage, provisioned throughput for consistent workloads, and batch processing with significant discounts. This pay-as-you-go approach means our client only pays for actual usage rather than maintaining expensive infrastructure for intermittent requests. Understanding these cost structures and different model pricing tiers will be essential for client budget planning and scaling decisions.
+
+**AWS Bedrock Agents Deep Dive**: [Amazon's managed agent service](https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html) offers compelling advantages over our custom implementation. [Bedrock Agents](https://aws.amazon.com/bedrock/agents/) provide built-in orchestration using the ReAct framework, integrated knowledge bases powered by vector databases, Lambda function tool integration, built-in memory management, and comprehensive monitoring through CloudWatch. The service handles the infrastructure complexity we manually managed, includes [guardrails for responsible AI](https://aws.amazon.com/bedrock/guardrails/), and offers both inline agents for rapid development and custom orchestration patterns for production use. Most importantly, it's designed for enterprise-scale deployments with proper security, compliance, and cost management features.
+
+These investigations will help us provide more comprehensive guidance to clients about when to build custom solutions versus leveraging managed services, and how to properly budget and scale AI agent implementations.
+
+## The Takeaway
+
+If you're curious about AI agents, start building. Pick a small problem, choose tools that let you focus on learning rather than fighting configuration, and experiment.
+
+The goal isn't to replace human expertise – it's to augment it. And sometimes the most honest thing you can say about new technology is "this is pretty cool, but we're not quite there yet."
+
+---
+
+_Have you experimented with building AI agents for your own workflow challenges? I'd love to hear about your experiences with AI-assisted development and the real-world problems you've solved along the way._

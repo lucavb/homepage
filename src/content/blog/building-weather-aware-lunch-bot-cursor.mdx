@@ -1,0 +1,287 @@
+---
+title: 'Building a Weather-Aware Lunch Bot with Cursor: When AI Development Actually Delivers'
+description: "How I used Cursor to build a serverless Slack bot in just 2 hours of actual work - and why the hardest part wasn't the code, it was the corporate AWS discussions."
+publishDate: 2025-07-17
+tags: ['ai development', 'cursor', 'serverless', 'slack bot', 'automation', 'typescript']
+heroImagePath: 'building-weather-aware-lunch-bot-cursor/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/hero.jpg';
+import goodWeatherImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/good-weather.jpg';
+import badWeatherImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/bad-weather.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Developer working on a laptop with AI coding assistant, showing Slack bot integration and weather API connections"
+    loading="eager"
+/>
+
+# Building a Weather-Aware Lunch Bot with Cursor: When AI Development Actually Delivers
+
+_How I used Cursor to build a serverless Slack bot in just 2 hours of actual work - and why the hardest part wasn't the code, it was the corporate AWS discussions._
+
+I had a problem that's probably familiar to anyone managing remote team culture: I was becoming the default organizer for our neighborhood lunch meetups. Every time the weather looked good, I'd be the one checking forecasts, making judgment calls, and posting "anyone up for park lunch?" in our local Slack channel.
+
+It worked, but it wasn't sustainable. What happens when I'm on vacation? What about those perfect sunny Tuesdays when I'm heads-down in client work and forget to check the weather entirely?
+
+So I did what any developer would do: I automated myself out of the coordination role. Using Cursor as my AI pair programming partner, I built a serverless weather bot that handles the boring logistics while preserving the human connections that actually matter.
+
+The result? A system that required maybe 2 hours of my actual development time, handles weather checking automatically, and is about to go live in our production Slack workspace. Here's how modern AI-assisted development made this almost trivially easy to build.
+
+## The Problem: Don't Make Me the Lunch Coordinator Forever
+
+Our hyperlocal Slack channel for Munich consultants had developed a great rhythm around weather-dependent park lunches. When conditions were good, someone would post, and whoever could make it would show up with takeaway food for an hour of actual human interaction.
+
+But I noticed a pattern: it was usually me initiating these meetups. And when I asked myself why, the answer was simple - I was the one who had gotten into the habit of checking weather and making the call about whether it was "good enough" to suggest.
+
+**The insight**: What if we could automate the weather checking and posting, but keep all the human decision-making about whether to actually show up?
+
+This isn't about optimizing social interactions or building complex scheduling systems. It's about removing the single point of failure (me) from something that was already working well.
+
+## Corporate Constraints: Working Within Reasonable Limits
+
+Before diving into the technical solution, I had to work within our company's Slack policies. Like many organizations handling client work, we have constraints around Slack integrations:
+
+- **No arbitrary Slack apps** without security review
+- **Unidirectional communication preferred** - webhooks are fine, interactive bots require more scrutiny
+- **Minimal data collection** - we can send messages, but reading Slack data is discouraged
+
+Initially, I wanted to build a full Slack app that could react to emoji responses on its messages. But honestly? I don't want that burden, and the constraints led to a cleaner design anyway.
+
+The compromise delivers about 90% of the intended functionality: the bot posts weather notifications via webhook, and includes a simple API link for confirmations. If the link accidentally leaks, the worst case is someone confirming a lunch meetup they didn't attend - hardly a security catastrophe.
+
+**The lesson**: Reasonable constraints often lead to better solutions than unlimited freedom.
+
+## Cursor: From Idea to Production in 2 Hours
+
+This project was perfect for AI-assisted development. I had clear requirements, well-established patterns to follow, and a defined scope. With Cursor handling the implementation details, I could focus on the logic and user experience.
+
+### What Cursor Absolutely Nailed
+
+**Project Structure and Boilerplate**: I described wanting "a serverless TypeScript weather bot that posts to Slack when conditions are good for outdoor lunch" and Cursor immediately suggested the right architecture:
+
+```typescript
+// Cursor generated this clean handler structure
+export const weatherCheckHandler = async (event: WeatherCheckEvent) => {
+    const config = getConfig(event.overrides);
+    const weather = await weatherService.getCurrentWeather(config);
+
+    if (isGoodWeatherForLunch(weather, config)) {
+        await sendSlackNotification(weather, config);
+        await trackMessage(config.locationName, 'weather-reminder');
+    }
+};
+```
+
+**Infrastructure as Code**: The OpenTofu (Terraform) configuration was particularly impressive. Cursor understood I needed:
+
+- EventBridge scheduling for weekday weather checks
+- Lambda functions with proper IAM policies
+- DynamoDB for message tracking with automatic cleanup
+- API Gateway for the confirmation endpoint
+- Secrets Manager for secure webhook storage
+
+**Testing Setup**: Comprehensive Vitest configuration with proper mocking patterns, including AWS SDK mocks and weather API stubs.
+
+**The Setup Script**: This was the real game-changer. Cursor helped me build a setup script that handles:
+
+- OpenTofu configuration and workspace management
+- Remote state backend setup (S3 + DynamoDB)
+- AWS Secrets Manager integration
+- Multi-team deployment support
+
+### Where Cursor Struggled (And How to Fix It)
+
+**The Terraform SSO Authentication Nightmare**: This was my biggest technical hurdle, and it perfectly illustrates the gap between AI assistance and real-world enterprise constraints.
+
+I was trying to deploy with a remote state backend (S3 + DynamoDB) using our company's AWS SSO setup. Everything looked correct in the configuration, but Terraform kept failing with cryptic errors:
+
+```
+Initializing the backend...
+╷
+│ Error: error configuring S3 Backend: no valid credential sources for S3 Backend found.
+│
+│ Please see https://www.terraform.io/docs/language/settings/backends/s3.html
+│ for more information about providing credentials.
+│
+│ Error: SSOProviderInvalidToken: the SSO session has expired or is invalid
+│ caused by: open /Users/lucabecker/.aws/sso/cache/11e8fea37e9cbcd18f1c1a0ea6342622e23cfcc0.json: no such file or directory
+```
+
+Cursor kept trying to fix the Terraform configuration - suggesting different authentication methods, tweaking the backend configuration, adding explicit credential providers. But none of it worked with our SSO setup.
+
+**The Real Solution**: Switch to OpenTofu entirely. The moment I replaced `terraform` with `tofu` in my commands, everything worked flawlessly with the exact same configuration files. No authentication changes, no credential tweaks - just a different binary.
+
+This highlights something important about AI-assisted development: **the AI can help you implement solutions, but it can't always diagnose when the fundamental tool choice is wrong.** Sometimes the problem isn't your code - it's the tool itself.
+
+**TypeScript Quality Issues**: Cursor has clearly been trained on a lot of poor TypeScript code. It constantly wanted to use `any` types and add needless comments:
+
+```typescript
+// Cursor's first attempt
+const weatherData: any = await response.json(); // Get weather data from API
+
+// After reprompting with rules
+const weatherData: WeatherApiResponse = WeatherApiResponseSchema.parse(await response.json());
+```
+
+**The Solution**: Rule files. I created a simple rules file that specified:
+
+- "Use proper TypeScript types, never `any`"
+- "Validate API responses with Zod schemas"
+- "Avoid unnecessary comments"
+- "Use modern TypeScript patterns"
+
+After adding rules, the code quality improved dramatically. This is where treating AI like a "10x junior developer" really shows - you need to establish coding standards just like you would with a human team member.
+
+### The 2-Hour Reality
+
+Here's the breakdown of actual development time:
+
+**Hour 1**: Core weather checking logic, Slack webhook integration, and basic Lambda setup
+**Hour 2**: DynamoDB tracking, API Gateway configuration, and testing setup
+
+Everything else was either:
+
+- **Cursor generating infrastructure code** (fast, mostly correct)
+- **Discussions about AWS account deployment** (longer than the actual coding)
+- **Waiting for corporate Slack webhook approval** (still ongoing)
+
+The contrast is striking: the technical implementation was trivial with AI assistance, but the organizational coordination took weeks.
+
+## The Architecture: Serverless Social Infrastructure
+
+The final system elegantly works within our constraints while maximizing social impact:
+
+```
+EventBridge (10 AM weekdays) → Weather Check Lambda → Slack Webhook
+                                      ↓
+                              DynamoDB (message tracking)
+                                      ↑
+API Gateway (/reply) → Reply Lambda → (confirmations + preferences)
+```
+
+### Smart Weather Logic
+
+The bot checks conditions every weekday at 10 AM CEST - early enough for lunch planning, late enough for accurate forecasts:
+
+```typescript
+const isGoodWeatherForLunch = (weather: WeatherData, config: Config) => {
+    return (
+        weather.temperature > config.minTemperature &&
+        config.goodWeatherConditions.includes(weather.condition) &&
+        !config.badWeatherConditions.includes(weather.condition)
+    );
+};
+```
+
+When conditions are perfect, team members receive encouraging notifications that actively promote meetups, complete with reaction prompts and confirmation links:
+
+<AutoOptimizedImage
+    src={goodWeatherImage}
+    alt="Slack bot notification showing 23°C clear weather with active encouragement for park lunch meetup and confirmation options"
+    class="w-full max-w-lg mx-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
+/>
+
+Notice how the good weather notification actively asks "Anyone up for a lunch meetup in the park?" and provides clear next steps for coordination.
+
+### Rate Limiting That Respects Human Attention
+
+Maximum 2 weather notifications per week, tracked in DynamoDB. This isn't a technical limitation - it's a design choice that prevents automation fatigue while ensuring perfect weather days don't get missed.
+
+The bot can also notify team members about less-than-ideal conditions, but with a completely different tone - informational rather than promotional:
+
+<AutoOptimizedImage
+    src={badWeatherImage}
+    alt="Slack bot showing rainy weather at 19°C with suggestion to consider indoor options instead of outdoor meetup"
+    class="w-full max-w-lg mx-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
+/>
+
+Notice the different messaging: instead of encouraging outdoor meetups, it acknowledges the poor conditions and suggests indoor alternatives. No reaction prompts or confirmation links - just helpful context for those who want to stay informed. These notifications can be opted out of if teams prefer to hear only about good weather days.
+
+### The Confirmation Workaround
+
+Since we can't read Slack messages, the bot includes multiple ways for team members to indicate participation. The good weather notifications encourage both immediate Slack reactions ("React with ✅ to communicate with colleagues") and post-meetup confirmation via a simple API endpoint.
+
+This dual approach works around our corporate Slack constraints while still enabling coordination: team members can use native Slack reactions for real-time coordination, then optionally confirm attendance afterward via the API link to help track the bot's effectiveness and prevent duplicate notifications that week.
+
+## Deployment: Infrastructure That Actually Works
+
+The setup script makes deployment genuinely pleasant:
+
+```bash
+cd terraform
+chmod +x setup-bot.sh
+./setup-bot.sh
+```
+
+It handles everything automatically:
+
+- OpenTofu workspace creation for multiple teams
+- Remote state backend configuration
+- AWS Secrets Manager setup for webhook URLs
+- Infrastructure deployment and testing
+
+Multiple teams can deploy separate instances with different configurations, locations, and Slack channels. Each gets isolated resources and tracking.
+
+## The Social Technology Philosophy
+
+This project reinforced something important: **the best social technology gets people offline, not more online.**
+
+The bot doesn't try to replace human interaction - it removes friction from interactions people already want to have. Instead of relying on one person to manually coordinate, the automation handles boring logistics so humans can focus on the social aspects.
+
+**Before**: Someone (usually me) checks weather, decides if it's good enough, posts hoping others see it
+**After**: Consistent weather notifications at optimal timing, objective criteria, reliable coordination
+
+The goal isn't to optimize social interactions with metrics - it's to make good things happen more reliably. Sometimes members are busy and forget they might want to take a break and see their colleagues. This can help with that gentle reminder when conditions are perfect.
+
+## Why This Matters for Remote Teams
+
+As more teams work remotely, we need better ways to facilitate real-world connections. The solution isn't more video calls or digital team-building - it's removing friction from the in-person interactions people actually want to have.
+
+**The pattern is replicable:**
+
+- Identify existing social behaviors that work
+- Find the manual coordination friction points
+- Automate the boring logistics, not the human decisions
+- Make participation easy but never mandatory
+- Use technology to get people together offline
+
+This is especially important when team members might be working from different locations or have flexible schedules. The bot creates predictable opportunities for spontaneous connection - people know to check Slack around 10 AM on nice days, making "spontaneous" lunch plans more likely to succeed.
+
+## Going Live: From Test to Production
+
+The bot is currently running in a test Slack workspace and should go live in our production channel tomorrow (pending webhook URL approval from our workspace admin). After months of testing, the system has proven reliable and useful without being annoying.
+
+The real test will be whether it successfully removes me from the coordination role while maintaining the lunch tradition's success rate. I want these meetups to work even when I'm on vacation, and I want them to happen without anyone feeling like they need to be "the organizer."
+
+## The Broader Lesson: AI Development That Actually Helps
+
+This project showed me what AI-assisted development looks like when it's working well:
+
+**What AI handled brilliantly:**
+
+- Boilerplate code generation and project structure
+- Infrastructure as code patterns
+- Testing setup and AWS integration
+- Documentation and setup scripts
+
+**What still required human judgment:**
+
+- User experience design and social considerations
+- Rate limiting and notification frequency decisions
+- Security and privacy trade-offs
+- Organizational coordination and deployment strategy
+
+The combination is powerful: AI handles the tedious implementation details while humans focus on the problems worth solving and the trade-offs worth making. I'm no expert with Terraform or Lambda, but with Cursor's assistance, building serverless infrastructure felt like a breeze.
+
+## The Code: Open Source and Ready to Deploy
+
+The entire project is open source with comprehensive documentation, setup scripts, and configuration examples. Whether you want to adapt it for your team's coordination needs or just see how to build practical serverless applications with Cursor, everything's available on GitHub: [**lunch-slack-bot**](https://github.com/lucavb/lunch-slack-bot).
+
+Because the best social technology is the kind other people can actually use and modify for their own communities. Maybe your team needs a different kind of coordination bot, or maybe you want to adapt the weather logic for different activities. The infrastructure is designed to be flexible and reusable.
+
+---
+
+_Have you used AI-assisted development to solve real human problems? I'd love to hear about projects where modern tooling made previously complex automation almost trivially easy to build - and especially about tools that bring people together in real life._

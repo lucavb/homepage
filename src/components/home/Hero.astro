@@ -1,0 +1,41 @@
+---
+import { info } from '@data';
+const { name, about } = info;
+---
+
+<section class="hero-section flex justify-center items-center text-center flex-col gap-8 py-16">
+    <div class="hero-content flex flex-col sm:flex-row items-center gap-8">
+        <div class="hero-text">
+            <p class="dark:text-light mt-[117px]">Hey, I'm</p>
+            <h1>{name}</h1>
+        </div>
+
+        <div class="image-container rounded-full overflow-hidden border-black dark:border-light">
+            <picture>
+                <source srcset="/assets/images/hero/120.avif 1x, /assets/images/hero/240.avif 2x" type="image/avif" />
+                <source srcset="/assets/images/hero/120.webp 1x, /assets/images/hero/240.webp 2x" type="image/webp" />
+                <img
+                    src="/assets/images/hero/120.jpg"
+                    srcset="/assets/images/hero/120.jpg 1x, /assets/images/hero/240.jpg 2x"
+                    alt="Luca Becker"
+                    class="w-full h-full object-cover"
+                    width="120"
+                    height="120"
+                    loading="eager"
+                />
+            </picture>
+        </div>
+    </div>
+
+    <p class="dark:text-light text-lg mb-16">
+        {about}
+    </p>
+</section>
+
+<style>
+    .image-container {
+        max-width: 300px;
+        border-width: 10px;
+        border-style: solid;
+    }
+</style>

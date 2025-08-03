@@ -1,0 +1,252 @@
+---
+import { info } from '@data';
+import Layout from '@layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import Footer from '@components/home/Footer.astro';
+import Header from '@components/home/Header.astro';
+import PageHero from '@components/general/PageHero.astro';
+
+// Extended project data to match the mockup design
+const enhancedProjects = [
+    {
+        title: 'AI-Powered Commit Message Generator',
+        description:
+            "Developed an intelligent CLI tool that automatically generates meaningful commit messages using OpenAI's GPT models. The tool analyzes git diffs and creates conventional commit messages, improving development workflows and code documentation standards.",
+        image: 'bg-gradient-to-br from-blue-500 to-purple-600',
+        type: 'Developer Tools',
+        duration: '2 months',
+        team: '1 developer',
+        achievements: ['Multi-provider AI support', 'Open source community', 'Conventional commits', 'CLI automation'],
+        technologies: ['TypeScript', 'Node.js', 'OpenAI API', 'CLI', 'Git'],
+        githubUrl: 'https://github.com/lucavb/aicommits',
+        liveUrl: 'https://www.npmjs.com/package/@lucavb/aicommits',
+        thumbnail: '/assets/images/aicommits.png',
+    },
+    {
+        title: 'Wollwerk E-Commerce Platform',
+        description:
+            'Built a comprehensive e-commerce platform for handcrafted wool products, featuring modern design, responsive layout, and seamless user experience. The platform supports product catalogs, shopping cart functionality, and complete inventory management systems.',
+        image: 'bg-gradient-to-br from-teal-500 to-green-600',
+        type: 'E-Commerce',
+        duration: '3 years',
+        team: '3 developers',
+        achievements: ['Modern UI/UX', 'Responsive design', 'Inventory management', 'SEO optimized'],
+        technologies: ['Ruby on Rails', 'EmberJS', 'JavaScript', 'CSS', 'HTML'],
+        liveUrl: 'https://www.wollwerk.org/',
+        thumbnail: '/assets/images/wollwerk-thumbnail.png',
+    },
+    {
+        title: '✨ Weather-Aware Lunch Slack Bot',
+        description:
+            'Built a smart serverless Slack bot that automatically sends weather-based lunch meetup reminders. Features automatic weather monitoring with OpenMeteo API, intelligent rate limiting, reply API for confirmations, and secure AWS deployment using OpenTofu infrastructure as code. Developed in record time thanks to AI-powered development tools.',
+        image: 'bg-gradient-to-br from-amber-500 to-orange-600',
+        type: 'AI-Powered Automation ✨',
+        duration: '4 hours',
+        team: '1 developer + AI',
+        achievements: [
+            'Serverless architecture',
+            'Weather API integration',
+            'Rate limiting system',
+            '✨ AI-accelerated development',
+        ],
+        technologies: ['TypeScript', 'AWS Lambda', 'DynamoDB', 'API Gateway', 'OpenTofu', 'Slack API'],
+        githubUrl: 'https://github.com/lucavb/lunch-slack-bot',
+        thumbnail: '/assets/images/lunch-slack-bot-thumbnail.jpg',
+    },
+    {
+        title: 'Homebridge HTTP Motion Sensor',
+        description:
+            'Created a modern Homebridge plugin that enables HTTP-triggered motion sensors for HomeKit integration. Features platform plugin architecture supporting multiple sensors, ESP8266/Arduino compatibility, and Homebridge v2.0 readiness. Perfect for DIY smart home automation projects with network-based motion detection.',
+        image: 'bg-gradient-to-br from-green-500 to-emerald-600',
+        type: 'Smart Home/IoT',
+        duration: '6 months',
+        team: '1 developer',
+        achievements: [
+            'Homebridge v2.0 compatibility',
+            'Platform plugin architecture',
+            'Multiple sensor support',
+            'ESP8266 integration',
+        ],
+        technologies: ['TypeScript', 'Node.js', 'Homebridge API', 'HomeKit', 'HTTP Server', 'IoT'],
+        githubUrl: 'https://github.com/lucavb/homebridge-http-motion-sensor',
+        liveUrl: 'https://www.npmjs.com/package/homebridge-http-motion-sensor',
+        thumbnail: '/assets/images/homebridge-http-motion-sensor-thumbnail.png',
+    },
+    {
+        title: 'Stylelint Checkstyle Reporter',
+        description:
+            'Created a specialized reporter for Stylelint that outputs results in Checkstyle XML format, enabling seamless integration with CI/CD pipelines and code quality tools. Widely adopted by development teams for automated code style enforcement.',
+        image: 'bg-gradient-to-br from-orange-500 to-red-600',
+        type: 'Development Tools',
+        duration: '2 months',
+        team: '1 developer',
+        achievements: ['CI/CD integration', 'Open source', 'XML output format', 'Community adoption'],
+        technologies: ['JavaScript', 'Node.js', 'Stylelint', 'XML', 'NPM'],
+        githubUrl: 'https://github.com/lucavb/stylelint-checkstyle-reporter',
+        liveUrl: 'https://www.npmjs.com/package/stylelint-checkstyle-reporter',
+        thumbnail: '/assets/images/stylelint-checkstyle-reporter-thumbnail.png',
+    },
+    {
+        title: 'Conventional Changelog JIRA Extension',
+        description:
+            'Developed an extension for conventional-changelog that integrates with JIRA, automatically linking commits to JIRA tickets and enhancing release notes with ticket information. Streamlines release management for enterprise teams.',
+        image: 'bg-gradient-to-br from-indigo-500 to-blue-600',
+        type: 'Enterprise Tools',
+        duration: '2 months',
+        team: '1 developer',
+        achievements: ['JIRA integration', 'Automated changelogs', 'Enterprise adoption', 'Release automation'],
+        technologies: ['JavaScript', 'Node.js', 'JIRA API', 'Git', 'Conventional Commits'],
+        githubUrl: 'https://github.com/lucavb/conventional-changelog-conventionalcommits-jira',
+        liveUrl: 'https://www.npmjs.com/package/conventional-changelog-conventionalcommits-jira',
+        thumbnail: '/assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png',
+    },
+];
+---
+
+<Layout
+    title="Projects"
+    description="A comprehensive overview of enterprise projects showcasing expertise in digital transformation, cloud architecture, and modern software development."
+    ogImageUrl="/assets/images/og-image.jpg"
+    class="dark"
+>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Header isHomePage={false} />
+
+        <main class="pt-16">
+            <PageHero
+                title="Featured Projects"
+                description="A comprehensive overview of projects showcasing my expertise in digital transformation, modern software development, and innovative tools."
+            />
+
+            <!-- Projects Section -->
+            <section class="py-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid lg:grid-cols-2 gap-12">
+                        {
+                            enhancedProjects.map((project) => (
+                                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+                                    <div class="h-64 relative overflow-hidden bg-gray-100 dark:bg-gray-700">
+                                        <Image
+                                            src={project.thumbnail}
+                                            alt={`${project.title} project thumbnail`}
+                                            class="w-full h-full object-cover"
+                                            width={600}
+                                            height={256}
+                                            loading="lazy"
+                                        />
+                                        <div class="absolute inset-0 bg-black bg-opacity-20" />
+                                        <div class="absolute top-6 left-6">
+                                            <span class="bg-white bg-opacity-90 text-gray-800 px-4 py-2 rounded-full text-sm font-medium">
+                                                {project.type}
+                                            </span>
+                                        </div>
+                                        <div class="absolute bottom-6 right-6 flex space-x-3">
+                                            {project.githubUrl && (
+                                                <a
+                                                    href={project.githubUrl}
+                                                    target="_blank"
+                                                    aria-label={`View ${project.title} source code`}
+                                                    class="bg-white bg-opacity-90 p-3 rounded-full hover:bg-white transition-colors"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="20"
+                                                        height="20"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        class="text-gray-700"
+                                                    >
+                                                        <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                                                        <path d="M9 18c-4.51 2-5-2-7-2" />
+                                                    </svg>
+                                                </a>
+                                            )}
+                                            {project.liveUrl && (
+                                                <a
+                                                    href={project.liveUrl}
+                                                    target="_blank"
+                                                    aria-label={`View ${project.title} live demo`}
+                                                    class="bg-white bg-opacity-90 p-3 rounded-full hover:bg-white transition-colors"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="20"
+                                                        height="20"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        class="text-gray-700"
+                                                    >
+                                                        <path d="M15 3h6v6" />
+                                                        <path d="M10 14 21 3" />
+                                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                                                    </svg>
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div class="p-8">
+                                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                                            {project.title}
+                                        </h3>
+                                        <p class="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+                                            {project.description}
+                                        </p>
+                                        <div class="grid grid-cols-2 gap-4 mb-6">
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    Duration
+                                                </span>
+                                                <p class="text-gray-900 dark:text-white">{project.duration}</p>
+                                            </div>
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    Team Size
+                                                </span>
+                                                <p class="text-gray-900 dark:text-white">{project.team}</p>
+                                            </div>
+                                        </div>
+                                        <div class="mb-6">
+                                            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                                                Key Achievements
+                                            </h4>
+                                            <ul class="space-y-2">
+                                                {project.achievements.map((achievement) => (
+                                                    <li class="flex items-center text-gray-700 dark:text-gray-300">
+                                                        <div class="w-2 h-2 bg-blue-600 rounded-full mr-3" />
+                                                        {achievement}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
+                                                Technologies
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                {project.technologies.map((tech) => (
+                                                    <span class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/20 hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                                                        {tech}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <Footer />
+    </div>
+</Layout>

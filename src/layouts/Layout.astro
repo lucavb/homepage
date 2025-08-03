@@ -1,0 +1,226 @@
+---
+import { IMetaHead } from '@types';
+import { info } from '@data';
+import '../styles/style.css';
+
+export interface Props {
+    title?: string;
+    description?: string;
+    ogImageUrl?: string;
+    class?: string;
+    publishDate?: Date;
+    tags?: string[];
+    isArticle?: boolean;
+    author?: string;
+    robots?: string;
+}
+
+const {
+    title = '',
+    description = '',
+    ogImageUrl = '/assets/images/og-image.jpg',
+    class: className = 'light',
+    publishDate,
+    tags = [],
+    isArticle = false,
+    author = info.name,
+    robots = 'index, follow',
+} = Astro.props;
+
+const siteUrl = info.baseUrl;
+const currentUrl = new URL(Astro.url.pathname, siteUrl).toString();
+const absoluteImageUrl = ogImageUrl.startsWith('http') ? ogImageUrl : new URL(ogImageUrl, siteUrl).toString();
+
+const pageTitle = title ? `${title} | ${info.name}` : info.name;
+const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': isArticle ? 'Article' : 'WebPage',
+    name: pageTitle,
+    description: description,
+    url: currentUrl,
+    image: absoluteImageUrl,
+    author: {
+        '@type': 'Person',
+        name: author,
+        url: siteUrl,
+        jobTitle: info.jobDescription,
+        sameAs: [info.socialMedia.github, info.socialMedia.linkedin],
+    },
+    publisher: {
+        '@type': 'Person',
+        name: info.name,
+        url: siteUrl,
+    },
+    ...(isArticle && publishDate
+        ? {
+              datePublished: publishDate.toISOString(),
+              dateModified: publishDate.toISOString(),
+              headline: title,
+              keywords: tags.join(', '),
+          }
+        : {}),
+};
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="generator" content={Astro.generator} />
+
+        <link
+            rel="preload"
+            href="/assets/fonts/optimized/Inter-Regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link
+            rel="preload"
+            href="/assets/fonts/optimized/Inter-SemiBold.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link
+            rel="preload"
+            href="/assets/fonts/optimized/Outfit-SemiBold.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link rel="preload" href="/assets/fonts/optimized/Outfit-Bold.woff2" as="font" type="font/woff2" crossorigin />
+
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+        <meta name="author" content={author} />
+        <meta name="robots" content={robots} />
+        <link rel="canonical" href={currentUrl} />
+
+        <meta property="og:type" content={isArticle ? 'article' : 'website'} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={absoluteImageUrl} />
+        <meta property="og:image:alt" content={title || `${info.name} - ${info.jobDescription}`} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:url" content={currentUrl} />
+        <meta property="og:site_name" content={info.name} />
+        <meta property="og:locale" content="en_US" />
+
+        {
+            isArticle && publishDate && (
+                <>
+                    <meta property="article:author" content={author} />
+                    <meta property="article:published_time" content={publishDate.toISOString()} />
+                    <meta property="article:modified_time" content={publishDate.toISOString()} />
+                    {tags.map((tag) => (
+                        <meta property="article:tag" content={tag} />
+                    ))}
+                </>
+            )
+        }
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@lucabecker" />
+        <meta name="twitter:creator" content="@lucabecker" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={absoluteImageUrl} />
+        <meta name="twitter:image:alt" content={title || `${info.name} - ${info.jobDescription}`} />
+
+        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+        <link rel="alternate" type="application/rss+xml" title="Luca Becker - Blog" href="/rss.xml" />
+
+        <!-- Matomo Analytics - GDPR Compliant, Cookieless -->
+        <script is:inline>
+            var _paq = (window._paq = window._paq || []);
+
+            // Set tracker URL and site ID first
+            _paq.push(['setTrackerUrl', 'https://t.sunbury.xyz/matomo.php']);
+            _paq.push(['setSiteId', 1]);
+
+            // GDPR/Privacy configurations - NO COOKIES
+            _paq.push(['disableCookies']);
+            _paq.push(['setDoNotTrack', true]);
+
+            // Basic tracking
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+
+            // Load tracker script
+            (function () {
+                var d = document,
+                    g = d.createElement('script'),
+                    s = d.getElementsByTagName('script')[0];
+                g.type = 'text/javascript';
+                g.async = true;
+                g.src = 'https://t.sunbury.xyz/matomo.js';
+                s.parentNode.insertBefore(g, s);
+            })();
+        </script>
+
+        <!-- End Matomo Code -->
+
+        <!-- Critical CSS - inline the most important styles -->
+        <style>
+            /* Critical styles for above-the-fold content */
+            body {
+                font-family:
+                    'Inter',
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    'Segoe UI',
+                    Roboto,
+                    sans-serif;
+                margin: 0;
+                padding: 0;
+            }
+            .hero-section {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+            }
+            /* Add other critical styles here */
+        </style>
+    </head>
+
+    <body class="bg-gray-50 dark:bg-gray-900">
+        <slot />
+
+        <script>
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start',
+                        });
+                    }
+                });
+            });
+
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px',
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('section').forEach((section) => {
+                observer.observe(section);
+            });
+        </script>
+    </body>
+</html>

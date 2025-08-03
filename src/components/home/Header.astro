@@ -1,0 +1,48 @@
+---
+import { info } from '@data';
+import NavigationLinks from '@components/general/NavigationLinks.astro';
+import ThemeToggle from '@components/general/ThemeToggle.astro';
+import SocialLinks from '@components/general/SocialLinks.astro';
+import MobileSidebar from '@components/general/MobileSidebar.astro';
+import MobileMenuButton from '@components/general/MobileMenuButton.astro';
+
+const { isHomePage = true } = Astro.props;
+---
+
+<header
+    class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700"
+>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <a href="/" class="text-2xl font-bold text-gray-900 dark:text-white">
+                {info.name}
+            </a>
+
+            <NavigationLinks isHomePage={isHomePage} variant="desktop" />
+
+            <div class="hidden md:flex items-center space-x-4">
+                <ThemeToggle variant="dropdown" />
+                <SocialLinks emailId="header-email-link" />
+            </div>
+
+            <MobileMenuButton />
+        </div>
+    </div>
+</header>
+
+<MobileSidebar isHomePage={isHomePage} />
+
+<script>
+    import { initEmailProtection } from '@utils';
+
+    initEmailProtection([
+        {
+            elementId: 'header-email-link',
+            options: { autoReveal: false, isDisplayElement: false },
+        },
+        {
+            elementId: 'mobile-email-link',
+            options: { autoReveal: false, isDisplayElement: false },
+        },
+    ]);
+</script>

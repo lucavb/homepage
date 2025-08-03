@@ -1,0 +1,88 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/home/Header.astro';
+import Footer from '@components/home/Footer.astro';
+import BlogCard from '@components/general/BlogCard.astro';
+import PageHero from '@components/general/PageHero.astro';
+
+// Get all blog posts and sort by date (most recent first)
+const allBlogPosts = await getCollection('blog', ({ data }) => {
+    return !data.draft;
+});
+
+const blogPosts = allBlogPosts
+    .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
+    .map((post) => ({
+        id: post.slug,
+        title: post.data.title,
+        description: post.data.description,
+        publishDate: post.data.publishDate,
+        tags: post.data.tags,
+        draft: post.data.draft,
+        thumbnail: post.data.thumbnail,
+        heroImagePath: post.data.heroImagePath,
+    }));
+---
+
+<Layout
+    title="Blog"
+    description="Insights, tutorials, and thoughts on modern web development and enterprise solutions."
+    ogImageUrl="/assets/images/og-image.jpg"
+>
+    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Header isHomePage={false} />
+
+        <main class="pt-16">
+            <PageHero
+                title="Blog"
+                description="Insights, tutorials, and thoughts on modern web development and enterprise solutions."
+            />
+
+            <!-- Blog Posts -->
+            <section class="py-20 bg-white dark:bg-gray-900">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {
+                        blogPosts.length > 0 ? (
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {blogPosts.map((post) => (
+                                    <BlogCard blogPost={post} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div class="text-center py-16">
+                                <div class="text-gray-400 dark:text-gray-500 mb-6">
+                                    <svg
+                                        class="w-32 h-32 mx-auto"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                        />
+                                    </svg>
+                                </div>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No blog posts yet</h2>
+                                <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+                                    Stay tuned for upcoming insights and tutorials!
+                                </p>
+                                <a
+                                    href="/"
+                                    class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                                >
+                                    Back to Home
+                                </a>
+                            </div>
+                        )
+                    }
+                </div>
+            </section>
+        </main>
+
+        <Footer />
+    </div>
+</Layout>

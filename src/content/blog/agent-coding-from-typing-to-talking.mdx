@@ -1,0 +1,192 @@
+---
+title: "My AI Coding Journey: What Works, What Doesn't"
+description: 'Two months into AI-assisted development as a senior consultant - the key insights, best practices, and mindset shifts that transformed how I write code.'
+publishDate: 2025-06-21
+tags: ['ai', 'ai coding', 'development process', 'claude', 'cursor', 'productivity']
+heroImagePath: 'agent-coding-from-typing-to-talking/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/agent-coding-from-typing-to-talking/hero.jpg';
+import coneTheoryImage from '../../assets/images/blog/agent-coding-from-typing-to-talking/cone-theory.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="My AI Coding Journey - Illustration showing a developer working with AI, transitioning from traditional coding to conversational development"
+    loading="eager"
+/>
+
+Two months ago, I fundamentally changed how I write code. As a senior software consultant, I've shifted from manually crafting every line to what's becoming known as "agent coding" - having conversations with AI about what I want to build rather than implementing it myself.
+
+Here are the key insights and best practices I've developed over the past two months.
+
+## Foundation: Model Choice Makes or Breaks Everything
+
+**Quick Win**: Don't judge agent coding based on weak models. Having seen internal open source models struggle with basic tasks, I understand why some people aren't enthusiastic about AI-assisted development.
+
+**The Reality**: Claude 4 takes it to another level entirely. Gemini 2.5 Pro is also a strong contender - especially when you're no longer paying Cursor enough for Claude 4 access and get put into slow mode. The difference in code quality, architectural understanding, and constraint-following between top-tier and weaker models is night and day.
+
+**Claude's Edge**: Claude seems more "eager" to perform work compared to other models. Where other models will generally not consider associated files, code, or config changes, Claude actively looks for related components that need updating. This proactive approach often saves you from having to explicitly mention every file that needs changes.
+
+## Core Mindset Shift: From Implementation to Intent
+
+The biggest change isn't in tools - it's mental. I've moved from thinking about low-level implementation details to focusing on what I want to accomplish.
+
+**Key Insight**: The _how_ doesn't disappear - I'm now thinking about how at a much higher level: system design, data flow, and overall approach rather than syntax, API calls, and boilerplate code.
+
+## The Cone Theory: Mastering the Art of Constraint
+
+<AutoOptimizedImage
+    src={coneTheoryImage}
+    alt="The Cone Theory - Diagram showing how vague requests lead to many possibilities (wide funnel) while specific requests narrow down to focused outcomes (narrow funnel)"
+    class="mx-auto block max-w-lg"
+/>
+
+**Mental Model**: Think of each task as a cone. The broader your request, the wider the top becomes, and the more potential outcomes exist. This is why vague prompts like "build a user system" often produce unsatisfactory results.
+
+**Your Role**: Narrowing that cone by providing constraints, context, and specificity to guide the AI toward the exact outcome you need.
+
+### Practical Examples
+
+**Too Broad (Wide Cone)**:
+
+- "Add authentication to my app"
+- "Make the UI better"
+- "Fix the performance issues"
+
+**Properly Constrained (Narrow Cone)**:
+
+- "Add JWT-based authentication using our existing User model, following the pattern in the Payment service"
+- "Update the dashboard layout to match the design in Figma, focusing on the sidebar navigation component"
+- "Optimize the user search query by adding an index on email and username fields"
+
+**The Magic**: Each constraint you add eliminates thousands of possible implementations the AI might consider. You're not limiting creativity - you're channeling it toward your specific needs.
+
+### Progressive Narrowing
+
+Start with your intent, then add constraints iteratively:
+
+1. "I want to add user preferences"
+2. "Store them in the existing database using a JSON column"
+3. "Follow the same pattern as the notification settings"
+4. "Make sure it works with our current caching strategy"
+
+## Best Practices That Actually Work
+
+### 1. Treat AI Like a 10x Junior Developer
+
+_Credit: This insight comes from a colleague and perfectly frames the relationship._
+
+**Practical Application**: Just as you'd establish coding standards for a new team member, create rule files for AI. The difference? This "junior developer" implements standards incredibly quickly once they understand them.
+
+**Pro Tip**: Let the AI write your rule files! Don't try to make them perfect immediately. You can root out the "flaws" of the LLM iteratively, which is what I do and it works well.
+
+_Example_: For Angular projects, I specify "use inject.required() instead of old @Inject syntax" in my rule files.
+
+### 2. Task Sizing is Critical
+
+**Biggest Early Mistake**: Making tasks too large.
+
+**Bad**: "Build backend changes and matching frontend changes for a new endpoint"  
+**Good**: "Build the backend endpoint first, then tackle frontend integration as separate conversation"
+
+**Rule**: Smaller, focused conversations consistently outperform trying to accomplish everything at once.
+
+### 3. Start with Clear Intent + High-Level Approach
+
+Don't just state what you want - share your architectural thinking.
+
+**Template**: "I want to [specific goal]. My approach is [high-level strategy]. Let's start with [first step]."
+
+### 4. Strategic Context Beats Perfect Prompts
+
+**Quick Wins**:
+
+- Point AI to specific files for changes
+- Share error messages immediately
+- Include relevant code snippets
+- Specify architectural constraints upfront
+
+**Key**: Simple request + good context > complex prompt without context
+
+### 5. Smart Information Gathering
+
+**Search vs. Direct Links**: Sometimes I tell the AI to search explicitly - this can be more helpful than pasting random links. But for something like "migrate to Vitest," I know I want the official guide, so no need to search.
+
+**Rule of Thumb**: Let AI search for general best practices, provide direct links for specific official documentation.
+
+### 6. Error Handling: Forward vs. Revert Decision
+
+**The Reality**: When AI makes an error, it's a bit of a coin toss whether it's smarter to "revert" the last step or keep working forward and have it fix the issue.
+
+**My Default**: Most of the time I use the latter - share the error message and let AI fix it forward.
+
+**When to Revert**: Sometimes reverting can be smarter, especially when:
+
+- The AI has gone down a fundamentally wrong path
+- The error suggests a misunderstanding of the core requirement
+- Multiple forward attempts aren't making progress
+
+**Process**: Simply rerun with the error message for forward fixes. For reverts, explicitly ask to go back to the previous working state.
+
+## Cursor-Specific Workflow Tips
+
+### Use Multiple Conversation Tabs
+
+**Game Changer**: Depending on what you're doing, multiple tabs allow you to work on two things simultaneously.
+
+**Critical Rule**: They shouldn't operate on the same files. Cursor doesn't like that and you'll run into conflicts.
+
+**Use Cases**:
+
+- One tab for backend changes, another for frontend
+- One for main feature development, another for documentation updates
+- One for bug fixes, another for new feature exploration
+
+### Leverage Inline Suggestions
+
+**Hidden Gem**: Don't overlook Cursor's tab autocompletion - it's much smarter than what I'm used to from Continue in IntelliJ.
+
+**What Makes It Special**: It actually detects your intention and then intelligently jumps to the next related line in the current open file. This creates a smooth flow where you're not just getting single-line completions, but contextual suggestions that understand the broader changes you're making.
+
+**Workflow Integration**: Use this alongside chat conversations - let the chat handle the big architectural decisions and file creation, then use inline suggestions to efficiently fill in the details and related changes.
+
+## Advanced Technique: Planning Mode (Untested)
+
+**What I Haven't Tried**: Creating implementation plans ahead of time with the LLM.
+
+**The Idea**: Instead of having the entire idea in your head (or making it up as you go), first have a conversation about the implementation plan itself, then move to execution.
+
+**Tools**: RooCode has "architect" mode for this. With Cursor, I'd describe the planning phase in regular mode, then execute.
+
+**Potential Benefit**: AI might surface insights or considerations you hadn't thought of during planning.
+
+## When the Process Breaks Down
+
+- **Visual positioning tasks**: CSS layout problems send AI in circles
+- **Overly broad tasks**: Need fundamental restructuring into smaller pieces
+- **Domain-specific edge cases**: Still need human insight
+- **AI runs out of ideas**: Gets stuck in loops when rules prohibit "cheap fixes" like `as any` or disabling ESLint rules
+
+## My Daily Reality
+
+### Typical Session
+
+1. Describe what I want + high-level approach
+2. Back-and-forth conversation, progressively refining
+3. AI generates initial implementation within constraints
+4. Test and iterate using results to guide conversation
+5. Review final result (I still read all generated code)
+
+**Feel**: More like collaborative problem-solving than traditional programming. I'm the architect and constraint-setter; AI is my implementation partner.
+
+## Key Takeaway
+
+Agent coding isn't about eliminating developers or making us obsolete - it's a powerful new tool that elevates how we work. Instead of eliminating the _how_, it lets us focus on higher-level how while AI handles detailed implementation within the constraints we define.
+
+We're still the architects, the decision-makers, and the quality gatekeepers. We've just gained an incredibly capable implementation partner.
+
+---
+
+_What's your experience with AI-assisted coding? I'd love to hear about your own insights and best practices in the comments or through my contact form._
