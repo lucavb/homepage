@@ -1,0 +1,161 @@
+---
+title: 'Cursor vs VSCode Extensions: A Real-World Comparison of AI Coding Tools'
+description: "After months of testing Cursor against free VSCode extensions like RooCode and KiloCode, here's an honest breakdown of what actually matters in day-to-day AI-assisted development."
+publishDate: 2025-08-12
+tags: ['ai development', 'cursor', 'vscode', 'developer tools', 'productivity']
+heroImagePath: 'cursor-vs-vscode-extensions/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/cursor-vs-vscode-extensions/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Side-by-side comparison of Cursor IDE and VSCode with AI extensions, showing developer workflow and code generation capabilities"
+    loading="eager"
+/>
+
+After four months with [Cursor](https://cursor.com/) and two months diving deep into [RooCode](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) and [KiloCode](https://marketplace.visualstudio.com/items?itemName=kilocode.Kilo-Code), I wanted to share an honest comparison of these AI coding approaches. This isn't a theoretical overview—it's based on real projects, real frustrations, and real results.
+
+Quick note: [RooCode](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) and [KiloCode](https://marketplace.visualstudio.com/items?itemName=kilocode.Kilo-Code) are both forks of [Cline](https://github.com/cline/cline). While there are subtle differences between them, they're close enough that I'll use the terms somewhat interchangeably throughout this comparison.
+
+Most developers I talk to have either tried one AI coding tool, weren't satisfied, and gave up, or they're curious but overwhelmed by the options. The marketing makes everything sound amazing, but what's the day-to-day reality when you're actually shipping code?
+
+## Why This Comparison Matters
+
+I started with [Cursor](https://cursor.com/) in April because I was unsatisfied with aider's performance when paired with open-source models. Recently, I've been extensively testing [RooCode](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) and [KiloCode](https://marketplace.visualstudio.com/items?itemName=kilocode.Kilo-Code) (VSCode extensions) to see if the free alternatives could match the premium experience. Spoiler alert: it's complicated.
+
+My motivation? I want to keep developers motivated to try these tools and show that you don't necessarily have to shell out money for expensive IDEs. VSCode and these extensions are free—though as you'll see, the performance with local models has significant limitations.
+
+## Setup Complexity: The First Hurdle
+
+### RooCode/KiloCode Setup (2-5 minutes)
+
+Setting up [RooCode](https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline) or [KiloCode](https://marketplace.visualstudio.com/items?itemName=kilocode.Kilo-Code) is straightforward for most people:
+
+1. Install the extension from VSCode marketplace
+2. Choose your provider (OpenAI, Anthropic, etc.)
+3. Enter your API key
+4. Start your first conversation
+
+For those using custom OpenAI-compatible endpoints, it gets more involved. There have been issues where extensions struggled with fetching models from the `/models` endpoint, though I haven't experienced this personally. You'll also need to configure settings like context size, which isn't always known or documented for proprietary models. For Ollama users, you'll go through the OpenAI-compatible setup and just use a dummy API key since Ollama doesn't authenticate.
+
+The setup time ranges from 2 minutes (direct provider) to 5 minutes (custom endpoints). If you're setting up custom endpoints, you probably know what you're doing anyway.
+
+### Cursor Setup (2 minutes)
+
+Cursor gives you a two-week free trial, then requires a subscription. Setup is essentially:
+
+1. Download and install
+2. Maybe select your preferred model
+3. Start coding
+
+That's it. My company has a contract with them, so it was genuinely 2 minutes for me.
+
+## Daily Workflow: Where the Differences Matter
+
+### The Annoying Stuff in RooCode/KiloCode
+
+The most frustrating issue is **focus stealing**. When I'm already writing my next prompt because I spotted a change I don't want, the extension suddenly focuses on the editor window instead of the chat. Super annoying and breaks my flow constantly.
+
+I've also seen both extensions freeze completely—the entire interface turns gray and I have to restart VSCode. This happens maybe once a week during heavy usage.
+
+Another workflow killer: you have to stop the current generation before you can intervene with another prompt. In Cursor, I can press `Cmd+Enter` and immediately interrupt with a new instruction. This matters more than you'd think when you're in a flow state.
+
+### Cursor's Advantages
+
+**Multiple conversations**: This is genuinely useful. I can have several AI sessions running in different tabs, which changes how I work. The bottleneck becomes my ability to review generated code rather than waiting for the AI.
+
+**Command handling**: Cursor recently improved how it handles shell commands. You can reject commands and provide reasoning, which helps the AI learn your preferences. They also have allowlists for trusted commands, though there's a limitation—they only take the first two parameters, so `npm run cq` doesn't work as expected since that's three parameters.
+
+**Web search capabilities**: One of Cursor's most powerful features is its ability to search the web when instructed. I can ask it to look up current documentation, check for recent updates to libraries, or find solutions to specific problems. This is incredibly valuable when working with rapidly evolving technologies or when you need the most up-to-date information. The AI will go off and gather current information, then incorporate it into its responses—something the VSCode extensions can't do.
+
+**Polish**: It just feels more thoughtful. Features work as expected, the UI is responsive, and edge cases are handled better.
+
+### Using RooCode/KiloCode with Ollama Locally
+
+Here's where things get interesting with local models: **RooCode and KiloCode can work with Ollama, but Cursor doesn't support this setup**. This means if you want to use local models, you're limited to the VSCode extensions.
+
+I tested this with a simple task: adding a rule to a renovate config repo with the prompt "configure the renovate rule to prevent updating of jest to version 30 and also not @types/jest to v30!"
+
+Running on my Nvidia 3060 12GB with Ollama:
+
+- **[Gemma3:12b](https://ollama.com/library/gemma3)**: Heavily struggled with tool calling
+- **[Qwen3:8b](https://ollama.com/library/qwen3)**: Sort of worked but edited the wrong file—didn't browse the repo first
+- **Claude Sonnet** (via API): Worked perfectly in both VSCode extensions
+
+The takeaway: **model quality matters more than the interface**. When I use Claude Sonnet via API in both Cursor and RooCode, the code quality is nearly identical. The difference emerges with local models that can't handle tool calls reliably—something you can only test with the VSCode extensions since Cursor doesn't support Ollama integration.
+
+## Success Story: Vitest Migration
+
+I've successfully migrated multiple projects from Jest and Manten to Vitest using both Cursor and RooCode. The projects ranged from ~2,000 to ~10,000 lines of code, including both [TNG](https://www.tngtech.com/) internal projects and personal projects I was reviving.
+
+My approach: **feed the documentation upfront**. Both Cursor and RooCode can link documentation, and I highly recommend this. I'd provide the Vitest migration docs before starting any work.
+
+The AI handled most test patterns automatically, but struggled with inconsistent setup functions. If one test file used a different beforeEach pattern than others, it would cause friction. The lesson: make sure your codebase is consistent before starting large refactoring jobs.
+
+Timeline-wise, these migrations took several hours of actual work, but I've learned to let the AI work in the background and come back to review. With Cursor's multiple tabs, I can start migrations in several files simultaneously.
+
+For test generation specifically, providing an example test file makes a huge difference. The JavaScript testing ecosystem has so many patterns that the AI benefits from seeing your preferred style.
+
+## Cost and Privacy: The Real Considerations
+
+### Pricing Reality
+
+**Cursor**: Paid by my company. I spent around $100/month on the company subscription—that's heavy usage but not full-time, mainly using Claude Sonnet with thinking mode, which is expensive. A colleague using GitHub Copilot in agent mode burned through 30% of their monthly tokens by August 6th, so token consumption can escalate quickly.
+
+**RooCode/KiloCode with APIs**: Pay-per-use API billing. You need to watch your token usage carefully since providers bill per million tokens. Fortunately, both extensions show the number of tokens consumed when using official APIs, making it easier to track costs.
+
+### Privacy and Corporate Constraints
+
+Privacy concerns rule out Cursor entirely for some organizations—not specific sectors, but companies with strict data policies. Getting Cursor approved can be challenging due to cost and procurement processes, while API access might already be available through existing OpenAI contracts.
+
+For truly private work, local models are the only option. But here's the reality: good open-source models require serious hardware. At [TNG](https://www.tngtech.com/), we have Nvidia H100s in the basement plus AMD cards, giving us performance that doesn't feel much slower than the big providers. Most companies don't have this luxury.
+
+That said, if your company can run larger models, **[Qwen3-Coder-480B-A35B-Instruct-FP8](https://huggingface.co/Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8) is performing really well** for an open-source solution. If you have the infrastructure to support it, you'll get very far with this model—it's genuinely competitive with proprietary alternatives for coding tasks.
+
+## Decision Framework
+
+Here's my decision tree for choosing between these approaches:
+
+<MermaidDiagram diagram={`
+flowchart TD
+    A[Need AI Coding Assistant] --> B{Privacy Requirements?}
+    B -->|Yes, must use own models| C[RooCode/KiloCode + Ollama]
+    B -->|No privacy concerns| D{Budget Constraints?}
+    D -->|Cost is major factor| E{Have API access?}
+    D -->|Budget not an issue| F[Cursor]
+    E -->|Yes, have Claude/GPT access| G[RooCode/KiloCode + API]
+    E -->|No API access| H{Technical comfort level?}
+    H -->|High - comfortable with setup| I[RooCode/KiloCode + Ollama]
+    H -->|Low - want simple setup| J[Consider Cursor trial]
+
+    C --> K[Accept performance trade-offs<br/>Need serious hardware]
+    G --> L[Best of both worlds<br/>Free tool + premium models]
+    F --> M[Most polished experience<br/>Just works]
+
+`} />
+
+## My Honest Recommendation
+
+After months of using both approaches: **if you can afford it, go with Cursor**. It's like the Apple product of AI coding—more polished, thoughtful, and it just works. The multiple conversation tabs, better command handling, and overall UX make a real difference in daily use.
+
+But—and this is important—RooCode and KiloCode are genuinely viable alternatives. If you already have API access to Claude or an OpenAI model, the code quality will be identical. You're trading some UX polish for potential cost savings.
+
+For privacy-conscious developers or those in organizations that won't approve Cursor, the VSCode extensions with local models are your only option. Just know you're accepting performance trade-offs and need serious hardware for good results.
+
+The accessibility angle matters. Not everyone can get corporate approval for new tools or afford $20+/month subscriptions. These free alternatives lower the barrier to entry for AI-assisted development, even if they require a bit more technical setup.
+
+## The Bottom Line
+
+My personal choice? I'm trying to get my current client to approve Cursor because the experience is just better. But I keep RooCode configured as a backup, and for certain privacy-sensitive projects, it's my go-to.
+
+The real winner here is that we have options. Try the free approaches first—if the setup frustration or model limitations bother you, Cursor's subscription will feel worth every penny. If not, you've got a capable AI coding assistant without the monthly fee.
+
+Worth noting: this comparison only scratches the surface of the AI coding landscape. I'm not even touching on other solutions like Claude Code, Gemini CLI, aider, or Junie (currently being developed by JetBrains). The space is evolving rapidly, and what works best today might change in six months.
+
+---
+
+_What's your experience been with these tools? I'd love to hear about your setup and any tricks you've discovered for getting the most out of whichever approach you choose. Feel free to reach out through the contact form on my website._

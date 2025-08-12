@@ -8,6 +8,11 @@ import mdx from '@astrojs/mdx';
 export default defineConfig({
     site: 'https://luca-becker.me',
     output: 'static',
+    markdown: {
+        syntaxHighlight: {
+            excludeLangs: ['mermaid'],
+        },
+    },
     integrations: [
         mdx(),
         tailwind({

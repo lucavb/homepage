@@ -1,0 +1,84 @@
+---
+export interface Props {
+    diagram: string;
+    id?: string;
+    class?: string;
+}
+
+const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } = Astro.props;
+---
+
+<div id={id} class={className} data-diagram={diagram}>
+    {diagram}
+</div>
+
+<script>
+    import mermaid from 'mermaid';
+
+    // Initialize Mermaid with configuration
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        themeVariables: {
+            primaryColor: '#2563eb', // blue-600
+            primaryTextColor: '#1f2937', // gray-800
+            primaryBorderColor: '#2563eb',
+            lineColor: '#6b7280', // gray-500
+            secondaryColor: '#e5e7eb', // gray-200
+            tertiaryColor: '#f3f4f6', // gray-100
+        },
+        flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+        },
+        fontFamily: 'Inter, system-ui, sans-serif',
+    });
+
+    // Function to render all Mermaid diagrams
+    function renderMermaidDiagrams() {
+        const mermaidElements = document.querySelectorAll('.mermaid-diagram');
+
+        mermaidElements.forEach((element, index) => {
+            const code = element.getAttribute('data-diagram')?.trim();
+            if (code) {
+                const uniqueId = `mermaid-${Date.now()}-${index}`;
+                mermaid
+                    .render(uniqueId, code)
+                    .then((result) => {
+                        element.innerHTML = result.svg;
+                        element.classList.add('mermaid-rendered');
+                    })
+                    .catch((error) => {
+                        console.error('Mermaid rendering error:', error);
+                        element.innerHTML = `<pre class="text-red-600 text-sm">Error rendering diagram: ${error.message}</pre>`;
+                    });
+            }
+        });
+    }
+
+    // Render diagrams when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
+    } else {
+        renderMermaidDiagrams();
+    }
+</script>
+
+<style>
+    .mermaid-diagram {
+        @apply flex justify-center items-center my-6 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700;
+        min-height: 200px;
+    }
+
+    .mermaid-diagram:not(.mermaid-rendered) {
+        @apply text-gray-600 dark:text-gray-400 text-sm;
+    }
+
+    .mermaid-diagram.mermaid-rendered {
+        @apply p-0 bg-transparent border-none;
+    }
+
+    .mermaid-diagram svg {
+        @apply max-w-full h-auto;
+    }
+</style>
