@@ -31,10 +31,10 @@
     "dependencies": {
         "@astrojs/mdx": "4.3.3",
         "@astrojs/rss": "4.0.12",
-        "@astrojs/sitemap": "3.4.2",
+        "@astrojs/sitemap": "3.5.0",
         "@astrojs/tailwind": "6.0.2",
         "@tailwindcss/typography": "0.5.16",
-        "astro": "5.12.9",
+        "astro": "5.13.0",
         "astro-robots-txt": "1.0.0",
         "mermaid": "11.9.0"
     },
