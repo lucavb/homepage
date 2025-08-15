@@ -1,0 +1,222 @@
+---
+title: "First Look at Kiro: Amazon's New Agentic Coding Tool - Beta Impressions"
+description: "Amazon's Kiro has brilliant architectural ideas but dangerous security flaws. My honest review after 4+ hours of testing - including why unpredictable command execution makes it too risky for real work yet."
+publishDate: 2025-08-17
+tags: ['kiro', 'amazon', 'ai development', 'coding tools', 'cursor', 'security', 'developer tools']
+heroImagePath: 'first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/hero.jpg';
+import sidebarImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/kiro-sidebar.jpg';
+import commandApprovalImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/kiro-command-approval.jpg';
+import specModeImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/kiro-spec-mode.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Kiro AI coding assistant interface showing the mysterious sidebar and chat interface"
+    loading="eager"
+/>
+
+[Kiro](https://kiro.dev/) is Amazon's new AI-powered coding assistant—essentially another VSCode fork, but with some genuinely interesting architectural ideas around persistent project memory and structured planning.
+
+I got access last Friday and spent 4+ hours testing it across two sessions. As someone living in Cursor for months, I was curious how Amazon's approach would compare.
+
+**Important context**: Kiro is in "preview" status (beta software) with the usual caveats about bugs and developer responsibility. My initial testing hit credit limits after 2 hours, so these are early impressions. For reference, I was testing **Version 0.2.13**.
+
+## The Setup Experience: Authentication Friction Right Out the Gate
+
+Right off the bat, Kiro threw me a curveball. Unlike most tools that let you quickly sign up with an email, Kiro requires authentication through Amazon, GitHub, Google, or your company email. No direct email option.
+
+As a developer who values quick onboarding, this felt like unnecessary friction. Sure, I get the enterprise angle, but when I want to test something quickly, OAuth flows feel heavy-handed.
+
+## VSCode Fork #847 - But With Some Interesting Twists
+
+Let's be honest - Kiro is yet another VSCode fork. At this point, I'm wondering if anyone (looking at you, JetBrains) is going to build something truly different, or if we're all just going to keep iterating on the same foundation forever.
+
+That said, Kiro does bring some unique features to the table:
+
+### The Mysterious Sidebar
+
+There's this "fancy" sidebar that immediately caught my attention, but there's no introduction or onboarding to explain what it actually does. This is UX 101 stuff. If you're introducing a new interface element, help users understand its purpose.
+
+After some exploration, I discovered the sidebar contains your past "specs" - essentially a history of larger features where you've gone through Kiro's structured planning phase. Think of it as a project memory bank where your architectural decisions and feature development sessions are stored for future reference. It's quite clever once you understand what it's for, but the complete lack of explanation makes it feel like a mystery feature.
+
+<AutoOptimizedImage
+    src={sidebarImage}
+    alt="Kiro's sidebar interface showing SPECS section with 'Build complex features with structured planning', plus AGENT HOOKS, AGENT STEERING, and MCP SERVERS sections"
+    loading="lazy"
+    class="max-w-sm mx-auto my-6 shadow-lg rounded-lg"
+/>
+
+The sidebar includes SPECS (structured planning), AGENT HOOKS (automating tasks), AGENT STEERING (guiding behavior), and MCP SERVERS (external tools). The SPECS section is where the magic happens for architectural continuity.
+
+More on how this spec system works later in this review.
+
+### AI Model Selection: Limited but Focused
+
+Kiro only offers Claude-4 Sonnet and Claude-3.5 Sonnet. This feels limiting compared to tools like Cursor that give you more options. On the other hand, these are some of the best models available, so maybe there's something to be said for curating the experience rather than overwhelming users with choices.
+
+## Where Kiro Differs From Cursor (And Not Always For the Better)
+
+Having spent considerable time with Cursor, the differences were immediately apparent:
+
+**File Referencing**: Kiro uses `#` instead of `@` for file references. Not a dealbreaker, but it breaks muscle memory. You can't drag files into the chat window, and URLs aren't automatically recognized as "load this" commands.
+
+**Commit Generation**: Unlike Cursor, Kiro doesn't have automatic commit message generation. For someone who appreciates good git hygiene but struggles with writing meaningful commit messages, this feels like a step backward.
+
+## The .kiroignore Mystery: Trust Me, Bro (Maybe?)
+
+When I needed to exclude files from Kiro's context, it suggested creating a `.kiroignore` file. The problem? **This functionality is completely undocumented**.
+
+I created the file but got:
+
+- No visual indication it's working
+- Can't verify what's being ignored
+- Zero feedback about included/excluded files
+- No documentation to verify syntax
+
+In Cursor, `.cursorignore` gives clear visual feedback about what's excluded. With Kiro, you're flying blind. When your codebase contains API tokens or sensitive data, "trust us" isn't acceptable—you need verifiable control over what the AI accesses.
+
+## The "Kiro Spec" Feature: Brilliant Concept, Confusing Execution
+
+Here's where things get both exciting and concerning. Kiro has this feature called "Kiro Spec" that feels like RooCode's Architect mode, but with a genuinely compelling twist.
+
+### The Brilliant Part: Architectural Memory That Actually Matters
+
+The Kiro Spec approach is something I wish Cursor had. Instead of just letting you chat with an AI about code, Kiro tries to capture:
+
+- **Your requirements** in a structured way
+- **Design decisions** you've made and why you made them
+- **Implementation choices** and the reasoning behind them
+- **Previous architectural decisions** that should inform future features
+
+This isn't just about building what you want right now—it's about creating an institutional memory for your project. When you come back in three months to add a new feature, or when a new developer joins your team, that context is preserved.
+
+In Cursor, while I can use rule files and the newer memory features to maintain some context, the architectural reasoning isn't captured in a structured way. I can plan things out in chat, but there's no systematic approach to documenting why I made specific design decisions or how they should inform future features. Cursor is moving in this direction, but it's nowhere near as structured as Kiro's approach.
+
+Kiro's approach of generating three structured files—`requirements.md`, `design.md`, and `tasks.md`—in a `.kiro/specs/<specName>` folder means your architectural decisions become part of your project's history. That's genuinely valuable.
+
+### The Confusing Part: Inconsistent Command Execution
+
+**🚨 SECURITY CONCERN ALERT 🚨**
+
+During my 2-hour testing session, I encountered something that really caught me off guard. While testing the Kiro Spec feature, I noticed that some shell commands were being executed without my explicit permission.
+
+Here's what I observed:
+
+- Kiro asked for permission before running `npm run build` and waited for my approval
+- But it also automatically executed `ls ~/.aicommits.yaml` and `cat ~/.aicommits.yaml` without asking
+- This happened multiple times during the session
+
+**I honestly can't tell what the logic is here.** Why did some commands require permission while others didn't? I can only guess at the reasoning—maybe there's some distinction between project-related commands and system commands, or maybe it's based on file locations.
+
+Here's the context that makes this particularly concerning—I was actually developing aicommits itself during my testing session. This tool reads and edits the `~/.aicommits.yaml` configuration file that contains API keys for talking to LLMs.
+
+So Kiro was automatically accessing and reading a file containing sensitive API credentials, without any permission request, while I was actively developing software that manages those exact credentials.
+
+## Other Missing Features That Matter
+
+**No Todo List Functionality**: While not essential, tools like this benefit from helping developers track and manage their work.
+
+**No shortcuts for approving shell command execution** - though this seems to only matter for some commands.
+
+<AutoOptimizedImage
+    src={commandApprovalImage}
+    alt="Kiro's command approval interface showing 'Waiting on your input..' with Reject, Trust, and Run buttons, but no keyboard shortcuts indicated"
+    loading="lazy"
+    class="w-full max-w-2xl mx-auto my-6 shadow-lg rounded-lg"
+/>
+
+As you can see in the interface above, when Kiro wants to execute a command, you get Reject, Trust, and Run buttons, but there's no indication of keyboard shortcuts. In tools like this, being able to quickly approve commands with a keystroke (like Cmd+Enter or just Enter) would significantly speed up the workflow, especially when you're in a flow state.
+
+**Auto-scrolling during output generation would be nice but is missing**.
+
+**Credit System Opacity**: My credits ran out during testing after about 2 hours, but there was no indication that I was approaching the limit. For preview software, this is especially frustrating when trying to evaluate the tool properly. Amazon sent out pricing update emails the very next day, suggesting they were actively working on this issue.
+
+## Testing the Spec Feature with a Real Project
+
+After my initial impressions, I decided to give Kiro another shot over the weekend to test its "Spec" feature more thoroughly. I wanted to build a PR subcommand that would automatically create GitHub PRs—a good test case for Kiro's structured planning approach.
+
+### Pricing Changes: From Free Preview to Structured Plans
+
+As mentioned earlier, my Day 1 testing ended when credits ran out after about 2 hours. Amazon's response was swift—the very next day, they sent out emails announcing structured pricing plans and migrated all existing accounts to the new "Kiro Free" plan.
+
+Here's what the free tier includes:
+
+- **50 "vibe requests" per month** (regular AI assistance)
+- **2-week bonus**: 100 spec requests + 100 vibe requests to try everything out
+- **Paid plans available** for users who need more capacity
+
+What's interesting is their pricing model distinguishes between **"vibe requests"** (regular AI chat) and **"spec requests"** (the structured planning feature). This makes sense given that spec requests likely involve more complex processing and generate persistent architectural documentation.
+
+This approach is more nuanced than typical token-based pricing—you're paying for different types of interactions rather than raw compute usage.
+
+### The Spec Feature in Action: Building a GitHub PR Tool
+
+I decided to test Kiro's "Spec" feature by asking it to build a tool for automatically creating GitHub PRs. This seemed like a good test case for the structured planning approach that Kiro promotes.
+
+**You can see the actual results**: I've tagged the commit with all the changes Kiro made at [kiro-github-pr-spec-v1](https://github.com/lucavb/aicommits/tree/kiro-github-pr-spec-v1). This includes both the implementation code and the spec files that Kiro generated, so you can see exactly what the structured planning process produces.
+
+**The Good**: The Spec feature did create a structured breakdown in a `tasks.md` file, maintaining that architectural continuity I mentioned earlier. Having a persistent plan that tracks progress through complex features is genuinely useful. Looking at the actual spec files, you can see how Kiro breaks down requirements, tracks implementation decisions, and maintains context across the development process.
+
+<AutoOptimizedImage
+    src={specModeImage}
+    alt="Kiro's spec mode interface showing structured task breakdown with Requirements, Design, and Task list tabs, plus real-time task execution and file editing panels"
+    loading="lazy"
+    class="w-full my-6 shadow-lg rounded-lg"
+/>
+
+As you can see in this screenshot, Kiro's spec mode provides a comprehensive view of the development process. The left panel shows the structured breakdown with Requirements, Design, and Task list tabs, while the right side shows real-time task execution and file editing. This integrated approach to planning and implementation is genuinely innovative—you can see exactly what the AI is thinking and watch it execute those plans step by step.
+
+**The Frustrating**: Kiro still sometimes gets stuck when trying to execute tasks. The only solution I found was restarting the application entirely. The task tracking also isn't perfectly linear—it can jump ahead or combine steps, which is both flexible and potentially confusing. Given that this is preview software, these rough edges are expected, but they do impact the development flow.
+
+### Agent Steering: Rule Files by Another Name
+
+During my testing, I also explored Kiro's "Agent Steering" feature, which appears in the sidebar alongside Specs and Agent Hooks. This feature is essentially what other tools call "rule files"—a way to give the AI persistent guidance about how to behave in your project.
+
+**You can see the agent steering files** I created at [kiro-agent-steering-v1](https://github.com/lucavb/aicommits/tree/kiro-agent-steering-v1). These files let you define coding standards, architectural preferences, and project-specific guidelines that Kiro should follow consistently.
+
+The concept is solid—having persistent rules that guide AI behavior across sessions is valuable for maintaining consistency. However, like many of Kiro's features, the execution feels like it needs more polish and better documentation.
+
+### What I Haven't Tested Yet: Agent Hooks
+
+One feature I haven't explored yet is Kiro's "Agent Hooks" functionality. From what I can see in the sidebar, this appears designed for automating repetitive tasks. Given the mixed results with the core Spec feature and the basic functionality of Agent Steering, I'm curious whether Agent Hooks might be where Kiro really differentiates itself.
+
+This could be worth a dedicated follow-up post once I've had more time to explore it properly.
+
+## What Cursor Could Learn
+
+Despite the security concerns, Kiro's spec approach highlights something important that Cursor is missing: **architectural continuity**.
+
+Right now, with Cursor, every conversation is essentially ephemeral. I might have brilliant architectural discussions, make important design decisions, or establish coding patterns, but that context doesn't carry forward systematically.
+
+Kiro's approach of capturing requirements, design decisions, and implementation reasoning in a structured, persistent format is genuinely valuable. It means:
+
+- **New features build on established patterns** instead of reinventing approaches
+- **Team members can understand why decisions were made**, not just what was decided
+- **Architectural debt becomes visible** when patterns conflict with new requirements
+- **Project evolution has continuity** rather than being a series of disconnected conversations
+
+This is something I'd love to see Cursor adopt—the ability to maintain an evolving architectural document that informs all future development decisions.
+
+## Key Takeaways
+
+After 4+ hours of testing Kiro, here are the main lessons:
+
+1. **Predictable permission systems are essential** - users need to understand when commands will be executed
+2. **Architectural continuity is valuable** - Cursor could learn from Kiro's spec approach
+3. **Great concepts need predictable execution** - brilliant ideas mean nothing if they behave unpredictably
+4. **Tiered request pricing makes sense** - separating "vibe" and "spec" requests reflects different interaction complexity
+5. **Getting stuck mid-task is a workflow killer** - reliability matters more than features for professional use
+
+## What's Next?
+
+The architectural memory concept is compelling, but Amazon needs predictable permissions. The Spec feature shows promise, but reliability needs work.
+
+Until they implement consistent permission systems, Kiro remains too unpredictable for professional use. For now, I'm sticking with Cursor.
+
+---
+
+_Have you tried Kiro? I'm curious about others' experiences with its permission system and whether you've found the architectural memory concept as compelling as I have—despite the execution issues._
