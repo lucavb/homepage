@@ -22,16 +22,11 @@
     "type": "module",
     "private": true,
     "scripts": {
-        "astro": "astro",
-        "build": "astro build",
-        "cq": "npm run cq:format:check && npm run cq:type-check && npm run cq:build",
-        "cq:build": "astro build",
-        "cq:format": "prettier --write .",
-        "cq:format:check": "prettier --check .",
-        "cq:type-check": "astro check",
         "dev": "astro dev",
+        "start": "astro dev",
+        "build": "astro build",
         "preview": "astro preview",
-        "start": "astro dev"
+        "astro": "astro"
     },
     "dependencies": {
         "@astrojs/mdx": "4.3.3",

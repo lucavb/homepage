@@ -1,0 +1,83 @@
+---
+globs: *.astro,src/pages/**/*,src/layouts/**/*
+description: Astro development patterns and conventions
+---
+
+# Astro Development Patterns
+
+This rule defines the patterns and conventions for Astro development in this project.
+
+## File Structure and Organization
+
+### Pages
+- All pages must be in `src/pages/` directory
+- Use [Layout.astro](mdc:src/layouts/Layout.astro) for all pages
+- Dynamic routes use `[...slug].astro` pattern for catch-all routes
+- Blog posts use the `[...slug].astro` pattern in `src/pages/blog/`
+
+### Layouts
+- Main layout is [Layout.astro](mdc:src/layouts/Layout.astro)
+- Always extend the base Layout for consistency
+- Include proper meta tags, structured data, and SEO optimization
+
+### Components
+- General components go in `src/components/general/`
+- Home-specific components go in `src/components/home/`
+- Use TypeScript interfaces from [src/types/index.ts](mdc:src/types/index.ts)
+
+## Astro Component Patterns
+
+### Props Interface
+Always define TypeScript interfaces for component props:
+
+```astro
+---
+interface Props {
+    title: string;
+    description?: string;
+    class?: string;
+}
+
+const { title, description, class: className } = Astro.props;
+---
+```
+
+### Image Handling
+- Use [AutoOptimizedImage.astro](mdc:src/components/general/AutoOptimizedImage.astro) for automatic optimization
+- Import images from `src/assets/images/` for Astro's optimization
+- Always include proper alt text and loading attributes
+
+### Content Collections
+- Blog posts are managed through Astro's content collections
+- Schema is defined in [src/content/config.ts](mdc:src/content/config.ts)
+- Use `.mdx` format for blog posts to enable component imports
+
+## SEO and Performance
+
+### Meta Tags
+- Always use the Layout component which includes comprehensive meta tags
+- Include structured data for articles and pages
+- Proper Open Graph and Twitter Card support
+
+### Performance Optimizations
+- Use `loading="lazy"` for images below the fold
+- Use `loading="eager"` for hero images
+- Include `decoding="async"` for all images
+- Preload critical fonts in the Layout component
+
+### Analytics
+- Matomo analytics is configured in Layout.astro
+- GDPR compliant, cookieless tracking
+- Do not add additional tracking without updating privacy policy
+
+## Development Workflow
+
+### Content Updates
+- Personal information updates go in [src/data/info.ts](mdc:src/data/info.ts)
+- Blog posts go in `src/content/blog/` as `.mdx` files
+- Follow the established frontmatter schema
+
+### Styling
+- Use Tailwind CSS classes exclusively
+- Follow dark mode patterns with `dark:` prefixes
+- Maintain responsive design with established breakpoints

@@ -5,219 +5,149 @@ alwaysApply: false
 ---
 # Modern Image Optimization Workflow
 
-## RECOMMENDED: Astro Auto-Optimization (New Posts)
+## ✅ CURRENT WORKFLOW: Astro Auto-Optimization
 
-**Use single source images with Astro's automatic optimization.** This approach generates all formats and sizes automatically during build with optimal performance and type safety.
+**We now use single source images with Astro's automatic optimization.** This approach generates all formats and sizes automatically during build with optimal performance and type safety.
 
-### New Blog Post Workflow
+### Blog Post Image Workflow
 
 1. **Single source image**: Place in `src/assets/images/blog/post-slug/hero.jpg`
-2. **Use MDX format**: Create `.mdx` files instead of `.md`
-3. **Import and use components**: Let Astro handle everything
+2. **Use MDX format**: All blog posts are `.mdx` files
+3. **Import and use AutoOptimizedImage**: Let Astro handle everything automatically
 
-#### Directory Structure
+#### Current Directory Structure
 ```
 src/assets/images/blog/
-├── my-post/
-│   └── hero.jpg          ← Single source image
-└── another-post/
-    └── hero.jpg          ← Single source image
+├── introducing-my-blog/
+│   └── hero.jpg                    ← Single source image
+├── rag-isnt-as-complex-as-you-think/
+│   └── hero.jpg                    ← Single source image
+├── building-weather-aware-lunch-bot-cursor/
+│   ├── hero.jpg                    ← Hero image
+│   ├── good-weather.jpg            ← Additional content images
+│   └── bad-weather.jpg             ← Additional content images
+└── lovable-dev-senior-developer-perspective-ai-design/
+    ├── hero.jpg                    ← Hero image
+    └── streamproxy.jpg             ← Additional content images
 ```
 
+#### Blog Post Template
 ```mdx
 ---
-title: 'My Blog Post'
-description: 'Description here'
+title: 'Your Blog Post Title'
+description: 'SEO-friendly description'
 publishDate: 2025-01-20
-tags: ['example']
-heroImagePath: 'my-post/hero.jpg'
+tags: ['tag1', 'tag2']
+heroImagePath: 'post-slug/hero.jpg'
 draft: false
 ---
 
 import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
-import heroImage from '../../assets/images/blog/my-post/hero.jpg';
+import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
 
 <AutoOptimizedImage
-  src={heroImage}
-  alt="Descriptive alt text"
-  loading="eager"
+    src={heroImage}
+    alt="Descriptive alt text for accessibility and SEO"
+    loading="eager"
 />
 
-# My Blog Post
+# Your Blog Post Title
 
 Content here...
 ```
 
 ### What Astro Generates Automatically
 
-From **ONE source image**, Astro generates:
-- **11 hero images**: 4 sizes × 3 formats (AVIF, WebP, JPG) for responsive display
-- **2 thumbnail images**: 600x400 in AVIF and WebP for blog listings
-- **1 og image**: 1200x630 JPG for social media previews
+From **ONE source image**, Astro's Picture component automatically generates:
+- **Multiple sizes**: 400px, 600px, 800px, 1024px (responsive breakpoints)
+- **Multiple formats**: AVIF, WebP, JPG (with automatic fallbacks)
+- **Optimized quality**: Automatic quality optimization per format
+- **Lazy loading**: Built-in lazy loading and decoding optimization
 
-**Total: 14 optimized images** from a single source file!
+**Total: 12+ optimized images** from a single source file, generated at build time!
 
 ### Components Available
 
-- `AutoOptimizedImage`: For hero images in blog posts
-- `BlogThumbnail`: Automatically generates thumbnails from hero images
-- `BlogHeroImage`: For legacy posts with pre-optimized images
+- **`AutoOptimizedImage`**: Primary component for all blog images
+  - Automatic responsive image generation
+  - Multiple format support (AVIF, WebP, JPG)
+  - Built-in lazy loading and performance optimization
+  - Type-safe image imports
 
-## LEGACY: Manual ImageMagick Processing
+### Image Processing Guidelines
 
-**For existing posts or special cases only.** The manual approach is no longer recommended but maintained for backward compatibility.
-
-### Migration Strategy
-
-**For New Posts**: Use the Astro workflow above
-**For Existing Posts**: 
-1. Convert `.md` to `.mdx`  
-2. Replace manual `<picture>` elements with `<BlogHeroImage>` component
-3. Gradually migrate to `AutoOptimizedImage` when updating posts
-
-### Legacy ImageMagick Commands (Deprecated)
-
-Only use when manual processing is absolutely required:
+#### Source Image Preparation
+**CRITICAL**: Only process source images once for quality and size optimization:
 
 ```bash
-# Single command approach - generates all 12 images at once
-INPUT_IMAGE="input.jpg"
-POST_SLUG="blog-post-slug"
-OUTPUT_DIR="public/assets/images/blog/$POST_SLUG"
-
-mkdir -p "$OUTPUT_DIR"
-
-# Generate all formats and sizes in one command
-magick "$INPUT_IMAGE" \
-  \( -clone 0 -resize 400x400 -quality 85 -write "$OUTPUT_DIR/400.avif" \) \
-  \( -clone 0 -resize 600x600 -quality 85 -write "$OUTPUT_DIR/600.avif" \) \
-  \( -clone 0 -resize 800x800 -quality 85 -write "$OUTPUT_DIR/800.avif" \) \
-  \( -clone 0 -resize 1024x1024 -quality 85 -write "$OUTPUT_DIR/1024.avif" \) \
-  \( -clone 0 -resize 400x400 -quality 90 -write "$OUTPUT_DIR/400.webp" \) \
-  \( -clone 0 -resize 600x600 -quality 90 -write "$OUTPUT_DIR/600.webp" \) \
-  \( -clone 0 -resize 800x800 -quality 90 -write "$OUTPUT_DIR/800.webp" \) \
-  \( -clone 0 -resize 1024x1024 -quality 90 -write "$OUTPUT_DIR/1024.webp" \) \
-  \( -clone 0 -resize 400x400 -quality 85 -write "$OUTPUT_DIR/400.jpg" \) \
-  \( -clone 0 -resize 600x600 -quality 85 -write "$OUTPUT_DIR/600.jpg" \) \
-  \( -clone 0 -resize 800x800 -quality 85 -write "$OUTPUT_DIR/800.jpg" \) \
-  \( -clone 0 -resize 1024x1024 -quality 85 -write "$OUTPUT_DIR/1024.jpg" \) \
-  null:
+# Scale down and optimize source image quality (one-time only)
+magick input.png -resize 1024x1024 -quality 95 hero.jpg
 ```
 
-## Blog Post Image Processing Script
+Then place in `src/assets/images/blog/post-slug/hero.jpg` and let Astro handle the rest.
 
-Create this script when processing blog post images:
+#### Multiple Images Per Post
+For posts with additional images beyond the hero:
+
+```mdx
+import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
+import additionalImage from '../../assets/images/blog/post-slug/additional-image.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Hero image description"
+    loading="eager"
+/>
+
+<!-- Later in the post -->
+<AutoOptimizedImage
+    src={additionalImage}
+    alt="Additional image description"
+    loading="lazy"
+/>
+```
+
+## ❌ DEPRECATED: Manual ImageMagick Processing
+
+**Do NOT manually generate multiple image sizes or formats.** The old workflow of creating 400.avif, 600.webp, 800.jpg, etc. is no longer used.
+
+## Project Thumbnails
+
+For project thumbnails (non-blog images), continue using single optimized images in `public/assets/images/`:
 
 ```bash
-#!/bin/bash
-# Usage: ./process-blog-image.sh input-image.jpg blog-post-slug
-
-if [ $# -ne 2 ]; then
-    echo "Usage: $0 <input-image> <blog-post-slug>"
-    exit 1
-fi
-
-INPUT_IMAGE="$1"
-POST_SLUG="$2"
-OUTPUT_DIR="public/assets/images/blog/$POST_SLUG"
-
-# Create directory if it doesn't exist
-mkdir -p "$OUTPUT_DIR"
-
-echo "Generating all image formats and sizes in one command..."
-
-# Single command that generates all 12 images
-magick "$INPUT_IMAGE" \
-  \( -clone 0 -resize 400x400 -quality 85 -write "$OUTPUT_DIR/400.avif" \) \
-  \( -clone 0 -resize 600x600 -quality 85 -write "$OUTPUT_DIR/600.avif" \) \
-  \( -clone 0 -resize 800x800 -quality 85 -write "$OUTPUT_DIR/800.avif" \) \
-  \( -clone 0 -resize 1024x1024 -quality 85 -write "$OUTPUT_DIR/1024.avif" \) \
-  \( -clone 0 -resize 400x400 -quality 90 -write "$OUTPUT_DIR/400.webp" \) \
-  \( -clone 0 -resize 600x600 -quality 90 -write "$OUTPUT_DIR/600.webp" \) \
-  \( -clone 0 -resize 800x800 -quality 90 -write "$OUTPUT_DIR/800.webp" \) \
-  \( -clone 0 -resize 1024x1024 -quality 90 -write "$OUTPUT_DIR/1024.webp" \) \
-  \( -clone 0 -resize 400x400 -quality 85 -write "$OUTPUT_DIR/400.jpg" \) \
-  \( -clone 0 -resize 600x600 -quality 85 -write "$OUTPUT_DIR/600.jpg" \) \
-  \( -clone 0 -resize 800x800 -quality 85 -write "$OUTPUT_DIR/800.jpg" \) \
-  \( -clone 0 -resize 1024x1024 -quality 85 -write "$OUTPUT_DIR/1024.jpg" \) \
-  null:
-
-echo "All images processed successfully in $OUTPUT_DIR"
+# One-time processing for project thumbnails
+magick input-image.jpg -resize 400x300 -quality 95 public/assets/images/project-thumbnail.png
 ```
-
-## Project Thumbnail Processing
-
-For project thumbnails, use a single optimized image:
-
-```bash
-#!/bin/bash
-# Usage: ./process-project-thumbnail.sh input-image.jpg output-name
-
-INPUT_IMAGE="$1"
-OUTPUT_NAME="$2"
-OUTPUT_DIR="public/assets/images"
-
-# Generate optimized PNG for project thumbnails
-magick "$INPUT_IMAGE" -resize 400x300 -quality 95 "$OUTPUT_DIR/$OUTPUT_NAME.png"
-
-echo "Project thumbnail created: $OUTPUT_DIR/$OUTPUT_NAME.png"
-```
-
-## Batch Processing
-
-For processing multiple images at once:
-
-```bash
-#!/bin/bash
-# Batch process all JPG files in current directory for a blog post
-
-POST_SLUG="$1"
-if [ -z "$POST_SLUG" ]; then
-    echo "Usage: $0 <blog-post-slug>"
-    exit 1
-fi
-
-for image in *.jpg *.jpeg *.png; do
-    if [ -f "$image" ]; then
-        echo "Processing $image..."
-        ./process-blog-image.sh "$image" "$POST_SLUG"
-    fi
-done
-```
-
-## Quality Settings
-
-- **AVIF**: Quality 85 (excellent compression)
-- **WebP**: Quality 90 (good balance)
-- **JPG**: Quality 85 (standard web quality)
-
-## Size Standards
-
-- **400px**: Mobile/small screens
-- **600px**: Tablet portrait
-- **800px**: Desktop/tablet landscape
-- **1024px**: High-resolution displays
 
 ## Performance Benefits
 
-### Astro Auto-Optimization (Recommended)
+### Astro Auto-Optimization (Current Approach)
 - **Build-time optimization**: All images generated during build, not runtime
 - **Automatic caching**: Reuses generated images across builds
 - **Type safety**: Full TypeScript support with image imports
 - **Zero manual work**: No commands to run, no files to track
 - **Perfect formats**: Always generates optimal AVIF, WebP, and JPG
-- **Social media ready**: Automatic og:image generation for sharing
-
-### Legacy ImageMagick (Deprecated)
-- **Faster processing**: ImageMagick only loads the source image once
-- **Reduced I/O**: Less file system operations  
-- **Better resource utilization**: More efficient memory usage
-- **Atomic operation**: All images are generated in one go
+- **Responsive by default**: Automatic responsive image generation
+- **SEO optimized**: Proper alt text and loading attributes
 
 ## Best Practices
 
-1. **Always use the Astro workflow** for new blog posts
-2. **Use high-quality source images** (at least 1024px wide)
-3. **Convert existing posts gradually** when updating content
-4. **Maintain aspect ratios** in source images
-5. **Test social media previews** after publishing
+1. **Always use the Astro workflow** for all blog images
+2. **Use high-quality source images** (at least 1024px wide for hero images)
+3. **Only process source images once** for size/quality optimization
+4. **Maintain proper aspect ratios** in source images
+5. **Use descriptive alt text** for accessibility and SEO
+6. **Use `loading="eager"` for hero images** and `loading="lazy"` for content images
+
+## Migration from Legacy Approach
+
+If you have existing manually processed images in `public/assets/images/blog/`, you can:
+
+1. **Keep existing posts as-is** - they'll continue working
+2. **For new posts**: Always use the Astro workflow
+3. **When updating old posts**: Migrate to the new workflow by:
+   - Moving source image to `src/assets/images/blog/post-slug/hero.jpg`
+   - Converting to `.mdx` format
+   - Using `AutoOptimizedImage` component
+   - Removing old manually generated images from `public/`

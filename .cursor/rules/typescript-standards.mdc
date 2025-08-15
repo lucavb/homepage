@@ -1,0 +1,87 @@
+---
+globs: *.ts,*.tsx,*.astro
+description: TypeScript standards and best practices
+---
+
+# TypeScript Standards
+
+This rule defines TypeScript coding standards and best practices for this project.
+
+## Type Definitions
+
+### Interface Naming
+- Use PascalCase with `I` prefix for interfaces: `IMetaHead`, `IProject`, `IBlogPost`
+- Define interfaces in [src/types/index.ts](mdc:src/types/index.ts)
+- Export all interfaces for reuse across components
+
+### Type Imports
+Always use proper type imports:
+
+```typescript
+import type { ImageMetadata } from 'astro';
+import type { IProject, IBlogPost } from '@types';
+```
+
+### Component Props
+Define props interfaces within component files:
+
+```astro
+---
+interface Props {
+    title: string;
+    description?: string;
+    class?: string;
+}
+---
+```
+
+## Code Quality Standards
+
+### Strict TypeScript
+- Use strict TypeScript configuration as defined in [tsconfig.json](mdc:tsconfig.json)
+- No `any` types - use proper typing or `unknown` with type guards
+- Enable all strict checks and maintain type safety
+
+### Import Organization
+- Use path aliases: `@types`, `@data`, `@components`
+- Group imports: external libraries, internal modules, relative imports
+- Use type-only imports when importing only types
+
+### Error Handling
+- Use proper error types instead of `any`
+- Handle async operations with proper error boundaries
+- Use type guards for runtime type checking
+
+## Astro-Specific TypeScript
+
+### Component Props
+- Always destructure props with proper typing
+- Use default values in destructuring when appropriate
+- Handle optional props gracefully
+
+### Content Collections
+- Use Astro's content collection types
+- Define proper schemas in [src/content/config.ts](mdc:src/content/config.ts)
+- Use `z.object()` for validation schemas
+
+### Image Types
+- Use `ImageMetadata` type for imported images
+- Handle both string paths and ImageMetadata objects in components
+- Proper typing for responsive image components
+
+## Development Practices
+
+### Code Organization
+- Keep utility functions in `src/utils/`
+- Separate business logic from presentation
+- Use composition over inheritance
+
+### Performance Considerations
+- Use proper tree-shaking with named imports
+- Avoid large bundle sizes with careful imports
+- Lazy load components when appropriate
+
+### Testing and Validation
+- Use Astro's built-in type checking: `npm run cq:type-check`
+- Validate content collection schemas
+- Ensure all TypeScript errors are resolved before deployment

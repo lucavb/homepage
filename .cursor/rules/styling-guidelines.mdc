@@ -1,0 +1,201 @@
+---
+globs: *.astro,*.css,tailwind.config.cjs
+description: Styling guidelines and Tailwind CSS conventions
+---
+
+# Styling Guidelines
+
+This rule defines the styling standards and Tailwind CSS conventions for this project.
+
+## Tailwind CSS Configuration
+
+### Configuration File
+- Main config: [tailwind.config.cjs](mdc:tailwind.config.cjs)
+- Dark mode: `class` strategy for manual toggle
+- Typography plugin: `@tailwindcss/typography` for blog content
+
+### Custom Extensions
+- Font families: `inter` and `outfit` defined in theme
+- Typography customization for code blocks
+- Dark mode variants for typography elements
+
+## Color Scheme and Theming
+
+### Primary Colors
+- **Primary**: Blue variants (`blue-600`, `blue-700`)
+- **Secondary**: Indigo variants (`indigo-100`, `indigo-700`, `indigo-800`)
+- **Neutral**: Gray scale for text and backgrounds
+
+### Dark Mode Implementation
+- Use `dark:` prefix for dark mode variants
+- Maintain contrast ratios for accessibility
+- Test both light and dark themes for all components
+
+### Color Usage Patterns
+```css
+/* Light mode base with dark mode override */
+class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+
+/* Interactive elements */
+class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-600"
+```
+
+## Typography Standards
+
+### Font Families
+- **Body Text**: Inter (`font-inter`)
+- **Headings**: Outfit (`font-outfit`)
+- **Code**: System monospace stack
+
+### Font Loading
+- Preload critical fonts in [Layout.astro](mdc:src/layouts/Layout.astro)
+- Use optimized WOFF2 formats from `public/assets/fonts/optimized/`
+- Fallback to system fonts for performance
+
+### Typography Scale
+- Use Tailwind's default scale: `text-sm`, `text-base`, `text-lg`, etc.
+- Maintain consistent line heights: `leading-relaxed`, `leading-normal`
+- Use proper heading hierarchy: `text-3xl`, `text-2xl`, `text-xl`
+
+## Layout and Spacing
+
+### Container Patterns
+```css
+/* Page containers */
+class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8"
+
+/* Section spacing */
+class="py-16 lg:py-24"
+
+/* Card layouts */
+class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+```
+
+### Responsive Design
+- Mobile-first approach with Tailwind breakpoints
+- Use established breakpoints: `sm:`, `md:`, `lg:`, `xl:`
+- Test across all device sizes
+
+### Grid and Flexbox
+- Use CSS Grid for complex layouts: `grid`, `grid-cols-*`
+- Use Flexbox for component layouts: `flex`, `items-center`, `justify-between`
+- Maintain consistent spacing with gap utilities
+
+## Component Styling Patterns
+
+### Card Components
+```css
+class="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+```
+
+### Interactive Elements
+```css
+/* Buttons */
+class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200"
+
+/* Links */
+class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
+```
+
+### Form Elements
+```css
+/* Input fields */
+class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+```
+
+## Animation and Transitions
+
+### Transition Standards
+- Use consistent duration: `duration-200`, `duration-300`
+- Apply to interactive states: `hover:`, `focus:`
+- Smooth property transitions: `transition-colors`, `transition-shadow`
+
+### Animation Classes
+```css
+/* Fade in animation */
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Hover effects */
+class="transform hover:scale-105 transition-transform duration-200"
+```
+
+## Accessibility and Performance
+
+### Focus States
+- Always include focus states for interactive elements
+- Use `focus:ring-2 focus:ring-blue-500` for keyboard navigation
+- Maintain proper contrast ratios
+
+### Performance Considerations
+- Use Tailwind's purge/content configuration to remove unused styles
+- Minimize custom CSS in favor of utility classes
+- Optimize for critical rendering path
+
+## Blog Content Styling
+
+### Typography Plugin
+- Use `@tailwindcss/typography` for blog content
+- Custom configuration in [tailwind.config.cjs](mdc:tailwind.config.cjs)
+- Dark mode support for typography elements
+
+### Code Blocks
+```css
+/* Inline code */
+code {
+    background-color: #e5e7eb; /* light mode */
+    color: #1f2937;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+}
+
+/* Dark mode code */
+.dark code {
+    background-color: #374151;
+    color: #f3f4f6;
+}
+```
+
+### Content Containers
+```css
+/* Blog post content */
+class="prose dark:prose-dark max-w-none"
+
+/* Article layout */
+class="max-w-4xl mx-auto px-4 py-8"
+```
+
+## Development Workflow
+
+### Class Organization
+- Group related classes together
+- Use consistent ordering: layout, spacing, colors, typography
+- Break long class strings across lines for readability
+
+### Responsive Testing
+- Test all breakpoints during development
+- Use browser dev tools for responsive testing
+- Verify touch targets on mobile devices
+
+### Dark Mode Testing
+- Test both light and dark themes for every component
+- Verify contrast ratios meet accessibility standards
+- Ensure all interactive states work in both themes
+
+## Custom CSS Guidelines
+
+### When to Use Custom CSS
+- Only when Tailwind utilities are insufficient
+- For complex animations not covered by Tailwind
+- For third-party component integration
+
+### Custom CSS Location
+- Global styles: [src/styles/style.css](mdc:src/styles/style.css)
+- Font definitions: [src/styles/fonts.css](mdc:src/styles/fonts.css)
+- Component-specific: Use `<style>` blocks in Astro components
+
+### CSS Custom Properties
+- Use CSS custom properties for dynamic values
+- Define in `:root` for global access
+- Maintain dark mode variants with `[data-theme="dark"]`

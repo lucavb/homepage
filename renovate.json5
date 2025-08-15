@@ -3,5 +3,5 @@
     extends: ['config:recommended'],
     semanticCommits: 'enabled',
     semanticCommitType: 'chore',
-    semanticCommitScope: 'deps',
+    semanticCommitScope: 'deps'
 }

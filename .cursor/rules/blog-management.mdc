@@ -1,0 +1,126 @@
+---
+globs: src/content/blog/**/*,*.mdx
+description: Blog content management and creation guidelines
+---
+
+# Blog Content Management
+
+This rule defines the standards and workflow for creating and managing blog content.
+
+## Blog Post Structure
+
+### File Organization
+- All blog posts go in `src/content/blog/` directory
+- Use `.mdx` format for all blog posts to enable component imports
+- File names should match the slug: `my-blog-post.mdx`
+- Create corresponding image directories: `src/assets/images/blog/my-blog-post/`
+
+### Frontmatter Schema
+Follow the schema defined in [src/content/config.ts](mdc:src/content/config.ts):
+
+```yaml
+---
+title: 'Your Blog Post Title'
+description: 'SEO-friendly description under 160 characters'
+publishDate: 2025-01-20
+tags: ['tag1', 'tag2', 'tag3']
+heroImagePath: 'post-slug/hero.jpg'
+draft: false
+---
+```
+
+### Required Frontmatter Fields
+- `title`: SEO-optimized title
+- `description`: Meta description for search engines
+- `publishDate`: Publication date in YYYY-MM-DD format
+- `heroImagePath`: Path relative to `src/assets/images/blog/`
+- `draft`: Boolean to control publication status
+
+### Optional Fields
+- `tags`: Array of relevant tags for categorization
+- `thumbnail`: Custom thumbnail path (auto-generated if not provided)
+
+## Content Creation Workflow
+
+### Hero Images
+Use Astro's automatic optimization with [AutoOptimizedImage.astro](mdc:src/components/general/AutoOptimizedImage.astro):
+
+```mdx
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Descriptive alt text for accessibility and SEO"
+    loading="eager"
+/>
+```
+
+### Image Optimization
+**CRITICAL**: Use Astro's automatic optimization [[memory:6200230]]:
+1. Place single source image in `src/assets/images/blog/post-slug/hero.jpg`
+2. Astro automatically generates all sizes (400px, 600px, 800px, 1024px) and formats (AVIF, WebP, JPG)
+3. No manual ImageMagick processing needed for new posts
+
+### Content Structure
+- Start with hero image using AutoOptimizedImage component
+- Use proper heading hierarchy (H2, H3, H4)
+- Include code examples with proper syntax highlighting
+- Add internal links to related posts when relevant
+
+## SEO and Metadata
+
+### Title Optimization
+- Keep titles under 60 characters
+- Include primary keywords naturally
+- Make titles compelling and clickable
+
+### Description Guidelines
+- 120-160 characters for optimal search display
+- Include primary keywords
+- Write compelling copy that encourages clicks
+
+### Tag Strategy
+- Use 3-7 relevant tags per post
+- Maintain consistency across related posts
+- Include both broad and specific tags
+
+## Content Quality Standards
+
+### Writing Style
+- Write in first person when sharing personal experiences
+- Use clear, concise language
+- Include practical examples and code snippets
+- Maintain professional but approachable tone
+
+### Technical Content
+- Test all code examples before publishing
+- Include proper error handling in examples
+- Explain complex concepts step by step
+- Provide context for technical decisions
+
+### Accessibility
+- Use descriptive alt text for all images
+- Maintain proper heading structure
+- Ensure good color contrast in any custom styling
+- Write descriptive link text
+
+## Publication Workflow
+
+### Pre-Publication Checklist
+1. Verify all frontmatter fields are complete
+2. Test hero image displays correctly
+3. Check all internal and external links
+4. Verify code examples work as expected
+5. Run spell check and grammar review
+6. Ensure proper heading hierarchy
+
+### Draft Management
+- Set `draft: true` for work-in-progress posts
+- Draft posts won't appear in production builds
+- Use draft mode for content review and editing
+
+### Content Updates
+- Update `publishDate` only for major revisions
+- Maintain original publication date for minor edits
+- Consider adding update notes for significant changes
