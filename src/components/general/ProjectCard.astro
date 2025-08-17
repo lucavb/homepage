@@ -1,8 +1,15 @@
 ---
 import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import { IProjectDetails } from '@types';
+
 const { projectDetail } = Astro.props as IProjectDetails;
 const { title, thumbnail, liveUrl, githubUrl } = projectDetail;
+
+// Type guard to check if thumbnail is ImageMetadata
+const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
+    return typeof src === 'object' && src !== null && 'src' in src;
+};
 ---
 
 <article class="w-full max-h-[25rem] overflow-hidden relative group">
@@ -61,14 +68,27 @@ const { title, thumbnail, liveUrl, githubUrl } = projectDetail;
         }
     </div>
     <a href={liveUrl ? liveUrl : githubUrl} target="_blank" aria-label={`View ${title} project details`}>
-        <Image
-            src={thumbnail}
-            alt={`${title} project screenshot`}
-            class="w-full h-auto scale-100 hover:scale-110 transition duration-[1.5s]"
-            loading="lazy"
-            width={400}
-            height={300}
-        />
+        {
+            isImageMetadata(thumbnail) ? (
+                <Image
+                    src={thumbnail}
+                    alt={`${title} project screenshot`}
+                    class="w-full h-auto scale-100 hover:scale-110 transition duration-[1.5s]"
+                    loading="lazy"
+                    width={400}
+                    height={300}
+                />
+            ) : (
+                <img
+                    src={thumbnail}
+                    alt={`${title} project screenshot`}
+                    class="w-full h-auto scale-100 hover:scale-110 transition duration-[1.5s]"
+                    loading="lazy"
+                    width="400"
+                    height="300"
+                />
+            )
+        }
     </a>
     <div
         class="absolute w-full bottom-0 left-0 backdrop-blur-md dark:text-white text-white bg-black/50 p-4 translate-y-[100%] group-hover:translate-y-0 transition duration-700"

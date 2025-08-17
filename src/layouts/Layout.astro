@@ -1,5 +1,4 @@
 ---
-import { IMetaHead } from '@types';
 import { info } from '@data';
 import '../styles/style.css';
 
@@ -19,7 +18,7 @@ const {
     title = '',
     description = '',
     ogImageUrl = '/assets/images/og-image.jpg',
-    class: className = 'light',
+    class: _className = 'light',
     publishDate,
     tags = [],
     isArticle = false,
@@ -131,7 +130,7 @@ const structuredData = {
         <meta name="twitter:image" content={absoluteImageUrl} />
         <meta name="twitter:image:alt" content={title || `${info.name} - ${info.jobDescription}`} />
 
-        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+        <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
 
         <link rel="alternate" type="application/rss+xml" title="Luca Becker - Blog" href="/rss.xml" />
 

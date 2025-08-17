@@ -2,7 +2,7 @@ import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import { info } from '../data/info';
 
-export async function GET(context) {
+export async function GET() {
     const posts = await getCollection('blog');
 
     // Filter out draft posts and sort by publish date (newest first)

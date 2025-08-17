@@ -142,7 +142,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             </svg>`,
         };
 
-        function applyTheme(theme) {
+        function applyTheme(theme: string) {
             const actualTheme =
                 theme === 'system'
                     ? window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -196,7 +196,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             return stored || 'system';
         }
 
-        function setTheme(theme) {
+        function setTheme(theme: string) {
             localStorage.setItem('theme', theme);
             applyTheme(theme);
         }
@@ -210,7 +210,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
         const dropdown = document.querySelector('[id$="-dropdown"]');
 
         if (dropdownButton && dropdown) {
-            let hideTimeout;
+            let hideTimeout: ReturnType<typeof setTimeout> | null = null;
             let isDropdownOpen = false;
 
             const showDropdown = () => {
