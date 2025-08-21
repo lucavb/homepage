@@ -8,6 +8,7 @@ draft: false
 ---
 
 import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
 import heroImage from '../../assets/images/blog/agent-coding-from-typing-to-talking/hero.jpg';
 import coneTheoryImage from '../../assets/images/blog/agent-coding-from-typing-to-talking/cone-theory.jpg';
 
@@ -37,7 +38,7 @@ The biggest change isn't in tools - it's mental. I've moved from thinking about 
 
 ## The Cone Theory: Mastering the Art of Constraint
 
-<AutoOptimizedImage
+<ImageLightbox
     src={coneTheoryImage}
     alt="The Cone Theory - Diagram showing how vague requests lead to many possibilities (wide funnel) while specific requests narrow down to focused outcomes (narrow funnel)"
     class="mx-auto block max-w-lg"

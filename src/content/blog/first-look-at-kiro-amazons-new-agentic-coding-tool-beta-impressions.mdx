@@ -8,6 +8,7 @@ draft: false
 ---
 
 import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
 import heroImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/hero.jpg';
 import sidebarImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/kiro-sidebar.jpg';
 import commandApprovalImage from '../../assets/images/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/kiro-command-approval.jpg';
@@ -43,7 +44,7 @@ There's this "fancy" sidebar that immediately caught my attention, but there's n
 
 After some exploration, I discovered the sidebar contains your past "specs" - essentially a history of larger features where you've gone through Kiro's structured planning phase. Think of it as a project memory bank where your architectural decisions and feature development sessions are stored for future reference. It's quite clever once you understand what it's for, but the complete lack of explanation makes it feel like a mystery feature.
 
-<AutoOptimizedImage
+<ImageLightbox
     src={sidebarImage}
     alt="Kiro's sidebar interface showing SPECS section with 'Build complex features with structured planning', plus AGENT HOOKS, AGENT STEERING, and MCP SERVERS sections"
     loading="lazy"
@@ -122,7 +123,7 @@ So Kiro was automatically accessing and reading a file containing sensitive API 
 
 **No shortcuts for approving shell command execution** - though this seems to only matter for some commands.
 
-<AutoOptimizedImage
+<ImageLightbox
     alt="Kiro's command approval interface showing 'Waiting on your input..' with Reject, Trust, and Run buttons, but no keyboard shortcuts indicated"
     class="w-full max-w-2xl mx-auto my-6 shadow-lg rounded-lg"
     loading="lazy"
@@ -161,7 +162,7 @@ I decided to test Kiro's "Spec" feature by asking it to build a tool for automat
 
 **The Good**: The Spec feature did create a structured breakdown in a `tasks.md` file, maintaining that architectural continuity I mentioned earlier. Having a persistent plan that tracks progress through complex features is genuinely useful. Looking at the actual spec files, you can see how Kiro breaks down requirements, tracks implementation decisions, and maintains context across the development process.
 
-<AutoOptimizedImage
+<ImageLightbox
     src={specModeImage}
     alt="Kiro's spec mode interface showing structured task breakdown with Requirements, Design, and Task list tabs, plus real-time task execution and file editing panels"
     loading="lazy"

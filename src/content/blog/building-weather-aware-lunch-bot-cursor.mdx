@@ -8,6 +8,7 @@ draft: false
 ---
 
 import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
 import heroImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/hero.jpg';
 import goodWeatherImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/good-weather.jpg';
 import badWeatherImage from '../../assets/images/blog/building-weather-aware-lunch-bot-cursor/bad-weather.jpg';
@@ -174,7 +175,7 @@ const isGoodWeatherForLunch = (weather: WeatherData, config: Config) => {
 
 When conditions are perfect, team members receive encouraging notifications that actively promote meetups, complete with reaction prompts and confirmation links:
 
-<AutoOptimizedImage
+<ImageLightbox
     src={goodWeatherImage}
     alt="Slack bot notification showing 23°C clear weather with active encouragement for park lunch meetup and confirmation options"
     class="w-full max-w-lg mx-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
@@ -188,7 +189,7 @@ Maximum 2 weather notifications per week, tracked in DynamoDB. This isn't a tech
 
 The bot can also notify team members about less-than-ideal conditions, but with a completely different tone - informational rather than promotional:
 
-<AutoOptimizedImage
+<ImageLightbox
     src={badWeatherImage}
     alt="Slack bot showing rainy weather at 19°C with suggestion to consider indoor options instead of outdoor meetup"
     class="w-full max-w-lg mx-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
