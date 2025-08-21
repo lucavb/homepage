@@ -1,0 +1,64 @@
+---
+interface Props {
+    class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div
+    id="reading-progress-container"
+    class={`fixed top-0 left-0 right-0 z-[60] h-1 bg-gray-300 dark:bg-gray-600 shadow-sm transition-opacity duration-300 opacity-0 ${className}`}
+>
+    <div
+        id="reading-progress-bar"
+        class="h-full bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-400 dark:to-purple-400 transition-all duration-150 ease-out shadow-sm"
+        style="width: 0%"
+        role="progressbar"
+        aria-label="Reading progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+    >
+    </div>
+</div>
+
+<script>
+    const progressContainer = document.getElementById('reading-progress-container');
+    const progressBar = document.getElementById('reading-progress-bar');
+
+    if (progressContainer && progressBar) {
+        let ticking = false;
+
+        const updateProgress = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = Math.min(Math.max((scrollTop / docHeight) * 100, 0), 100);
+
+            progressBar.style.width = `${scrollPercent}%`;
+            progressBar.setAttribute('aria-valuenow', scrollPercent.toFixed(0));
+
+            if (scrollPercent > 5) {
+                progressContainer.classList.remove('opacity-0');
+                progressContainer.classList.add('opacity-100');
+            } else {
+                progressContainer.classList.add('opacity-0');
+                progressContainer.classList.remove('opacity-100');
+            }
+
+            ticking = false;
+        };
+
+        const requestTick = () => {
+            if (!ticking) {
+                requestAnimationFrame(updateProgress);
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', requestTick, { passive: true });
+        window.addEventListener('resize', requestTick, { passive: true });
+
+        updateProgress();
+    }
+</script>
