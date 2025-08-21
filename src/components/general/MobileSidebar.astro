@@ -19,10 +19,14 @@ const { isHomePage = true } = Astro.props;
 <div
     id="mobile-sidebar"
     class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="mobile-menu-title"
+    aria-hidden="true"
 >
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <span class="text-xl font-bold text-gray-900 dark:text-white">Menu</span>
+            <span id="mobile-menu-title" class="text-xl font-bold text-gray-900 dark:text-white">Menu</span>
             <button
                 id="mobile-menu-close"
                 class="p-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
@@ -58,12 +62,26 @@ const { isHomePage = true } = Astro.props;
         mobileSidebar?.classList.remove('translate-x-full');
         mobileSidebarOverlay?.classList.remove('opacity-0', 'pointer-events-none');
         document.body.style.overflow = 'hidden';
+
+        mobileMenuButton?.setAttribute('aria-expanded', 'true');
+        mobileMenuButton?.setAttribute('aria-label', 'Close menu');
+        mobileSidebar?.setAttribute('aria-hidden', 'false');
+
+        setTimeout(() => {
+            mobileMenuClose?.focus();
+        }, 100);
     };
 
     const closeMobileMenu = () => {
         mobileSidebar?.classList.add('translate-x-full');
         mobileSidebarOverlay?.classList.add('opacity-0', 'pointer-events-none');
         document.body.style.overflow = '';
+
+        mobileMenuButton?.setAttribute('aria-expanded', 'false');
+        mobileMenuButton?.setAttribute('aria-label', 'Open menu');
+        mobileSidebar?.setAttribute('aria-hidden', 'true');
+
+        mobileMenuButton?.focus();
     };
 
     mobileMenuButton?.addEventListener('click', openMobileMenu);
@@ -85,6 +103,25 @@ const { isHomePage = true } = Astro.props;
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeMobileMenu();
+        }
+
+        if (!mobileSidebar?.classList.contains('translate-x-full') && e.key === 'Tab') {
+            const focusableElements = mobileSidebar?.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            );
+
+            if (focusableElements && focusableElements.length > 0) {
+                const firstElement = focusableElements[0] as HTMLElement;
+                const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+                if (e.shiftKey && document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
         }
     });
 </script>
