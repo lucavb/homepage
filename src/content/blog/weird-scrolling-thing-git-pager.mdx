@@ -1,0 +1,93 @@
+---
+title: 'That Weird Scrolling Thing in Git Has a Name (And You Can Configure It)'
+description: 'Discover what pagers are, why git uses them, and explore modern alternatives to the default less pager for better command-line productivity.'
+publishDate: 2025-08-21
+tags: ['git', 'cli', 'tools', 'productivity', 'terminal']
+heroImagePath: 'weird-scrolling-thing-git-pager/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/weird-scrolling-thing-git-pager/hero.jpg';
+
+<AutoOptimizedImage src={heroImage} alt="Terminal showing git log output in a pager interface" loading="eager" />
+
+You know that moment when you run `git log` and suddenly you're in this scrolling interface you didn't expect? The one where you're trapped until you figure out to press `q`? That's a pager, and I'd bet you use one every day without knowing it.
+
+I ran a very informal survey at TNG recently, and the results were telling: 17 people said yes, they use a pager. 32 didn't know the term or weren't sure if they were using one with git. 4 people mentioned they intentionally don't use them. My favorite response? 5 people reacted to my joke about their "pager still being from Motorola."
+
+If you're in that middle group of 32, this post is for you.
+
+## What's Actually Happening
+
+A pager is a program that displays text one screen at a time. When you run commands like `git log`, `aws logs describe-log-groups`, or even `man less`, and the output is longer than your terminal height, these commands automatically pipe their output to a pager instead of dumping everything at once.
+
+That scrolling interface isn't git being weird - it's doing you a favor by making long output readable.
+
+The most common pager you've probably encountered is `less` (yes, as in "less is more"). It's been the default on most systems for years. But here's the thing: `less` probably isn't the best option anymore, and you have choices.
+
+## A Brief History of Screen Management
+
+Back in the early days of Unix, terminals were physical devices with limited screen real estate - often just 24 lines of text. When you wanted to read a long file or manual page, the text would just scroll past faster than you could read it. The solution was `more`, created in the late 1970s as part of BSD Unix.
+
+The name "more" came from its simple prompt at the bottom of each screen: `--More--`. You could press space to see the next screen, but that was about it. If you missed something, tough luck - `more` only went forward.
+
+This limitation frustrated developers, particularly Mark Nudelman, who in 1985 created `less` with the philosophy "less is more" (the opposite of the architectural principle). Unlike `more`, `less` could scroll backwards, had better search capabilities, and could handle pipes without buffering everything into memory first. It quickly became the standard on most Unix systems.
+
+Then came `most` in the 1990s with the tongue-in-cheek tagline "less is more than more, most is more than less." Its key innovation was supporting multiple files simultaneously - you could view several files at once in different windows, plus it added horizontal scrolling for those annoyingly wide log files.
+
+## Taking Control
+
+You can configure which pager gets used in three main ways:
+
+**System-wide default:**
+
+```bash
+export PAGER=your-pager-choice
+```
+
+**Git-specific:**
+
+```bash
+git config --global core.pager your-pager-choice
+```
+
+**AWS CLI:**
+
+```bash
+aws configure set cli_pager your-pager-choice
+```
+
+Want to disable pagers entirely? Set any of these to `cat` and output will just dump to your terminal like the old days.
+
+## Your Pager Options
+
+The landscape has evolved quite a bit beyond the traditional `less`. Here's what's out there:
+
+**Traditional Options:**
+
+- `more` - The original pager, still works fine for basic needs (built into most systems)
+- `less` - The longtime standard (but maybe not the best choice anymore) (built into most systems)
+- [`most`](https://jedsoft.org/most/) - Supports multiple windows and horizontal scrolling for wide files
+
+**Modern Alternatives:**
+
+- [`ov`](https://github.com/noborus/ov) - Feature-rich with visual enhancements like column-rainbow mode
+- [`slit`](https://github.com/tigrawap/slit) - Built specifically for handling noisy logs (great for developers)
+- [`moor`](https://github.com/walles/moor) - Better UTF-8 handling for modern international text
+- [`streampager`](https://github.com/markbt/streampager) - Optimized for command output and large files
+- [`les`](https://github.com/zorgnax/les) - Improved features over the traditional `less`
+
+Personally, I'm currently trying `moor` - not because I'm convinced it's the best, but because I wanted to see what modern pagers actually offer. Your mileage may vary.
+
+## The Bottom Line
+
+If you're one of those 32 people who didn't know what a pager was, you now know you've been using one all along. And unlike that Motorola pager gathering dust in a drawer somewhere, this one you can actually configure to work the way you want.
+
+Try a few options, see what clicks with your workflow. Or stick with `less` if it's working for you. The important thing is knowing you have a choice.
+
+Speaking of choices, I just published a [small script](https://gist.github.com/lucavb/af7b3d6d47e69ffd53e23be61a0643a3) that adaptively either invokes your actual pager or falls back to `cat` depending on your terminal emulator. This is particularly helpful when working with agentic IDEs like Cursor, which tend to struggle with interactive pagers. The script detects when you're in a proper terminal (like iTerm) versus an embedded terminal and adjusts accordingly.
+
+---
+
+_What pager are you using? Or are you team "dump everything to terminal"? I'm curious to hear what works for different people's workflows._
