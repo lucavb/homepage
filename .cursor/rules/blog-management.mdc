@@ -12,8 +12,10 @@ This rule defines the standards and workflow for creating and managing blog cont
 ### File Organization
 - All blog posts go in `src/content/blog/` directory
 - Use `.mdx` format for all blog posts to enable component imports
-- File names should match the slug: `my-blog-post.mdx`
-- Create corresponding image directories: `src/assets/images/blog/my-blog-post/`
+- **File names should closely match the title content**, not arbitrary names
+  - Example: Title "Agent Hooks: Amazon's Take on Reactive Development" → `agent-hooks-reactive-development.mdx`
+  - Capture the main concepts from the title in the slug
+- Create corresponding image directories: `src/assets/images/blog/slug-name/`
 
 ### Frontmatter Schema
 Follow the schema defined in [src/content/config.ts](mdc:src/content/config.ts):
@@ -42,13 +44,21 @@ draft: false
 
 ## Content Creation Workflow
 
-### Hero Images
-Use Astro's automatic optimization with [AutoOptimizedImage.astro](mdc:src/components/general/AutoOptimizedImage.astro):
+### Component Imports
+Always import the necessary components at the top:
 
 ```mdx
 import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
 import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
+```
 
+**Note**: Only import ImageLightbox if you plan to include screenshots in the post.
+
+### Hero Images
+Use AutoOptimizedImage component for hero images:
+
+```mdx
 <AutoOptimizedImage
     src={heroImage}
     alt="Descriptive alt text for accessibility and SEO"
@@ -56,11 +66,36 @@ import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
 />
 ```
 
-### Image Optimization
-**CRITICAL**: Use Astro's automatic optimization [[memory:6200230]]:
-1. Place single source image in `src/assets/images/blog/post-slug/hero.jpg`
-2. Astro automatically generates all sizes (400px, 600px, 800px, 1024px) and formats (AVIF, WebP, JPG)
-3. No manual ImageMagick processing needed for new posts
+### Screenshots and Additional Images
+Use ImageLightbox component for screenshots:
+
+```mdx
+<ImageLightbox
+    src={screenshotImage}
+    alt="Descriptive alt text explaining what the screenshot shows"
+    loading="lazy"
+    class="w-full my-6 shadow-lg rounded-lg"
+/>
+```
+
+### Image Processing Workflow
+**CRITICAL**: Use Astro's automatic optimization correctly:
+
+1. **Preprocess source images if needed**:
+   - PNG to JPEG conversion: `magick input.png -quality 90 hero.jpg`
+   - Never resize - keep original dimensions
+   - Use 90% quality for JPEG conversion
+
+2. **Place single source image**: `src/assets/images/blog/post-slug/hero.jpg`
+
+3. **Let Astro handle optimization**: Astro automatically generates all necessary resolutions (400px, 600px, 800px, 1024px) and formats (AVIF, WebP, JPG)
+
+4. **Never manually create multiple sizes** - this is handled automatically by Astro
+
+### Internal Linking
+- **Use relative URLs**: `/blog/post-slug/` 
+- **NOT absolute URLs**: `https://luca-becker.me/blog/post-slug/`
+- This ensures links work in all environments
 
 ### Content Structure
 - Start with hero image using AutoOptimizedImage component
@@ -107,13 +142,23 @@ import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
 
 ## Publication Workflow
 
+### Blog Post Setup Process
+1. **Choose appropriate slug** based on title content
+2. **Create frontmatter** with all required fields
+3. **Add component imports** (AutoOptimizedImage + ImageLightbox if needed)
+4. **Process hero image** using ImageMagick if needed
+5. **Create image directory** for the post
+6. **Add hero image** at the top of the post
+7. **Process any screenshots** and integrate with ImageLightbox
+
 ### Pre-Publication Checklist
 1. Verify all frontmatter fields are complete
 2. Test hero image displays correctly
-3. Check all internal and external links
+3. Check all internal links use relative URLs
 4. Verify code examples work as expected
 5. Run spell check and grammar review
 6. Ensure proper heading hierarchy
+7. Verify screenshot integration if applicable
 
 ### Draft Management
 - Set `draft: true` for work-in-progress posts
@@ -124,3 +169,8 @@ import heroImage from '../../assets/images/blog/post-slug/hero.jpg';
 - Update `publishDate` only for major revisions
 - Maintain original publication date for minor edits
 - Consider adding update notes for significant changes
+
+### File Management
+- Clean up original image files after processing
+- Remove temporary files and screenshots from project root
+- Maintain organized asset structure
