@@ -1,0 +1,149 @@
+---
+title: "Agent Hooks: Amazon's Take on Reactive Development"
+description: "Testing Kiro's Agent Hooks feature - a fascinating take on reactive development where your IDE automatically responds to changes. But does the execution match the innovative concept?"
+publishDate: 2025-08-25
+tags: ['kiro', 'amazon', 'ai development', 'automation', 'reactive development', 'coding tools', 'developer tools']
+heroImagePath: 'agent-hooks-reactive-development/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
+import heroImage from '../../assets/images/blog/agent-hooks-reactive-development/hero.jpg';
+import hooksInterfaceImage from '../../assets/images/blog/agent-hooks-reactive-development/kiro-hooks-interface.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Abstract visualization of reactive development with interconnected nodes representing automated code responses"
+    loading="eager"
+/>
+
+You know that feeling when you make a change to one file and immediately think "oh crap, I need to update three other files now"? What if your editor just... did that for you?
+
+In my [last Kiro review](/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/), I mentioned Agent Hooks as something I hadn't explored yet. Now I have, and what Amazon is building with [Kiro](https://kiro.dev/) is genuinely interesting - not just another AI chat feature, but a different way to think about how your IDE responds to your work.
+
+## Beyond VSCode-with-Chat
+
+Here's what I appreciate about Kiro's approach: they're not just giving us another VSCode fork with AI chat bolted on. While tools like Cursor excel at conversational AI assistance, Kiro is experimenting with additional paradigms. Agent Hooks represents something fundamentally different - your development environment actively watching your work and reacting automatically.
+
+Think of it as the evolution of file watchers and build systems, but with AI doing the thinking instead of just running predefined scripts.
+
+The system can respond to four types of events: **file creation**, **file updates**, **file deletion**, and **manual triggers**. This gives you flexibility to automate different aspects of your workflow - from setting up boilerplate when new files are created, to cleanup tasks when files are removed, to on-demand analysis when you explicitly need it. The manual type essentially gives you a play button for any agent hook, letting you run it whenever you want rather than waiting for a file system event.
+
+## Amazon's Hook Examples
+
+I tested several different hooks to understand the concept in practice. Let me start with the examples that Amazon seems to be promoting:
+
+<ImageLightbox
+    src={hooksInterfaceImage}
+    alt="Kiro's Agent Hooks interface showing the hook configuration with Code Quality Analyzer setup, file path monitoring, and detailed agent instructions"
+    loading="lazy"
+    class="w-full my-6 shadow-lg rounded-lg"
+/>
+
+The interface above shows Kiro's Agent Hooks configuration panel in action. You can see the "Code Quality Analyzer" hook being set up with specific instructions and file path monitoring. The sidebar shows different types of hooks available, and the right panel displays real-time execution feedback.
+
+### Translation Sync Hook
+
+My first test was automating translation updates. Whenever I modified translation keys in my main language file, the hook would automatically update corresponding translation files. Sure, this could be done with traditional file watchers, but the AI approach means it can handle context and nuanced changes rather than just mechanical replacements.
+
+### Code Smell Detection Hook
+
+This one felt more genuinely AI-native. I configured a hook to scan for code smells whenever I saved a file - things like overly complex functions, inconsistent naming patterns, or architectural violations. These are the kinds of "less defined" tasks that traditional automation struggles with but AI can actually evaluate.
+
+The code smell hook worked surprisingly well. I tested this twice with different levels of complexity - first with [obvious code smells](https://github.com/lucavb/kiro-agent-hook-tests/releases/tag/kiro-fix-code-smells-obvious), then with [more subtle issues](https://github.com/lucavb/kiro-agent-hook-tests/releases/tag/kiro-fix-code-smells-subtle). In both cases, Kiro identified legitimate issues and provided concrete improvements. It would catch issues I might miss during focused coding and suggest improvements that were actually valuable.
+
+### The Infinite Optimization Problem
+
+But here's where things got interesting (and slightly hilarious). I discovered you can continuously trigger the code smell hook by cutting an entire file and pasting it back. Each time, Kiro would find new "optimizations" to make.
+
+I tried this three times with my App.tsx file. First pass: it extracted some logic into custom hooks. Second pass: it moved components to separate files. Third pass: it reorganized the folder structure. By the end, it was optimizing just to optimize, and the code was arguably worse than when we started.
+
+This highlights a fundamental challenge with AI automation: knowing when to stop. The AI doesn't recognize a "final" state - it will keep finding ways to change your code indefinitely if you let it.
+
+## Under the Hood: Agent Hook Format
+
+Here's what an agent hook actually looks like under the hood - this is the translation sync example I mentioned:
+
+```json
+{
+    "enabled": true,
+    "name": "Auto Translation Sync",
+    "description": "Monitor changes to localization files and automatically generate translations for all configured target languages while maintaining context and locale-specific conventions",
+    "version": "1",
+    "when": {
+        "type": "fileEdited",
+        "patterns": [
+            "public/locales/**/*.json",
+            "**/*.yaml",
+            "**/*.yml",
+            "**/locales/**/*.json",
+            "**/i18n/**/*.json",
+            "**/translations/**/*.json"
+        ]
+    },
+    "then": {
+        "type": "askAgent",
+        "prompt": "A localization file has been modified. Please analyze the changes and:\n\n1. Identify any new or modified text content in the changed file\n2. Determine the source language and target languages based on the file structure\n3. Generate accurate translations for all target languages, ensuring:\n   - Proper context and meaning are maintained\n   - Locale-specific conventions are followed\n   - Consistent terminology across all translations\n   - Appropriate formatting for the file type (JSON, YAML, etc.)\n4. Update the corresponding translation files with the new translations\n5. Preserve existing translations that haven't changed\n\nFocus on maintaining translation quality and consistency across all supported languages."
+    }
+}
+```
+
+What's particularly interesting is that Kiro provides much more context than just executing this prompt. When the hook triggers, the agent conversation actually starts with something like: "I can see that a new translation key 'test' with the value 'The quick brown fox jumps' was added to the English translation file. Let me analyze the existing translations and update all target language files with the appropriate translations."
+
+This hints that Kiro is doing more sophisticated analysis behind the scenes - it's not just firing off a generic prompt, but actually analyzing what changed and providing that context to the AI agent. The hook receives specific information about what files were modified and what those changes were.
+
+## My Own Hook Experiment
+
+Beyond the Amazon examples, I wanted to test my own idea for automated development tasks. I created a hook that automatically generates or updates unit tests when I save React components.
+
+### Automated Test Updates Hook
+
+The prompt was simple: "When I save a react component file, check whether there is a unit test file next to it and potentially update it to cover newly added functionality."
+
+This one actually worked well. You can see the [actual tests Kiro generated here](https://github.com/lucavb/kiro-agent-hook-tests/releases/tag/kiro-add-tests). The generated tests weren't sophisticated, but they provided decent coverage and could likely be improved with better prompting. This feels like a workflow that could genuinely become part of my development routine.
+
+## The Constraints Reality
+
+Testing revealed some significant limitations that currently hold the feature back:
+
+**One Hook Per File Change**: Only one hook can execute per file save, and there's no obvious pattern for which one gets selected. If you have both translation sync and code smell detection configured, you can't predict which will run.
+
+**No Hook Orchestration**: Multiple hooks don't run simultaneously or in sequence. This breaks more complex workflows where you might want translation updates followed by code quality checks.
+
+**Background Execution Limits**: The hooks run entirely in the background, which creates constraints around shell command execution and user interaction.
+
+## A Different Kind of AI Assistance
+
+What strikes me about Agent Hooks is how different it feels from chat-based AI assistance. Instead of explicitly asking for help, you just code normally while AI handles peripheral tasks in the background. It's like having a very attentive pair programmer who takes care of the tedious stuff without interrupting your flow.
+
+This could be a smoother path for developers who find chat-based AI overwhelming or disruptive. You maintain full control of your primary coding while AI provides surrounding features.
+
+## The Execution Gap
+
+The gap between concept and execution remains significant. The "one hook per file" limitation feels arbitrary and breaks useful workflows. The infinite optimization problem needs better stopping criteria. The lack of hook orchestration prevents more sophisticated automation chains.
+
+But the foundation is genuinely interesting. Amazon isn't just building another AI chat interface - they're experimenting with reactive development environments that respond intelligently to your work.
+
+That's worth watching, even if the current implementation needs work.
+
+All the examples mentioned in this post are real - you can explore the actual code changes, generated tests, and hook configurations in [this GitHub repository](https://github.com/lucavb/kiro-agent-hook-tests).
+
+## The Bigger Picture
+
+Despite the execution limitations, the Agent Hooks feature makes me more optimistic about Kiro and this type of IDE evolution. What we're seeing here represents a fundamental shift in how we might approach development work in the near future - it's worth taking seriously and understanding these emerging patterns.
+
+I can see this feature eventually becoming mainstream, especially for tasks that traditional automation can't handle well.
+
+Imagine hooks that:
+
+- Run Playwright tests automatically when you modify UI components
+- Update documentation when APIs change
+- Generate security reports when dependencies are modified
+- Sync design tokens when component props are updated
+
+We're used to prettier and ESLint running on save, but this operates at a more complex, contextual level. It's automation with understanding.
+
+---
+
+_What kind of automated development tasks would you want your IDE handling in the background? I'm curious what workflows this approach might unlock once the execution catches up to the concept._
