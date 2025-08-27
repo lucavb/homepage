@@ -81,10 +81,11 @@ Use ImageLightbox component for screenshots:
 ### Image Processing Workflow
 **CRITICAL**: Use Astro's automatic optimization correctly:
 
-1. **Preprocess source images if needed**:
-   - PNG to JPEG conversion: `magick input.png -quality 90 hero.jpg`
-   - Never resize - keep original dimensions
-   - Use 90% quality for JPEG conversion
+1. **Preprocess blog post images** (PNG to JPEG conversion):
+   ```bash
+   # Convert PNG to JPEG at 85% quality (full resolution)
+   magick input.png -quality 85 hero.jpg
+   ```
 
 2. **Place single source image**: `src/assets/images/blog/post-slug/hero.jpg`
 
@@ -146,7 +147,7 @@ Use ImageLightbox component for screenshots:
 1. **Choose appropriate slug** based on title content
 2. **Create frontmatter** with all required fields
 3. **Add component imports** (AutoOptimizedImage + ImageLightbox if needed)
-4. **Process hero image** using ImageMagick if needed
+4. **Convert PNG to JPEG** using ImageMagick at 85% quality
 5. **Create image directory** for the post
 6. **Add hero image** at the top of the post
 7. **Process any screenshots** and integrate with ImageLightbox

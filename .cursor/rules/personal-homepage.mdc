@@ -18,59 +18,41 @@ This is Luca Becker's personal homepage built with Astro, TypeScript, and Tailwi
 - Use the established color scheme and gradient classes
 - Maintain the responsive design patterns already in place
 
-## Image Optimization with ImageMagick
+## Image Optimization with Astro
 
 ### Image Processing Workflow
 
-When adding new images to the project, ALWAYS generate multiple formats and sizes:
+Use Astro's automatic image optimization for all images:
 
-```bash
-# For blog post images, generate 4 sizes in 3 formats
-# Replace 'image-name' with your actual image name
+1. **Preprocess blog post images** (PNG to JPEG conversion):
+   ```bash
+   # Convert PNG to JPEG at 85% quality (full resolution)
+   magick input.png -quality 85 hero.jpg
+   ```
 
-# Generate AVIF format (most efficient)
-magick input.jpg -resize 400x400 -quality 85 public/assets/images/blog/post-name/400.avif
-magick input.jpg -resize 600x600 -quality 85 public/assets/images/blog/post-name/600.avif
-magick input.jpg -resize 800x800 -quality 85 public/assets/images/blog/post-name/800.avif
-magick input.jpg -resize 1024x1024 -quality 85 public/assets/images/blog/post-name/1024.avif
+2. **Place the single source image** in `src/assets/images/blog/post-slug/hero.jpg`
 
-# Generate WebP format (good fallback)
-magick input.jpg -resize 400x400 -quality 90 public/assets/images/blog/post-name/400.webp
-magick input.jpg -resize 600x600 -quality 90 public/assets/images/blog/post-name/600.webp
-magick input.jpg -resize 800x800 -quality 90 public/assets/images/blog/post-name/800.webp
-magick input.jpg -resize 1024x1024 -quality 90 public/assets/images/blog/post-name/1024.webp
-
-# Generate JPG format (universal fallback)
-magick input.jpg -resize 400x400 -quality 85 public/assets/images/blog/post-name/400.jpg
-magick input.jpg -resize 600x600 -quality 85 public/assets/images/blog/post-name/600.jpg
-magick input.jpg -resize 800x800 -quality 85 public/assets/images/blog/post-name/800.jpg
-magick input.jpg -resize 1024x1024 -quality 85 public/assets/images/blog/post-name/1024.jpg
-```
+3. **Let Astro handle optimization** - Astro automatically generates all necessary:
+   - Resolutions: 400px, 600px, 800px, 1024px
+   - Formats: AVIF, WebP, JPG
+   - Responsive srcsets
 
 ### Image Organization
 
-- Blog images: `public/assets/images/blog/[post-slug]/`
-- Project thumbnails: `public/assets/images/`
+- Blog images: `src/assets/images/blog/[post-slug]/`
+- Project thumbnails: `src/assets/images/`
 - Always create a dedicated folder for each blog post's images
-- Use descriptive filenames and maintain the size naming convention
+- Use descriptive filenames (e.g., `hero.jpg`, `diagram.jpg`)
 
-### Picture Element Usage
+### Component Usage
 
-Always use the picture element with proper source sets:
+Use the existing components that leverage Astro's optimization:
 
-```astro
-<picture>
-    <source srcset="/assets/images/blog/post-name/800.avif" type="image/avif" />
-    <source srcset="/assets/images/blog/post-name/800.webp" type="image/webp" />
-    <img
-        src="/assets/images/blog/post-name/800.jpg"
-        alt="Descriptive alt text"
-        class="w-full h-full object-cover"
-        loading="lazy"
-        decoding="async"
-    />
-</picture>
-```
+- `<BlogHeroImage />` - For blog post hero images
+- `<AutoOptimizedImage />` - For general images with automatic optimization
+- `<BlogThumbnail />` - For blog post thumbnails
+
+These components automatically handle responsive images and format selection.
 
 ## Styling Guidelines
 
@@ -110,7 +92,7 @@ Always use the picture element with proper source sets:
 1. Use the existing component patterns
 2. Test both light and dark modes
 3. Ensure responsive behavior across devices
-4. Optimize images using the ImageMagick workflow
+4. Use Astro's automatic image optimization workflow
 5. Follow the established TypeScript and Astro conventions
 
 Remember: Consistency is key. Always reference existing components and maintain the established patterns and design language.

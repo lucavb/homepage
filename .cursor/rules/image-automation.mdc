@@ -77,11 +77,11 @@ From **ONE source image**, Astro's Picture component automatically generates:
 ### Image Processing Guidelines
 
 #### Source Image Preparation
-**CRITICAL**: Only process source images once for quality and size optimization:
+**CRITICAL**: Convert PNG source images to JPEG at 85% quality:
 
 ```bash
-# Scale down and optimize source image quality (one-time only)
-magick input.png -resize 1024x1024 -quality 95 hero.jpg
+# Convert PNG to JPEG at 85% quality (full resolution)
+magick input.png -quality 85 hero.jpg
 ```
 
 Then place in `src/assets/images/blog/post-slug/hero.jpg` and let Astro handle the rest.
@@ -117,7 +117,7 @@ For project thumbnails (non-blog images), continue using single optimized images
 
 ```bash
 # One-time processing for project thumbnails
-magick input-image.jpg -resize 400x300 -quality 95 public/assets/images/project-thumbnail.png
+magick input-image.png -quality 85 public/assets/images/project-thumbnail.jpg
 ```
 
 ## Performance Benefits
