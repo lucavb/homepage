@@ -4,11 +4,17 @@ import SectionTitle from '@components/general/SectionTitle.astro';
 ---
 
 <!-- About Section -->
-<section id="about" class="py-20 bg-white dark:bg-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle title="About Me" />
+<section id="about" class="py-20 bg-white dark:bg-gray-900 relative overflow-hidden">
+    <!-- Subtle background decoration -->
+    <div class="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full opacity-50 parallax-element" data-intensity="0.2"></div>
+    <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-full opacity-40 parallax-element" data-intensity="0.15"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="parallax-fade">
+            <SectionTitle title="About Me" />
+        </div>
         <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div class="parallax-fade parallax-element" data-intensity="0.08">
                 <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
                     Passionate about transforming businesses through technology
                 </h3>
@@ -16,18 +22,87 @@ import SectionTitle from '@components/general/SectionTitle.astro';
                     {info.about.split('\n').map((paragraph) => paragraph.trim() && <p>{paragraph}</p>)}
                 </div>
                 <div class="grid grid-cols-2 gap-6 mt-8">
-                    <div>
+                    <div class="parallax-element" data-intensity="0.05">
                         <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Location</h4>
                         <p class="text-gray-600 dark:text-gray-300">Munich, Germany</p>
                     </div>
-                    <div>
+                    <div class="parallax-element" data-intensity="0.07">
                         <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Experience</h4>
                         <p class="text-gray-600 dark:text-gray-300">5+ Years</p>
                     </div>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-6">
-                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div class="grid grid-cols-2 gap-6 parallax-fade">
+                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-2 parallax-element" data-intensity="0.04">
+                    <div
+                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Full Stack Development</h4>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">
+                        Building scalable web applications with modern technologies and best practices.
+                    </p>
+                </div>
+                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-2 parallax-element" data-intensity="0.06">
+                    <div
+                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Cloud Architecture</h4>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">
+                        Designing and implementing cloud-native solutions with AWS and Kubernetes.
+                    </p>
+                </div>
+                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-2 parallax-element" data-intensity="0.05">
+                    <div
+                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Team Leadership</h4>
+                    <p class="text-gray-600 dark:text-gray-300 text-sm">
+                        Leading technical teams and mentoring developers to achieve project excellence.
+                    </p>
+                </div>
+                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg hover:shadow-lg transition-all duration-300 hover:-translate-y-2 parallax-element" data-intensity="0.07">
                     <div
                         class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
                     >

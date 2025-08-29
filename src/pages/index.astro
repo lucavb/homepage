@@ -12,17 +12,257 @@ import { info } from '@data';
 ---
 
 <Layout title="" description={info.about} ogImageUrl="/assets/images/og-image.jpg" class="light">
-    <Header />
-    <HeroSection />
-    <AboutSection />
-    <ExperienceSection />
-    <ProjectsSection />
-    <BlogSection />
-    <ContactSection />
-    <Footer />
+    <!-- Parallax Background Elements -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div class="parallax-bg-1 absolute inset-0 opacity-20" data-parallax-speed="0.5"></div>
+        <div class="parallax-bg-2 absolute inset-0 opacity-10" data-parallax-speed="0.3"></div>
+    </div>
+
+    <div class="relative z-10">
+        <Header />
+        <div data-parallax-container>
+            <HeroSection />
+            <AboutSection />
+            <ExperienceSection />
+            <ProjectsSection />
+            <BlogSection />
+            <ContactSection />
+            <Footer />
+        </div>
+    </div>
 </Layout>
+
+<style>
+/* Parallax CSS */
+.parallax-bg-1 {
+    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.3) 0%, transparent 50%);
+    will-change: transform;
+}
+
+.parallax-bg-2 {
+    background: radial-gradient(circle at 60% 40%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+    will-change: transform;
+}
+
+.parallax-element {
+    will-change: transform;
+    transition: transform 0.1s ease-out;
+}
+
+.parallax-fade {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.parallax-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.floating-element {
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-element-delayed {
+    animation: float 6s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Optimize for performance */
+.parallax-optimized {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+    .parallax-bg-1, 
+    .parallax-bg-2 {
+        opacity: 0.1 !important;
+    }
+    
+    .floating-element,
+    .floating-element-delayed {
+        animation: none;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .parallax-bg-1,
+    .parallax-bg-2,
+    .floating-element,
+    .floating-element-delayed {
+        transform: none !important;
+        animation: none !important;
+    }
+    
+    .parallax-fade {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+</style>
 
 <script>
     import { initHomepageAnalytics } from '../utils/analytics';
-    initHomepageAnalytics();
+    
+    class ParallaxController {
+        private elements: NodeListOf<Element>;
+        private fadeElements: NodeListOf<Element>;
+        private bgElements: NodeListOf<Element>;
+        private ticking: boolean = false;
+        private scrollY: number = 0;
+        private windowHeight: number = window.innerHeight;
+        private prefersReducedMotion: boolean = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        private isMobile: boolean = window.innerWidth < 768;
+
+        constructor() {
+            this.elements = document.querySelectorAll('[data-parallax-speed]');
+            this.fadeElements = document.querySelectorAll('.parallax-fade');
+            this.bgElements = document.querySelectorAll('.parallax-bg-1, .parallax-bg-2');
+            
+            this.init();
+        }
+
+        private init(): void {
+            if (this.prefersReducedMotion) {
+                this.fadeElements.forEach(el => el.classList.add('visible'));
+                return;
+            }
+
+            this.bindEvents();
+            this.updateElements();
+            
+            // Add floating animation to select elements
+            this.addFloatingAnimations();
+        }
+
+        private bindEvents(): void {
+            let timeout: NodeJS.Timeout;
+            
+            window.addEventListener('scroll', () => {
+                this.scrollY = window.scrollY;
+                
+                if (!this.ticking) {
+                    requestAnimationFrame(() => this.updateElements());
+                    this.ticking = true;
+                }
+            }, { passive: true });
+
+            window.addEventListener('resize', () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    this.windowHeight = window.innerHeight;
+                    this.isMobile = window.innerWidth < 768;
+                }, 100);
+            });
+        }
+
+        private updateElements(): void {
+            this.ticking = false;
+
+            // Update parallax background elements
+            if (!this.isMobile) {
+                this.bgElements.forEach((element) => {
+                    const speed = parseFloat(element.getAttribute('data-parallax-speed') || '0.5');
+                    const yPos = this.scrollY * speed;
+                    (element as HTMLElement).style.transform = `translate3d(0, ${yPos}px, 0)`;
+                });
+            }
+
+            // Update fade-in elements
+            this.fadeElements.forEach((element) => {
+                const rect = element.getBoundingClientRect();
+                const elementTop = rect.top;
+                const elementBottom = rect.bottom;
+
+                if (elementTop < this.windowHeight * 0.9 && elementBottom > 0) {
+                    element.classList.add('visible');
+                }
+            });
+
+            // Update section parallax
+            this.updateSectionParallax();
+        }
+
+        private updateSectionParallax(): void {
+            if (this.isMobile) return;
+
+            const sections = document.querySelectorAll('section');
+            sections.forEach((section, index) => {
+                const rect = section.getBoundingClientRect();
+                const sectionCenter = rect.top + rect.height / 2;
+                const distanceFromCenter = (this.windowHeight / 2 - sectionCenter) / this.windowHeight;
+
+                // Apply subtle parallax to section content
+                const parallaxElements = section.querySelectorAll('.parallax-element');
+                parallaxElements.forEach((el) => {
+                    const intensity = parseFloat(el.getAttribute('data-intensity') || '0.1');
+                    const yPos = distanceFromCenter * intensity * 50;
+                    (el as HTMLElement).style.transform = `translate3d(0, ${yPos}px, 0)`;
+                });
+            });
+        }
+
+        private addFloatingAnimations(): void {
+            if (this.isMobile || this.prefersReducedMotion) return;
+
+            // Add floating animation to hero profile image
+            const heroImage = document.querySelector('.rounded-full');
+            if (heroImage) {
+                heroImage.classList.add('floating-element');
+            }
+
+            // Add floating to some cards in about section
+            const aboutCards = document.querySelectorAll('#about .bg-gray-50');
+            aboutCards.forEach((card, index) => {
+                if (index % 2 === 0) {
+                    card.classList.add('floating-element');
+                } else {
+                    card.classList.add('floating-element-delayed');
+                }
+            });
+        }
+    }
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', () => {
+        initHomepageAnalytics();
+        new ParallaxController();
+    });
+
+    // Add intersection observer for better performance
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -10% 0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('parallax-fade');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all sections for fade-in effect
+    document.addEventListener('DOMContentLoaded', () => {
+        const sections = document.querySelectorAll('section');
+        sections.forEach(section => observer.observe(section));
+    });
 </script>
