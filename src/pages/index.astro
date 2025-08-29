@@ -33,95 +33,101 @@ import { info } from '@data';
 </Layout>
 
 <style>
-/* Parallax CSS */
-.parallax-bg-1 {
-    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.3) 0%, transparent 50%);
-    will-change: transform;
-}
+    /* Parallax CSS */
+    .parallax-bg-1 {
+        background:
+            radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.3) 0%, transparent 50%);
+        will-change: transform;
+    }
 
-.parallax-bg-2 {
-    background: radial-gradient(circle at 60% 40%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 60%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
-    will-change: transform;
-}
-
-.parallax-element {
-    will-change: transform;
-    transition: transform 0.1s ease-out;
-}
-
-.parallax-fade {
-    opacity: 0;
-    transform: translateY(50px);
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.parallax-fade.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.floating-element {
-    animation: float 6s ease-in-out infinite;
-}
-
-.floating-element-delayed {
-    animation: float 6s ease-in-out infinite 2s;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-}
-
-/* Smooth scroll behavior */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Optimize for performance */
-.parallax-optimized {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-/* Mobile optimization */
-@media (max-width: 768px) {
-    .parallax-bg-1, 
     .parallax-bg-2 {
-        opacity: 0.1 !important;
+        background:
+            radial-gradient(circle at 60% 40%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 40% 60%, rgba(99, 102, 241, 0.2) 0%, transparent 50%);
+        will-change: transform;
     }
-    
-    .floating-element,
-    .floating-element-delayed {
-        animation: none;
-    }
-}
 
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-    .parallax-bg-1,
-    .parallax-bg-2,
-    .floating-element,
-    .floating-element-delayed {
-        transform: none !important;
-        animation: none !important;
+    .parallax-element {
+        will-change: transform;
+        transition: transform 0.1s ease-out;
     }
-    
+
     .parallax-fade {
-        opacity: 1 !important;
-        transform: none !important;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
-}
+
+    .parallax-fade.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .floating-element {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element-delayed {
+        animation: float 6s ease-in-out infinite 2s;
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+    }
+
+    /* Smooth scroll behavior */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Optimize for performance */
+    .parallax-optimized {
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
+
+    /* Mobile optimization */
+    @media (max-width: 768px) {
+        .parallax-bg-1,
+        .parallax-bg-2 {
+            opacity: 0.1 !important;
+        }
+
+        .floating-element,
+        .floating-element-delayed {
+            animation: none;
+        }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .parallax-bg-1,
+        .parallax-bg-2,
+        .floating-element,
+        .floating-element-delayed {
+            transform: none !important;
+            animation: none !important;
+        }
+
+        .parallax-fade {
+            opacity: 1 !important;
+            transform: none !important;
+        }
+    }
 </style>
 
 <script>
     import { initHomepageAnalytics } from '../utils/analytics';
-    
+
     class ParallaxController {
-        private elements: NodeListOf<Element>;
         private fadeElements: NodeListOf<Element>;
         private bgElements: NodeListOf<Element>;
         private ticking: boolean = false;
@@ -131,37 +137,40 @@ html {
         private isMobile: boolean = window.innerWidth < 768;
 
         constructor() {
-            this.elements = document.querySelectorAll('[data-parallax-speed]');
             this.fadeElements = document.querySelectorAll('.parallax-fade');
             this.bgElements = document.querySelectorAll('.parallax-bg-1, .parallax-bg-2');
-            
+
             this.init();
         }
 
         private init(): void {
             if (this.prefersReducedMotion) {
-                this.fadeElements.forEach(el => el.classList.add('visible'));
+                this.fadeElements.forEach((el) => el.classList.add('visible'));
                 return;
             }
 
             this.bindEvents();
             this.updateElements();
-            
+
             // Add floating animation to select elements
             this.addFloatingAnimations();
         }
 
         private bindEvents(): void {
             let timeout: NodeJS.Timeout;
-            
-            window.addEventListener('scroll', () => {
-                this.scrollY = window.scrollY;
-                
-                if (!this.ticking) {
-                    requestAnimationFrame(() => this.updateElements());
-                    this.ticking = true;
-                }
-            }, { passive: true });
+
+            window.addEventListener(
+                'scroll',
+                () => {
+                    this.scrollY = window.scrollY;
+
+                    if (!this.ticking) {
+                        requestAnimationFrame(() => this.updateElements());
+                        this.ticking = true;
+                    }
+                },
+                { passive: true },
+            );
 
             window.addEventListener('resize', () => {
                 clearTimeout(timeout);
@@ -203,7 +212,7 @@ html {
             if (this.isMobile) return;
 
             const sections = document.querySelectorAll('section');
-            sections.forEach((section, index) => {
+            sections.forEach((section) => {
                 const rect = section.getBoundingClientRect();
                 const sectionCenter = rect.top + rect.height / 2;
                 const distanceFromCenter = (this.windowHeight / 2 - sectionCenter) / this.windowHeight;
@@ -249,11 +258,11 @@ html {
     const observerOptions = {
         root: null,
         rootMargin: '0px 0px -10% 0px',
-        threshold: 0.1
+        threshold: 0.1,
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('parallax-fade');
             }
@@ -263,6 +272,6 @@ html {
     // Observe all sections for fade-in effect
     document.addEventListener('DOMContentLoaded', () => {
         const sections = document.querySelectorAll('section');
-        sections.forEach(section => observer.observe(section));
+        sections.forEach((section) => observer.observe(section));
     });
 </script>

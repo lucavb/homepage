@@ -7,10 +7,22 @@ import { info } from '@data';
     class="pt-32 pb-20 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 min-h-screen flex items-center relative overflow-hidden"
 >
     <!-- Floating decoration elements -->
-    <div class="absolute top-20 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full opacity-20 parallax-element" data-intensity="0.3"></div>
-    <div class="absolute bottom-32 right-16 w-16 h-16 bg-indigo-200 dark:bg-indigo-800 rounded-full opacity-30 parallax-element" data-intensity="0.2"></div>
-    <div class="absolute top-1/3 right-20 w-12 h-12 bg-purple-200 dark:bg-purple-800 rounded-full opacity-25 parallax-element" data-intensity="0.4"></div>
-    
+    <div
+        class="absolute top-20 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-800 rounded-full opacity-20 parallax-element"
+        data-intensity="0.3"
+    >
+    </div>
+    <div
+        class="absolute bottom-32 right-16 w-16 h-16 bg-indigo-200 dark:bg-indigo-800 rounded-full opacity-30 parallax-element"
+        data-intensity="0.2"
+    >
+    </div>
+    <div
+        class="absolute top-1/3 right-20 w-12 h-12 bg-purple-200 dark:bg-purple-800 rounded-full opacity-25 parallax-element"
+        data-intensity="0.4"
+    >
+    </div>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
         <div class="mb-8 parallax-element" data-intensity="0.1">
             <div
@@ -37,7 +49,10 @@ import { info } from '@data';
                 </picture>
             </div>
         </div>
-        <h1 class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 parallax-fade parallax-element" data-intensity="0.05">
+        <h1
+            class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 parallax-fade parallax-element"
+            data-intensity="0.05"
+        >
             {info.name}
         </h1>
         <h2
@@ -54,7 +69,11 @@ import { info } from '@data';
         >
             {info.about.split('\n')[0]}
         </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center parallax-fade parallax-element" data-intensity="0.04" style="animation-delay: 0.6s">
+        <div
+            class="flex flex-col sm:flex-row gap-4 justify-center parallax-fade parallax-element"
+            data-intensity="0.04"
+            style="animation-delay: 0.6s"
+        >
             <a
                 href="#projects"
                 class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105"
