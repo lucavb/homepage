@@ -1,0 +1,98 @@
+---
+title: 'Can You Actually Code from Your Phone? Testing Cursor Agents'
+description: "I spent a few evenings testing Cursor Agents to see if AI-powered development on isolated VMs could actually let you code on the go. Here's what I learned about the promises and limitations of autonomous coding agents."
+publishDate: 2025-09-04
+tags: ['cursor', 'ai', 'development', 'mobile', 'productivity', 'agents']
+heroImagePath: 'can-you-actually-code-from-your-phone-testing-cursor-agents/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
+import heroImage from '../../assets/images/blog/can-you-actually-code-from-your-phone-testing-cursor-agents/hero.jpg';
+import mobileInterfaceImage from '../../assets/images/blog/can-you-actually-code-from-your-phone-testing-cursor-agents/mobile-interface.jpeg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Developer coding on mobile device with AI agent assistance showing cloud-connected development environment"
+    loading="eager"
+/>
+
+I've been curious about Cursor Agents since they launched the feature, but honestly, I kept putting off testing it. It's one of those things where you see a new feature announcement, think "that sounds interesting," and then just... never get around to actually trying it.
+
+But I've been systematically exploring what Cursor has to offer, and Agents was sitting there as this untested piece of the puzzle. The concept is intriguing: delegate coding tasks to run in the background on isolated VMs with internet access. So I finally carved out some time over a couple of evenings to see what it's actually like to work with.
+
+I tested it on two projects - my personal homepage and my aicommits tool - and the experience taught me quite a bit about where AI-assisted development is heading and where it's not quite ready yet.
+
+## What Cursor Agents Actually Do
+
+At its core, Cursor Agents lets you use CMD+E to delegate tasks to isolated Ubuntu VMs that run in the background. They have internet access and can work with your repositories through your GitHub permissions. It's designed to let you kick off work and come back to it later - or theoretically, monitor and guide it from your phone through their progressive web app.
+
+The agent creates PRs as drafts when it's done, which is a nice touch. You get a dedicated VM view where you can see the remote project space and monitor what's happening. But here's where things get interesting (and sometimes frustrating).
+
+## The Rule File Reality Check
+
+After testing agents for a few evenings, one thing became crystal clear: your .cursorrules files become exponentially more important.
+
+With the desktop app, if the AI goes in the wrong direction, you can easily course-correct in the same chat. You start multiple conversations to get different perspectives. But with agents running autonomously, that back-and-forth is much more limited. The agent is more willing to go further down a path without your immediate input.
+
+**Key Insight**: If you're going to use agents, make your rule files very strict and very specific. Yes, you can reprompt, but prevention is better than correction when you're not actively monitoring.
+
+## Where It Works (And Where It Doesn't)
+
+I had mixed results with my testing. The agent successfully implemented a "detect commit style" feature for my aicommits project, which was genuinely useful. But when I asked it to create a parallax scrolling mechanism for my homepage, it failed completely - though to be fair, so did the normal desktop mode. Styling remains a weak point across all current LLMs.
+
+The more fundamental issue I ran into was with interactive commands. Every time the agent tries to invoke something that requires a TTY (terminal input), it just gets stuck. Git rebases, interactive prompts, setup commands that need actual user input - anything that expects interaction hits a wall and waits indefinitely.
+
+I had a git rebase get stuck immediately, but I let it sit for 15 minutes to see if Cursor had built in any timeout handling. It didn't - I had to abort it manually. If you're "on the go" and this happens, you have to go back to your machine right away. So much for the mobile workflow promise.
+
+## The Git Integration Reality Check
+
+The agent creates PRs as drafts when it's done, which is a nice touch. But the git integration has some rough edges that become apparent quickly.
+
+The bigger issue I ran into was with commit message consistency. Despite the desktop Cursor app being excellent at analyzing past commits to match your commit message style, the agent completely ignores this. As someone who's a strong advocate for conventional commits, watching the agent create inconsistent commit messages was frustrating. The desktop app has this figured out - it looks at your commit history and matches your patterns. But apparently, that same logic isn't implemented in the agent workflow.
+
+**Quick Note**: Don't expect to be able to interact with your agent through PR comments either. I tried using @cursor and @cursoragent tags in PR comments thinking I could give feedback or corrections, but they just don't work. It's another small disconnect that adds up to make the workflow feel less integrated than it could be.
+
+This feels like an oversight that could be fixed, but it's the kind of detail that shows agents are still a v1 feature.
+
+## Mobile Coding: The Reality
+
+The mobile experience through Cursor's progressive web app is... functional but limited. You can monitor progress and send basic prompts, but there's a disconnect between the mobile and desktop views that makes it feel clunky. The mobile app doesn't always show when commands are stuck, while the desktop view makes it obvious.
+
+<ImageLightbox
+    src={mobileInterfaceImage}
+    alt="Cursor's mobile progressive web app interface showing agent progress monitoring with diff view and chat functionality for remote code development"
+    class="w-full max-w-md mx-auto rounded-lg shadow-md border border-gray-200 dark:border-gray-700"
+    loading="lazy"
+/>
+
+More importantly, the TTY issue makes "coding on the go" more theoretical than practical. If your agent hits an interactive command (which happens more often than you'd expect), your mobile session becomes useless until you can get back to a proper machine.
+
+I also ran into cases where the agent didn't auto-open a PR on mobile, possibly due to prompt confusion, which meant I had to switch back to desktop to see the results anyway.
+
+## The Pricing Black Box
+
+Currently, agents only run in "max mode," which translates to more expensive operations. There are spend limits you can set, but the pricing is essentially a black box right now. VM compute pricing is listed as "coming soon," which is classic SaaS territory.
+
+For testing and occasional use, this isn't a big deal. But if you're planning to integrate agents into your regular workflow, the pricing uncertainty is worth considering.
+
+## Where This Fits in the Bigger Picture
+
+After four months with Cursor and now testing agents, I see this as a complementary tool rather than a replacement for the desktop experience. There are even Slack integrations where agents can react to comments and messages, which opens up interesting team workflow possibilities.
+
+But more broadly, this represents where the industry is heading with AI-assisted development. The technical capabilities are impressive - having an AI that can work autonomously on your codebase while you're away is genuinely useful when it works.
+
+The key word is "when." We're not at the point where AI is making developers obsolete (no one serious is claiming that), but developers should be aware of these tools and understand how to use them effectively.
+
+## The Bottom Line
+
+Cursor Agents feel like a legitimate addition to an AI-assisted development workflow, but with important caveats. They're best suited for well-defined tasks that don't require interactive input, and they work much better when you have strict, detailed rule files.
+
+The mobile experience is more "monitoring" than "coding," and the TTY limitations make truly remote development frustrating. But for background processing of certain types of tasks? There's real value there.
+
+This is where we are with AI coding tools right now - impressive capabilities with realistic limitations. The industry is moving fast, and tools like this give us a glimpse of what's coming. But we're still in the phase where understanding the constraints is just as important as understanding the possibilities.
+
+---
+
+_Have you tried Cursor Agents yet? I'm curious about others' experiences, especially if you've found good workarounds for the interactive command issues or discovered use cases where they really shine._
