@@ -3,10 +3,10 @@ import aicommitsImage from '../assets/images/aicommits.png';
 export const info = {
     baseUrl: 'https://luca-becker.me',
     name: 'Luca Becker',
-    jobDescription: 'Senior Consultant & Full Stack Developer',
-    about: `I'm a senior software consultant based in Munich, Germany.
+    jobDescription: 'Principal Consultant & Full Stack Developer',
+    about: `I'm a principal software consultant based in Munich, Germany.
 I am passionate about creating digital experiences that thrive on the internet, whether they are websites, applications, or anything in between. Since starting my professional software development career in December 2019, I have specialized in Front-end Development and Full Stack Engineering.
-Currently, I work at TNG Technology Consulting as a Senior Software Consultant, where I have supported multiple clients as a Full Stack Engineer. Over these years, I have honed my skills in TypeScript, React, Angular, Java, Spring Boot, and cloud technologies like AWS and Kubernetes.
+Currently, I work at TNG Technology Consulting as a Principal Consultant, where I have supported multiple clients as a Full Stack Engineer. Over these years, I have honed my skills in TypeScript, React, Angular, Java, Spring Boot, and cloud technologies like AWS and Kubernetes.
 I am committed to continuous learning and exploration of new technologies. Recently, I've become deeply passionate about AI-assisted development, particularly how tools like Cursor and LLMs are revolutionizing the way we build software. These technologies allow us to focus on the important questions of software design and architecture rather than getting bogged down in implementation details.
 Currently, I am leading a team from a technical standpoint and managing the infrastructure at my second client, ensuring successful project delivery and technical excellence while embracing modern development practices.`,
 
