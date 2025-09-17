@@ -1,0 +1,132 @@
+---
+title: 'Level Up Agentic Coding with MCP #1: Web Search'
+description: 'Bridge the gap between RooCode and Cursor by adding web search capabilities using the DuckDuckGo MCP server for current information during development.'
+publishDate: 2025-09-17
+tags: ['mcp', 'roocode', 'cursor', 'web-search', 'ai-coding', 'duckduckgo']
+heroImagePath: 'level-up-agentic-coding-mcp-1-web-search/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
+import heroImage from '../../assets/images/blog/level-up-agentic-coding-mcp-1-web-search/hero.jpg';
+import setupInterface from '../../assets/images/blog/level-up-agentic-coding-mcp-1-web-search/setup-interface.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="AI coding interface with DuckDuckGo search integration showing web search capabilities in RooCode"
+    loading="eager"
+/>
+
+Last month, I wrote a [comparison between Cursor and the open alternatives](/blog/cursor-vs-vscode-extensions/) like RooCode, KiloCode, and Cline. The goal wasn't to declare a winner, but to help developers understand the trade-offs so they could make informed choices.
+
+One consistent theme from that comparison was how Cursor's "magic" features - like built-in web search - give it a polish advantage over the alternatives. Ask Cursor about a migration and tell it to search the web, and it will just "miraculously" get the latest information before it starts. With RooCode, you're back to alt-tabbing to your browser, searching manually, then trying to remember what you found.
+
+This is the first post in a series about **MCP servers for agentic coding** - specifically how to enhance your AI coding workflow using [MCP (Model Context Protocol)](https://modelcontextprotocol.io) servers. While this particular post is heavily geared towards RooCode (since it lacks the built-in search functionality that Cursor users already enjoy), future posts in this series will deliver valuable insights for both RooCode and Cursor users alike. Today we're starting with web search via the [DuckDuckGo MCP server](https://github.com/nickclyde/duckduckgo-mcp-server).
+
+## What You Get
+
+MCP servers extend what your AI coding assistant can do. The DuckDuckGo server adds web search directly to RooCode's capabilities. Instead of the agent working from potentially outdated training data, it can pull in current information when needed.
+
+I tested this recently on a TypeScript migration project. When I asked both systems to help migrate a JavaScript project, here's what they searched for:
+
+**RooCode + DuckDuckGo:** "migrate JavaScript project to TypeScript 2024 best practices Node.js"
+
+**Cursor:** "migrate JavaScript Node.js project to TypeScript 2024 best practices"
+
+Both were smart enough to include "homebridge" in follow-up searches because they understood the project context, even though I never mentioned it. That's the kind of contextual intelligence that actually saves time.
+
+This TypeScript migration test used about 8k additional tokens for the search capability. With Claude Sonnet 4 at $3 per million input tokens, that's exactly $0.024 - basically free when measured against a developer's salary.
+
+## The Key Differences
+
+Actually? Not much anymore. With the DuckDuckGo MCP server, the gap between RooCode and Cursor's search capabilities becomes negligible. Both can search contextually, both show you the queries, and both let you configure the approval behavior to your preference.
+
+The main difference now is just the default behavior: RooCode asks for approval before each search (though you can enable auto-approval), while Cursor searches automatically (though you can disable this). Choose whichever default feels right for your workflow.
+
+For privacy: RooCode splits data between your LLM provider and DuckDuckGo, while Cursor handles everything through their servers.
+
+## Setting It Up
+
+You'll need `uvx` available on your system. Install it with Homebrew:
+
+```bash
+brew install uv
+```
+
+Configure RooCode to use the DuckDuckGo MCP server:
+
+1. Click the three dots in the top right of the RooCode panel
+2. Select "MCP" from the menu
+3. Click "Edit Global Config"
+
+4. Add the DuckDuckGo server configuration to your `mcp.json`:
+
+```json
+{
+    "mcpServers": {
+        "ddg-search": {
+            "command": "uvx",
+            "args": ["duckduckgo-mcp-server"]
+        }
+    }
+}
+```
+
+5. Save the configuration
+
+The `uvx` command will automatically download and run the server in the background when RooCode needs it. Depending on the size of the MCP server, it might take a moment to become available. Once it's running, you'll see it appear in the list of MCP servers where you can also configure auto-approval for the tools offered by the server.
+
+<ImageLightbox
+    src={setupInterface}
+    alt="RooCode MCP settings interface showing the configured DuckDuckGo server with search and fetch_content tools, along with auto-approval toggles"
+    loading="lazy"
+    class="w-full my-6 shadow-lg rounded-lg"
+/>
+
+Once configured, you can prompt the agent with phrases like "search the internet for current best practices" or "do a quick search before implementing this." The agent will formulate contextual search queries based on your project and codebase.
+
+## You Have to Ask for It
+
+Both Cursor and RooCode require explicit nudging to trigger searches. Whether you're using Claude Sonnet 4 with Cursor or Qwen3 Coder with RooCode, the agents generally won't just decide to search on their own.
+
+I find myself using phrases like:
+
+- "Search for current best practices before implementing"
+- "Look up the latest approach to X"
+- "Check if there are any recent changes to Y"
+- "Do a quick search before we start"
+
+You can reduce some of this by adding instructions to your project's rule files, but they only help in specific scenarios and you don't want searches happening constantly anyway. In practice, you'll be explicitly requesting searches with both systems most of the time.
+
+## When to Use It
+
+Not every coding task needs web search. For routine implementations or well-established patterns, the agent's training data is usually sufficient. But for:
+
+- Technology migrations
+- New framework features
+- Current security recommendations
+- Recent API changes
+- Troubleshooting emerging issues
+
+Having current information can save significant debugging time.
+
+One quirk I've noticed: models tend to revert to their training cutoff dates when searching, asking for "2024" information instead of current info. You can work around this by being explicit: "search for how to solve X in September 2025" gets better results than generic searches.
+
+## The Practical Impact
+
+This isn't about making RooCode identical to Cursor - it's about reducing the friction of getting current information into your development workflow. Why manually search and paste context when your agent can do it while understanding your project?
+
+The DuckDuckGo MCP server won't solve every problem, and search results aren't always perfect regardless of the system. But it eliminates enough grunt work to be worthwhile, especially when you can see exactly what it's doing and control the process.
+
+## What's Next in This Series
+
+This DuckDuckGo integration is just the beginning. The MCP ecosystem has exploded with servers that can genuinely improve your coding workflow - but not all of them are worth your time.
+
+Over the next few posts, I'll be covering the MCP servers that have actually been useful for me:
+
+- Browser automation servers for testing your implementations and scraping documentation in real-time
+- Documentation context servers that bring framework docs directly into your agent's knowledge (no more hunting through React docs mid-conversation)
+- Memory and knowledge management servers that let your agents remember context across sessions and projects
+
+The MCP ecosystem is moving very fast and has spawned a lot of MCP servers, but it isn't easy to keep track of them and which ones can have an impact for you as the developer. This series will focus on the ones that actually save you time.
