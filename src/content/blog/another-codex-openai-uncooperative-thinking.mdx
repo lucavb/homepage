@@ -1,0 +1,162 @@
+---
+title: "Another Codex: OpenAI's Uncooperative Thinking Machine"
+description: 'Testing GPT-5-Codex against Claude Sonnet 4 and finding that long thinking times and uncooperative behavior kill developer productivity.'
+publishDate: 2025-09-24
+tags: ['ai-coding', 'openai', 'gpt-5-codex', 'claude']
+heroImagePath: 'another-codex-openai-uncooperative-thinking/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/another-codex-openai-uncooperative-thinking/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Illustrated clocks, code snippets, and the OpenAI logo representing GPT-5-Codex thinking delays"
+    loading="eager"
+/>
+
+OpenAI really can't quit the name "Codex." There was the [original Codex model](https://openai.com/blog/openai-codex/), then the [Codex VS Code extension](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt), their CLI tool is called Codex, and now their latest "proper" GPT-5 model gets the Codex naming too. At this point, it feels like they're just running down a checklist of things that need the Codex brand slapped on them.
+
+The [latest announcement](https://openai.com/index/introducing-upgrades-to-codex/) positions this as major upgrades to their coding capabilities, but does the reality match the marketing?
+
+Nine days after GPT-5-Codex dropped, I finally got my hands on it. OpenAI has been losing ground in the developer space, with most of us reaching for [Claude Sonnet 4](https://www.anthropic.com/news/claude-4) more often than not. I was curious to see if their latest offering could change that dynamic. I'd caught a few YouTube reviews, but nothing beats actually trying to build something with it.
+
+I like testing these models on my personal projects since there are no corporate restrictions on AI usage there. So I decided to spend a couple hours putting GPT-5-Codex through its paces on three tasks for my homepage. Nothing I desperately needed, but real enough work to get a proper feel for the model. I ran the same tasks through Claude Sonnet 4 to see how they compared.
+
+Spoiler alert: the thinking times alone made me doubt its value.
+
+## Getting Access to the Thinking Machine
+
+Getting your hands on GPT-5-Codex is a bit difficult right now. OpenAI kept it locked away from the API for eight days till the 23rd of September. When it finally showed up in the `/models` endpoint, I thought "great, let's try this thing."
+
+Nope. They decided to use a completely different endpoint. Instead of the usual `/chat/completions` that most tools expect, GPT-5-Codex is available through the newer `/responses` [endpoint](https://platform.openai.com/docs/api-reference/responses). So now all your favorite AI tools just... don't work. [LiteLLM](https://www.litellm.ai/) is trying to catch up, but until they do, you're stuck writing custom API calls or hoping someone builds a bridge.
+
+If you're using [Cursor](https://cursor.com/) like me, congrats—they built in native support from day one. Everyone else gets to write hacky workarounds just to send a simple request.
+
+On paper, the specs sound impressive. 272k context is nice—more is always better here—but 200k on Claude Sonnet 4 isn’t small either. As I learned the hard way, big numbers don’t matter if the experience makes you want to throw your laptop out the window.
+
+## Task One: Reading Time Indicator
+
+My first test was building a reading time indicator for blog posts. Both models delivered working solutions, but their approaches revealed subtle differences in how they think about code architecture.
+
+Claude Sonnet 4 went for simplicity. It created a clean utility function in its own dedicated file, stripped markdown artifacts and front-matter, counted words, and divided by 225 words per minute. The whole thing took maybe 30 seconds to generate, and the code was straightforward—easy to understand, easy to maintain.
+
+GPT-5-Codex? First, I had to wait. One minute and thirty-three seconds of "thinking." When it finally delivered, the approach was more sophisticated. It factored in images (adding 12 seconds each) and code blocks (treating them as roughly 80 words each), used stronger TypeScript interfaces, and even added a styled gradient pill to the UI. But it dumped everything into the existing utils barrel file instead of keeping things organized.
+
+Since both solutions worked, I had [o3](https://openai.com/index/introducing-o3-and-o4-mini/) judge them objectively. The analysis was interesting and close. GPT-5-Codex scored slightly higher overall (0.82 vs 0.80) thanks to its more accurate reading time estimates and better type safety. It properly accounted for images and code blocks that Claude Sonnet 4 completely ignored, and its structured `IReadingTime` interface was more extensible than Claude Sonnet 4's simple number.
+
+But Claude Sonnet 4 won on code organization and maintainability. Its dedicated utility file kept concerns separated, made the code easier to tree-shake, and followed better architectural patterns. GPT-5-Codex's approach of stuffing everything into a barrel file was "messier" and could be considered harder to maintain long-term.
+
+But for all that extra thinking time and marginal quality improvement, the developer experience was dramatically worse. Those 90+ seconds of waiting killed any coding momentum I had.
+
+<details class="my-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl border border-blue-200 dark:border-gray-700 shadow-sm overflow-hidden">
+<summary class="px-6 py-4 bg-white/50 dark:bg-gray-800/50 cursor-pointer font-semibold text-gray-900 dark:text-gray-100 hover:bg-white/80 dark:hover:bg-gray-700/80 transition-all duration-200 flex items-center gap-3 backdrop-blur-sm">
+<span>o3 Detailed Model Evaluation: Reading Time Feature</span>
+<div class="ml-auto text-blue-500 dark:text-blue-400 transform transition-transform duration-200 group-open:rotate-180">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+</svg>
+</div>
+</summary>
+
+<div class="px-6 py-6 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm prose prose-sm dark:prose-invert max-w-none border-t border-blue-100 dark:border-gray-700">
+
+# Reading Time Feature — Claude Sonnet 4 (36e8973) vs GPT-5 (88136af)
+
+## Overview
+
+Both commits implement an _estimated reading time_ feature for blog posts. They touch the same five areas of the code-base but differ substantially in approach, type-safety, and attention to project conventions.
+
+| Aspect                          | Claude Sonnet 4 (36e8973)                                                              | GPT-5-Codex (88136af)                                                                                |
+| ------------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Utility location**            | New dedicated file `src/utils/readingTime.ts`                                          | Adds function to the existing barrel `src/utils/index.ts`                                            |
+| **Algorithm**                   | • Strips front-matter, imports, HTML/MD syntax<br />• Counts words, divides by 225 wpm | • Cleans markdown & HTML<br />• Adds extra time for images (12 s ea.) & code blocks (≈ 80 words ea.) |
+| **Return type**                 | `{ minutes: number; words: number }`                                                   | Same structure but wrapped in `IReadingTime` interface                                               |
+| **Types**                       | Adds `readingTime: number` to `IBlogPost`                                              | Adds `readingTime: IReadingTime` (minutes + words) — more expressive                                 |
+| **BlogCard UI**                 | Shows _"\{readingTime\} min read"_                                                     | Shows _"\{readingTime.minutes\} min read"_ inside a stylised pill                                    |
+| **Adherence to repo structure** | Utility in its own file — clear separation                                             | Mixed concerns in large barrel; increases bundle size                                                |
+| **Comments / verbosity**        | Heavy block comments; could violate "no-BS" guideline                                  | Minimal inline comments — closer to user preference                                                  |
+
+## Strengths & Weaknesses
+
+### Claude Sonnet 4
+
+- The algorithm is simple and maintainable, which reduces cognitive load.
+- Using a dedicated file keeps `utils/index.ts` slim.
+- It strips many markdown artifacts and works well for most posts.
+    - However, it ignores images and code blocks, which can lead to under-estimated reading times.
+    - It uses a simple number for `readingTime`, which loses word-count detail.
+    - The verbose comments go slightly against the user's style preferences.
+
+### GPT-5-Codex
+
+- It provides richer estimates by factoring in images and code blocks.
+- The stronger typings with `IReadingTime` make it more extensible.
+- The UI tweak with a gradient pill matches the design language.
+- It uses fewer comments, which aligns better with the repo culture.
+    - However, magic constants like 80 words and 12 seconds are undocumented.
+    - The utility gets dumped into a barrel file, making it harder to tree-shake and mixing unrelated helpers.
+    - It touches slightly more lines of code, creating a higher surface area for merge conflicts.
+
+## Verdict
+
+Both implementations are functional, but target different trade-offs:
+
+- **If accuracy & type-safety are priority**, GPT-5's version is superior thanks to its richer model and structured typing.
+- **If simplicity, separation of concerns, and bundle hygiene matter more**, Claude Sonnet 4's implementation wins.
+
+Overall score (subjective):
+
+| Criteria                          | Weight  | Claude Sonnet 4 | GPT-5    |
+| --------------------------------- | ------- | --------------- | -------- |
+| Correctness                       | 0.4     | 0.8             | 0.85     |
+| Code quality / maintainability    | 0.3     | 0.85            | 0.75     |
+| Conformity to project conventions | 0.2     | 0.8             | 0.75     |
+| Style (minimal comments)          | 0.1     | 0.7             | 0.9      |
+| **Total**                         | **1.0** | **0.80**        | **0.82** |
+
+**GPT-5 has a slight edge** due to stronger modeling, but either patch could be merged with minor tweaks.
+
+</div>
+</details>
+
+## Task Two: Homepage Gradient Animation
+
+This was about building a different gradient for the hero section of my homepage. Codex, in the summary, even messed up the trip backtick formatting in Cursor, and also refused to open the web browser. It really has its own mind.
+
+When I tried again, GPT-5-Codex built a JS-based version, which I didn't want, so I had to prompt it again. It did eventually produce an interesting animation for dark mode, but failed to adapt it for light mode—kinda disappointing.
+
+Claude Sonnet 4 just outright broke my hero section entirely, and there were no animations at all. These LLMs are still really bad at designing or writing CSS. While humans struggle with CSS too, the AI models seem to struggle even more.
+
+Claude Sonnet 4 at least opened the browser using Playwright, but the [Playwright MCP server](https://github.com/microsoft/playwright-mcp) didn't help with the design either.
+
+## Task Three: About Me Cards Disaster
+
+The third task—interactive cards for an "about me" section—became the most frustrating experience of the entire session.
+
+GPT-5-Codex spent three minutes and eleven seconds thinking about this one. Three minutes! I literally could have gotten up, made coffee (if I drank any), checked my email, and came back to find it still churning. When the response finally arrived, it was genuinely disappointing. The cards looked generic, the hover effects were basic, and the responsive behavior was buggy on mobile.
+
+Claude Sonnet 4 knocked out a similar solution in the usual time frames. The styling was a bit better, the interactions felt a little bit more polished, but over all not the cleanest solution either.
+
+Both models struggled with this task. At least Claude Sonnet 4 disappoints you quickly rather than making you wait three minutes for mediocre results.
+
+## GPT-5-Codex Has Its Own Mind
+
+Yes, those brutal thinking times are a productivity killer but it being some uncooperative became also more annoying. GPT-5-Codex has developed what I can only describe as selective hearing. It regularly ignores subtle instructions that Claude Sonnet 4 would eagerly act on.
+
+Claude Sonnet 4 is apparently trained to be much more responsive to hints—when you mention "maybe we should check how other sites handle this," it jumps on those suggestions and fires up the appropriate tools. GPT-5-Codex treats these nudges like background noise. Sometimes it goes beyond ignoring suggestions and flat-out refuses them. When I used Codex to fix the issues in the [Zodios](https://github.com/ecyrbe/zodios) project due to the [Zod v4](https://zod.dev/v4/changelog) upgrade, it essentially told me "no, you are wrong, this is not needed" and just... stopped. I wanted to improve all the typings while we were at it, but GPT-5-Codex decided my desire to improve the type safety wasn't worth it.
+
+This selective approach might sound more thoughtful in theory, but there's a difference between being thoughtful and being uncooperative. The irony is that while it spends minutes thinking about every response, it somehow misses the most important signal of all: what the human actually wants.
+
+## Worth Switching to GPT-5-Codex?
+
+After spending those hours with both models, my recommendation is straightforward: stick with Claude Sonnet 4.
+
+GPT-5-Codex does show some technical advantages—better type safety, more sophisticated algorithms, attention to edge cases that Claude Sonnet 4 misses. But these marginal improvements get completely overshadowed by the dragged-out user experience and uncooperative behavior.
+
+If you have time to burn and want to experiment with OpenAI's latest, go ahead and give GPT-5-Codex a try. Maybe you'll find use cases where those extended thinking sessions pay off—particularly for agent background tasks like automated workflows or code review systems where responsiveness isn't crucial. But for interactive development work, especially anything requiring quick iteration, it's hard to recommend.
+
+OpenAI is clearly trying to regain ground in the developer space with this release. The underlying capabilities are solid, and when it gets things right, it can be on par with Claude Sonnet 4. But until they figure out how to deliver that capability without making developers wait multiple minutes for every response—and actually cooperate with developer intent—Claude Sonnet 4 remains the better choice for getting actual work done.
+
+At this rate, OpenAI is going to need another Codex to get the balance right.
