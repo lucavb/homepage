@@ -1,0 +1,89 @@
+---
+title: "Trying Cursor's New CLI: More Than Just Desktop in Your Terminal"
+description: "A hands-on review of Cursor's new CLI tool, covering installation quirks, model flexibility, GitHub Actions potential, and how it compares to desktop coding assistants."
+publishDate: 2025-09-28
+tags: ['cursor', 'cli', 'ai-coding', 'developer-tools', 'github-actions']
+heroImagePath: 'cursor-cli-more-than-desktop-terminal/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
+import heroImage from '../../assets/images/blog/cursor-cli-more-than-desktop-terminal/hero.jpg';
+import screenshotImage from '../../assets/images/blog/cursor-cli-more-than-desktop-terminal/screenshot.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Cursor CLI interface showing terminal window with AI coding assistant features and model selection options"
+    loading="eager"
+/>
+
+Two days ago, I got an email from Cursor announcing their new [CLI tool](https://cursor.com/cli). Turns out it had been available for 10 days already—apparently I'm not on the early notification list. That's an 8-day gap between when they built the tool internally and when they announced it to users. Better late than never, so I decided to spend some hours putting it through its paces.
+
+If you're interested in trying it yourself, you can find the complete setup instructions in the [official Cursor CLI documentation](https://cursor.com/docs/cli/overview).
+
+## Installation: Node Roulette
+
+The first surprise came during installation. While there are officially proposed setup instructions using a bash command (`curl https://cursor.com/install -fsS | bash`), I went with Homebrew because that's how I prefer to install things. This led to macOS asking me multiple times if I wanted to run some obscurely named Node binaries—"d6wgzzgx.node" was one delightful example, with other executables having similarly cryptic strings in their names.
+
+You'll need to approve around three tools (two Node instances and one Ruby tool), and then you're done with the permission dance. It's worth noting that even though this is clearly a Node application, you can't install it through npm yet—or maybe never. Instead, Cursor ships their own Node runtime, which feels a bit heavy-handed but probably ensures consistency across environments.
+
+## First Impressions: Claude Code with More Options
+
+Once up and running, the experience feels quite similar to Claude Code CLI—if you've used that tool, you'll feel right at home here. This feels like Cursor responding to competition from Claude Code CLI and other command-line coding assistants. The key difference is model selection: instead of being locked into Anthropic's models, you get flexibility across multiple vendors including xAI, Anthropic, and OpenAI.
+
+The available models are limited to five choices as of now: `sonnet-4`, `gpt-5`, `opus-4.1`, `grok`, plus an auto mode that picks for you. Notably, some models that exist elsewhere (like `gpt-5-codex`) aren't immediately visible, though I expect they'll extend this list since the desktop IDE has more options available.
+
+The CLI also shows token usage more prominently than the desktop version. Maybe they think people who use the shell are more tech-savvy? Either way, it's useful information to have front and center.
+
+<ImageLightbox
+    src={screenshotImage}
+    alt="Cursor CLI interface in action, showing the interactive terminal session with model selection, token usage display, and file editing capabilities"
+    loading="lazy"
+    class="w-full my-6 shadow-lg rounded-lg"
+/>
+
+When you're interactively coding, you can review file changes with Ctrl+R after the AI completes your current prompt. This helps when you're struggling to see what actually changed during the coding session.
+
+## The Pleasant Surprises
+
+What pleasantly surprised me was the seamless integration with existing Cursor configuration. The CLI automatically picks up the same MCP servers I have configured for Cursor Desktop. When I pasted a documentation link hoping it would fetch context, Claude Sonnet 4 was smart enough to invoke my globally configured Playwright MCP server and scrape the page content. It worked exactly as I needed.
+
+The same goes for rules and other configuration—there's a nice consistency in the ecosystem. And I still love Claude Sonnet 4 for its proactiveness, keeping track of related files so I can review more code rather than hunting for context.
+
+## GitHub Actions Potential
+
+One use case that caught my attention is embedding this into CI/CD pipelines for automated code reviews. Cursor has examples on their website showing exactly this scenario—having the CLI provide an initial AI review before human reviewers take over. I tried implementing this but ran into some issues that required adding timeouts to prevent endless runs. There's definitely potential here, but it needs some polish. I'll dive deeper into the automation challenges in a future post.
+
+## The Rough Edges
+
+The CLI has fewer tools available than the desktop IDE, though they say they want to add more. Most notably missing is the internet search functionality—which is actually how I discovered the MCP server integration works. The IDE's direct ability to reference documentation for various frameworks is also absent, forcing you to rely on workarounds like pasting links or using configured MCP servers.
+
+There's also a shell mode that you can invoke by putting a `!` in front of commands. While it completely strips terminal colors—my `ls` is aliased to `lsd` for better formatting, and the CLI just kills all the colors—I still find this somewhat useful. After all, this is now a CLI tool and there's no other mode to really move around in the cursor cli environment.
+
+The permission system is interesting—you can configure allowed, denied, or prompted actions in `.cursor/cli.json`. But these permissions don't apply to the desktop IDE, so you're managing two separate security models if you use both tools. Here's an example configuration:
+
+```json
+{
+    "permissions": {
+        "allow": ["Read(**)", "Grep(**)", "LS(**)", "SemanticSearch(**)", "Shell(gh pr view **)", "Shell(gh api **)"],
+        "deny": ["Shell(git push)", "Shell(gh pr create)", "Write(**)", "Delete(**)"]
+    }
+}
+```
+
+This setup allows reading and searching operations while preventing potentially destructive actions like pushing code or creating pull requests.
+
+Context compression is available on demand with `/compress`, though I wonder if this means it won't auto-compress like the desktop IDE yet.
+
+## Verdict: Promising but Early
+
+After some hours with the CLI, my takeaway is that there's real potential here, but it needs more polishing. The quality of the generated code is on par with the desktop IDE when using the same models—output really depends on your model choice. This tool genuinely helps if you want a CLI-based coding assistant and are already invested in the Cursor ecosystem, with the main differentiators being model vendor flexibility and staying within the Cursor configuration ecosystem.
+
+I'd recommend trying it, especially if you're curious about command-line AI coding tools. Just don't expect it to be as polished as the desktop experience yet. The GitHub Actions integration possibilities are intriguing, but the rough edges around automation need addressing first.
+
+It's not flagged as beta, so presumably Cursor thinks it's ready for general use. But it feels more like a capable early release that could become quite compelling with a few more iterations.
+
+---
+
+_Have you tried Cursor's CLI yet? What's your experience been like with command-line AI coding assistants? Let me know in the comments below._
