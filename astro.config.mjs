@@ -10,6 +10,7 @@ import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 export default defineConfig({
     site: 'https://luca-becker.me',
     output: 'static',
+    cacheDir: './.astro/cache',
     markdown: {
         syntaxHighlight: {
             excludeLangs: ['mermaid'],
