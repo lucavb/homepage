@@ -15,6 +15,11 @@
             'Segoe UI',
             Roboto,
             sans-serif;
+        scroll-padding-top: 70px;
+
+        &:has(body.blog-page) {
+            scroll-padding-top: 90px;
+        }
     }
 }
 

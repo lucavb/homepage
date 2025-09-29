@@ -167,4 +167,47 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     .prose pre code {
         @apply bg-transparent p-0;
     }
+
+    .prose :global(.heading-anchor) {
+        opacity: 0;
+        margin-left: 0.5rem;
+        text-decoration: none;
+        transition: opacity 200ms;
+        float: none;
+    }
+
+    .prose :global(.heading-anchor:hover) {
+        text-decoration: none;
+    }
+
+    .prose :global(.heading-anchor-icon) {
+        display: inline-block;
+        color: currentColor;
+        opacity: 0.6;
+    }
+
+    .prose :global(h1:hover .heading-anchor-icon),
+    .prose :global(h2:hover .heading-anchor-icon),
+    .prose :global(h3:hover .heading-anchor-icon),
+    .prose :global(h4:hover .heading-anchor-icon),
+    .prose :global(h5:hover .heading-anchor-icon),
+    .prose :global(h6:hover .heading-anchor-icon) {
+        opacity: 0.8;
+    }
+
+    .prose :global(h1:hover .heading-anchor),
+    .prose :global(h2:hover .heading-anchor),
+    .prose :global(h3:hover .heading-anchor),
+    .prose :global(h4:hover .heading-anchor),
+    .prose :global(h5:hover .heading-anchor),
+    .prose :global(h6:hover .heading-anchor) {
+        opacity: 1;
+    }
+
+    .prose :global(.heading-anchor:focus) {
+        opacity: 1;
+        outline: none;
+        box-shadow: 0 0 0 2px #3b82f6;
+        border-radius: 0.25rem;
+    }
 </style>
