@@ -45,7 +45,7 @@
         "mermaid": "11.10.0",
         "rehype-autolink-headings": "7.1.0",
         "rehype-slug": "6.0.0",
-        "typescript": "5.9.2"
+        "typescript": "5.9.3"
     },
     "devDependencies": {
         "prettier": "3.6.2",
