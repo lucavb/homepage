@@ -1,0 +1,103 @@
+---
+title: 'aicommits v1.0.0: Six Months of AI-Assisted Development Come Full Circle'
+description: 'Announcing aicommits 1.0.0, a milestone release bringing flexible AI provider support, AWS Bedrock integration, and lessons learned from building AI tools with AI.'
+publishDate: 2025-10-17
+tags: ['aicommits', 'release', 'ai', 'git', 'open-source']
+heroImagePath: 'aicommits-1-0-0-release/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/aicommits-1-0-0-release/hero.jpg';
+
+<AutoOptimizedImage src={heroImage} alt="aicommits v1.0.0 release announcement" loading="eager" />
+
+## aicommits v1.0.0: Six Months of AI-Assisted Development Come Full Circle
+
+Today, I'm thrilled to announce that aicommits has reached version 1.0.0. This isn't just another version bump—it's a milestone that represents six months of development, countless learning moments, and a journey that fundamentally changed how I think about building software.
+
+You can read the full [release notes on GitHub](https://github.com/lucavb/aicommits/releases/tag/v1.0.0) .
+
+## The Meta-Experience: Building AI Tools with AI
+
+There's something delightfully recursive about building an AI-powered commit message tool while using AI to help you build it. When I started working on aicommits again six months ago, I didn't anticipate how deeply it would pull me into the world of AI-assisted coding. What began as a tool to solve my own workflow friction became something much more significant: a hands-on education in modern development practices that I couldn't have gotten any other way.
+
+The experience has been transformative—both technically and professionally. This project became my laboratory, and reaching v1.0.0 feels like graduating from that intense, self-directed program.
+
+## Why I Forked This in the First Place
+
+Before diving into what's new, I want to share why this project exists at all. I initially forked aicommits in August 2024 out of genuine frustration with the existing landscape of commit message tools. Every tool I tried had a deal-breaker:
+
+Some offered great configurability but only supported one or two AI providers. Others supported multiple providers but locked you into their defaults—you couldn't change the base URL, customize model parameters, or adapt the tool to your specific workflow.
+
+I wanted both: the flexibility to use any AI provider I chose _and_ the configurability to make the tool work exactly how I needed it to. That combination didn't exist, so I built it.
+
+The fork sat relatively dormant for a while, but with the advent of Cursor and AI-assisted development tools, this project really took off. What started as a side project became a genuine passion, and the last six months of active development have been transformative.
+
+## What's New in v1.0.0
+
+### Vercel AI SDK: The Foundation We Needed
+
+The biggest internal change is the migration to [Vercel AI SDK v5](https://ai-sdk.dev/docs/introduction). Before, adding support for a new AI provider meant: installing that provider's package, writing an abstraction layer to bridge their API to my internal structure, and then maintaining that abstraction layer over time. Every new provider meant more code I owned, more edge cases to handle, more potential breaking changes when providers updated their SDKs.
+
+That's now all gone. That maintenance burden is now Vercel's business, and I for one am happy about it.
+
+The migration replaced all custom AI provider implementations with AI SDK wrappers, now using `generateText` and `streamText` from the ['ai'](https://www.npmjs.com/package/ai) package. For a project like aicommits—especially one born from frustration with limited provider support—this foundation is now scalable in ways it wasn't before, and I'm no longer the bottleneck for adding new providers.
+
+### AWS Bedrock: A Test of the New Architecture
+
+To validate that the Vercel AI SDK migration was worth it, I added AWS Bedrock support. Even with Cursor, this would have taken me 2-3 hours of iterating since I didn't know much about the AWS Bedrock SDK going in.
+
+Cursor's planning mode was a welcome addition to my workflow, especially for this task. Instead of doing all that iteration during implementation, the planning feature helped me work through it upfront. Combined with the AI SDK's standardized interface, what could have been a few hours of trial and error became a more focused implementation.
+
+Bedrock support wasn't on my initial roadmap for v1.0.0, but because the foundation was right and the planning mode helped smooth the process, I could say "why not?" and ship it .
+
+### The Ollama Story: A Brief Departure and Quick Return
+
+Here's where things got a bit messy during development. While migrating to Vercel AI SDK v5, Ollama support was temporarily dropped. The SDK didn't have native Ollama support at the time, and I made the difficult call to proceed with the migration rather than delay the entire v1.0.0 release.
+
+Then something wonderful happened before v1.0.0 shipped: I discovered the [community Ollama provider package](https://ai-sdk.dev/providers/community-providers/ollama) that brings Ollama into the Vercel AI SDK ecosystem. Problem solved, and Ollama support was restored before release .
+
+This was a genuine relief because respecting users' existing configurations matters. This entire project started because I was frustrated with tools that didn't let me configure what I needed. Developers who chose Ollama often did so for good reasons—privacy, cost control, working offline, or just preferring to keep their tooling local.
+
+**So here's the good news: v1.0.0 ships with full Ollama support.** Your existing configs keep working. No migration needed.
+
+## What v1.0.0 Really Means
+
+Version numbers are somewhat arbitrary, but hitting v1.0.0 feels significant—and not just technically.
+
+This project started in the most mundane way possible: sitting in the Munich airport with a Dell laptop I had to borrow for a US trip because of company policy. I was trying out Cursor during its trial phase, working on this fork, and honestly just experimenting to see what AI-assisted coding could do.
+
+I didn't expect to fall in love with it.
+
+But that's exactly what happened. AI-assisted coding gave me something to be genuinely passionate about—a topic I could dive deep into, experiment with, and share with others. And the timing couldn't have been better. This is, after all, the hottest topic in tech right now, and being able to speak about it with real experience, with a real project backing it up, opened doors I hadn't anticipated.
+
+At TNG, the consulting firm where I work, this passion translated into visibility. People noticed. The work I was doing on aicommits, the knowledge I was building around AI-assisted development, the willingness to experiment and share what I learned—it all contributed to my recent promotion to Principal Consultant.
+
+And here's the funny part: I'm now apparently the "top spender" at my company on Cursor tokens. Most of that from side projects like this one.
+
+So when I say v1.0.0 is significant, it's not just about the code reaching maturity. It's about what this project enabled: career growth, technical depth, and genuine passion for a space that's reshaping how we build software.
+
+## Looking Forward: The Agent Version
+
+With the v1.0.0 foundation in place, I'm now working on an agent version of aicommits. The Vercel AI SDK makes this kind of multi-turn interaction much more tractable, and the provider abstraction means users will be able to run the agent version with whatever AI service they prefer.
+
+It's still under development, and I'm being intentional about not rushing it. But having this solid v1.0.0 foundation means I can explore those ideas without constantly worrying about the base layer.
+
+## Try aicommits v1.0.0
+
+If you're curious about AI-assisted commit messages, or if you've been using aicommits and want to see what's new, you can install it globally with:
+
+```bash
+npm i -g @lucavb/aicommits
+```
+
+The tool now supports [OpenAI](https://platform.openai.com/docs/api-reference), [Anthropic](https://docs.anthropic.com/), [AWS Bedrock](https://docs.aws.amazon.com/bedrock/), and [Ollama](https://ollama.com/docs) out of the box. Whether you're using cloud providers or running everything locally, with default settings or custom base URLs, there's a configuration that will work for your workflow.
+
+For more details, check out the tool on [npm](https://www.npmjs.com/package/@lucavb/aicommits) or the [GitHub repository](https://github.com/lucavb/aicommits).
+
+Here's to v1.0.0, and to whatever comes next. 🎉
+
+---
+
+_What projects have you built with AI-assisted development? Has working on AI tools changed your approach to software development? If you have thoughts, suggestions, or experiences using aicommits, I'd love to hear your story._
