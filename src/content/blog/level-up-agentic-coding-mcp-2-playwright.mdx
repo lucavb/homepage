@@ -1,0 +1,263 @@
+---
+title: 'Level Up Agentic Coding with MCP #2: Stop Describing UI Issues'
+description: 'Add browser automation to your AI agent with Playwright MCP. See how visual inspection transforms UI debugging from 10+ iterations to 2-3.'
+publishDate: 2025-10-18
+tags: ['MCP', 'Playwright', 'AI', 'Cursor', 'Browser Automation', 'Testing']
+heroImagePath: 'level-up-agentic-coding-mcp-2-playwright/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/level-up-agentic-coding-mcp-2-playwright/hero.jpg';
+import familyGuyCss from '../../assets/images/blog/level-up-agentic-coding-mcp-2-playwright/family-guy-css.gif';
+
+<AutoOptimizedImage src={heroImage} alt="Playwright MCP server integration for AI coding assistants" loading="eager" />
+
+In the [first post of this series](/blog/level-up-agentic-coding-mcp-1-web-search/), I showed you how to add web search capabilities to your AI coding assistant using the DuckDuckGo MCP server. That was about giving your agent access to current information.
+
+This time, we're solving an even more frustrating problem: **making your AI agent see your UI instead of forcing you to describe it**.
+
+If you've ever spent 10 iterations trying to explain margin spacing or gradient stop points to an AI, you know exactly what I'm talking about. The Playwright MCP server changes this game entirely.
+
+## The Breaking Point: A Simple Button Gradient
+
+Let me show you a real example that nearly broke me. I was replicating a design from Lovable for my personal homepage. The task? Fix a gradient on a "View My Work" button.
+
+**My initial prompt (reasonable enough):**
+
+> "the gradient of the 'View My Work' button is not working. Can you try to fix it?"
+
+The agent tried. And failed. So I got more technical:
+
+> chromium is telling me: --tw-shadow-color is not defined
+
+Still failing. Now I'm pleading:
+
+> think really hard. Look at @mockup again and consider again how they are doing the gradients. And then fix it for the buttons!
+
+At this point, I'm basically begging the AI to understand what I'm seeing. One more attempt:
+
+> sorry but how difficult can it be? The background of the button is still invisible because the gradient does not work
+
+**The result?** I manually fixed it myself.
+
+This is not what we're aiming for with AI-assisted coding. A simple button gradient shouldn't require manual intervention. But without the ability to _see_ the rendered page, the agent was just throwing CSS at the wall hoping something would stick.
+
+## The Solution: Playwright MCP Server
+
+The Playwright MCP server does something transformative—it gives your AI agent browser automation capabilities with visual inspection. Instead of describing what you see, the agent can navigate to your application, inspect elements, run JavaScript, and even take screenshots.
+
+For a complete overview of what MCP servers are and how they work, check out the [official MCP documentation](https://modelcontextprotocol.io/introduction). The short version: MCP servers extend your AI agent's capabilities by giving them access to external tools and data sources.
+
+The Playwright MCP server is available on [GitHub](https://github.com/microsoft/playwright-mcp) with installation instructions for various AI IDEs.
+
+## Installation & Setup
+
+### Universal Compatibility
+
+One of the best things about the Playwright MCP server is that it works with virtually any AI IDE that supports MCP—Claude Code, Cursor, Roo Code, you name it. They all use the same configuration syntax, so you can set it up once and use it across different tools.
+
+### Prerequisites
+
+You'll need Node.js installed. But let's be honest—if you're reading this, you probably already have it.
+
+### Configuration
+
+Add this to your MCP configuration file (the location varies by IDE):
+
+```json
+{
+    "mcpServers": {
+        "playwright": {
+            "command": "npx",
+            "args": ["-y", "@playwright/mcp@latest", "--browser=chromium"]
+        }
+    }
+}
+```
+
+**What these arguments do:**
+
+- `-y`: Automatically accepts the npx installation prompt
+- `@playwright/mcp@latest`: Always uses the latest version
+- `--browser=chromium`: Specifies Chromium as the browser (my recommendation)
+
+For platform-specific installation instructions (Claude Desktop, VS Code, Cursor, Codex, Gemini CLI, Goose), check the [official documentation](https://github.com/microsoft/playwright-mcp).
+
+### Verifying Your Installation
+
+The easiest way to test if everything is working:
+
+Simply tell your AI agent: **"Open google.com using the playwright mcp server"**
+
+Pretty much any LLM I've tested will obey and invoke the tool correctly.
+
+**First-time heads up:** The initial launch might take a minute or two because it needs to download Chromium in the background. Don't worry—subsequent launches are much faster.
+
+## The Transformation: Before vs After
+
+### How This Would Play Out Today
+
+With Playwright MCP installed, that same gradient scenario becomes:
+
+**Me:** "the gradient of the 'View My Work' button is not working. Can you try to fix it?"
+
+**Agent:** [Opens page via Playwright, inspects the button element]  
+"I can see the button element. The gradient isn't rendering because the Tailwind shadow variable isn't defined in your theme config. I'll add the missing CSS variable and apply the correct gradient syntax..."
+
+**Me:** "Perfect."
+
+One iteration. No frustration. No manual fixes. The agent could _see_ what was wrong.
+
+### How This Actually Played Out
+
+This wasn't just about gradients. I used this pattern repeatedly while working on my Streamlink Web GUI and personal homepage. Every time I had to explain margin errors or spacing issues, it was the same painful dance of trying to describe pixel-perfect layouts through text.
+
+Now I just describe the element I want the agent to work on, and it generally finds it and performs the task. Tasks that used to take 10-15 frustrating iterations now get done in 2-3.
+
+The agent no longer needs me to describe the issue—it can "see" it. When building a button in Excalidraw and telling it to make it look nice, it can actually see the sizes of buttons and "margins".
+
+## Beyond Debugging: Writing E2E Tests
+
+Here's another use case I tested on my personal homepage. I wanted to extend my E2E test coverage, so I asked Cursor:
+
+> we recently added e2e tests. I was thinking we could extend them a little bit. Browse the @smoke.spec.ts file. And then visit the homepage at http://localhost:4321 and come up with a couple more scenarios we should test that are not yet covered.
+
+The agent:
+
+1. Reviewed my existing test file
+2. Navigated to my local homepage via Playwright MCP
+3. Suggested additional test scenarios including:
+    - Theme toggle functionality (Light, Dark, System modes)
+    - Email reveal feature
+    - Anchor navigation in the header
+    - Hero CTA buttons
+    - Social media links validation
+    - "View All" links
+4. Implemented the most valuable test cases
+
+**The results:** The agent generated comprehensive test coverage, going from basic smoke tests to detailed interaction testing.One of the best things about the Playwright MCP server is that it works with virtually any AI IDE that supports MCP—Claude Code, Cursor, Roo Code, you name it. They all use the same configuration syntax, so you can set it up once and use it across different tools.
+
+Here's an example of what it generated for the homepage tests:
+
+```typescript
+test.describe('Homepage', () => {
+    test('should load and display all key sections', async ({ page }) => {
+        const errors = setupConsoleErrorTracking(page);
+
+        await page.goto('/');
+
+        await expect(page).toHaveTitle(/Luca Becker/);
+
+        await expect(page.getByRole('heading', { name: /About Me/i, exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Professional Experience/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Featured Projects/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Latest Blog Posts/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Let's Work Together/i })).toBeVisible();
+
+        expect(errors, `Console errors detected: ${errors.join(', ')}`).toHaveLength(0);
+    });
+});
+```
+
+This worked remarkably well because the agent had direct access to inspect the DOM, understand the interaction patterns, and write tests that actually matched the user journey.
+
+## A More Complex Example: Automated Slide Layout
+
+Here's a particularly powerful use case from my day-to-day work. We use Slidev at our company with a custom theme for presentations. With AI agents, I can easily feed them the relevant talking points and have them design nice-looking slides.
+
+**The problem?** Agents tend to overflow the slides with content. Text runs off the page, elements overlap, and the slides look messy.
+
+**The solution with Playwright MCP:** I created a rule file that defines an iterative behavior:
+
+1. **Agent visits the slide page** via Playwright MCP2. **Inspects the amount of content overflowing** by checking element bounds and viewport constraints
+2. **Adjusts the content** - reduces text, scales elements down, repositions components
+3. **Waits for my input** to validate the changes
+4. **Repeats until content no longer overflows**
+
+Here's the core of my overflow detection procedure:
+
+```javascript
+const slideContainer = document.querySelector('.slidev-slide-content');
+const overflow = slideContainer.scrollHeight - slideContainer.clientHeight;
+// overflow === 0 means no overflow
+// overflow > 0 means content is cut off
+```
+
+The rule file defines success criteria:
+
+- All original content is visible
+- No overflow (scrollHeight === clientHeight)
+- Consistent with other slides' design
+- Proper color scheme applied
+- Readable text (not too small)
+- Appropriate spacing (not too cramped)
+
+This turns what used to be a tedious manual process—constantly switching between the editor and browser, tweaking font sizes and margins by trial and error—into an automated feedback loop where the agent can _see_ the overflow problem and fix it systematically.
+
+The agent can actually measure the rendered dimensions and make informed decisions about layout adjustments, something that was impossible when I had to describe "there's about 20 pixels of overflow at the bottom" in text.
+
+## Do You Need Vision Models?
+
+Here's an important nuance: while vision-capable LLMs (generally the proprietary ones like Claude Sonnet 4.5, GPT-5-Vision, Gemini 2.5 Pro and Flash) can take screenshots and analyze them, **you don't strictly need vision for Playwright MCP to be useful**.
+
+Even without screenshot capability, the agent can:
+
+- Run JavaScript in the browser to inspect elements
+- Query the DOM programmatically
+- Get computed styles and measurements
+- Navigate and interact with your application
+
+Vision adds another layer of understanding, but the programmatic inspection alone is already transformative.
+
+That said, if you're using Qwen3 Coder, be aware that it doesn't support image processing, so you won't be able to use the screenshot features even though the agent can still do programmatic inspection.
+
+## Where It Falls Short
+
+In my experience, this takes you from around 50% → 75% success rate—but that's my subjective impression, not an objective measurement. So what falls into that remaining 25%?
+
+**Complex tasks.** Sometimes it's just too complicated, even with visual inspection. Multi-step interactions, intricate state management, or deeply nested component logic can still trip up the agent.
+
+**CSS in general.** Look, even professional developers struggle with CSS. There's a reason we have CSS Tricks and that Family Guy meme where Peter Griffin is violently ripping window blinds trying to get them to work right:
+
+<img
+    src={familyGuyCss.src}
+    alt="Family Guy meme showing Peter Griffin struggling with window blinds, representing developers fighting with CSS"
+    class="w-1/2 mx-auto my-6 shadow-lg rounded-lg"
+/>
+
+CSS is hard. Playwright MCP helps, but it doesn't make CSS magically easy.
+
+The agent can see your layout, inspect your styles, and run JavaScript to investigate, but if the problem is fundamentally complex CSS logic, you might still need to step in.
+
+## Known Issues & Troubleshooting
+
+### The Chromium Disconnect
+
+Sometimes Chromium struggles with being opened. I haven't fully figured out why it happens—it feels like the connection gets dropped. When this occurs, the browser starts opening blank tabs repeatedly.
+
+**My workaround:** Quit the browser entirely and tell the agent to try again.
+
+Here's the thing though: this happens every now and then, but it's **not annoying enough to avoid recommending the Playwright MCP server**. In fact, **it's the only MCP server I have enabled globally**. That should tell you how valuable it is despite this minor inconvenience.
+
+I personally recommend using Chromium—Google has built a solid browser, and it's great for development. That said, I prefer my actual browser to have less Google integration. Playwright also supports Firefox and WebKit if you prefer a different browser; just change the `--browser` argument in your configuration.
+
+## The Bottom Line
+
+Before Playwright MCP, I spent countless iterations trying to describe UI issues to my AI agent. Gradients that wouldn't render. Margins that were off by a few pixels. Spacing that looked wrong but was impossible to articulate precisely.
+
+Now? I point the agent at the problem, and it figures it out.
+
+Is it perfect? No. That 25% of cases that still struggle is real. But in my experience, that roughly 50% jump in success rate translates to real time savings and, more importantly, **sanity savings**. No more pleading with an AI to "think really hard" about a mockup it can't see.
+
+**Install this globally**. It's one of my favorite MCP servers for a reason—in fact, it's the only one I keep enabled globally. That's how much value it provides.
+
+## What's Next in This Series
+
+The MCP ecosystem is moving very fast and has spawned a lot of MCP servers, but it isn't easy to keep track of them and which ones can have an impact for you as the developer. This series will focus on the ones that actually save you time.
+
+Up next, I'm considering covering either the **Context7 MCP server** or the **GitHub MCP server**—both have proven useful in different ways.
+
+---
+
+_Have you tried using Playwright MCP in your workflow? What UI debugging frustrations has it solved for you? Let me know in the comments below._
