@@ -18,17 +18,26 @@ export default defineConfig({
     projects: [
         {
             name: 'chromium',
-            use: { ...devices['Desktop Chrome'] },
+            use: {
+                ...devices['Desktop Chrome'],
+                userAgent: `${devices['Desktop Chrome'].userAgent} Playwright-Test`,
+            },
         },
 
         {
             name: 'firefox',
-            use: { ...devices['Desktop Firefox'] },
+            use: {
+                ...devices['Desktop Firefox'],
+                userAgent: `${devices['Desktop Firefox'].userAgent} Playwright-Test`,
+            },
         },
 
         {
             name: 'webkit',
-            use: { ...devices['Desktop Safari'] },
+            use: {
+                ...devices['Desktop Safari'],
+                userAgent: `${devices['Desktop Safari'].userAgent} Playwright-Test`,
+            },
         },
     ],
 
