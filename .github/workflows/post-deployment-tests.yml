@@ -1,0 +1,69 @@
+name: Post-Deployment Tests
+
+on:
+    workflow_run:
+        workflows: ['Deploy to GitHub Pages']
+        types:
+            - completed
+        branches:
+            - main
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version-file: '.nvmrc'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+
+            - name: Run Playwright tests against production
+              id: playwright
+              continue-on-error: true
+              env:
+                  BASE_URL: https://luca-becker.me
+              run: npx playwright test
+
+            - name: Upload Playwright report on failure
+              if: steps.playwright.outcome == 'failure'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 30
+
+            - name: Notify test success
+              if: steps.playwright.outcome == 'success'
+              run: |
+                  curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
+                    -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
+                    -H "Title: ✅ Post-Deployment Tests Passed" \
+                    -H "Priority: default" \
+                    -H "Tags: white_check_mark,test_tube" \
+                    -d "All smoke tests passed on production site. Deployment is healthy."
+
+            - name: Notify test failure
+              if: steps.playwright.outcome == 'failure'
+              run: |
+                  curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
+                    -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
+                    -H "Title: ⚠️ Post-Deployment Tests Failed" \
+                    -H "Priority: high" \
+                    -H "Tags: warning,test_tube" \
+                    -d "Some smoke tests failed on production. Check the report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+            - name: Fail job if tests failed
+              if: steps.playwright.outcome == 'failure'
+              run: exit 1

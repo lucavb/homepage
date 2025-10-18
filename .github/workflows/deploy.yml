@@ -15,7 +15,10 @@ concurrency:
     cancel-in-progress: false
 
 jobs:
-    build:
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -50,13 +53,26 @@ jobs:
               with:
                   path: ./dist
 
-    deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
-        needs: build
-        steps:
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
+
+            - name: Notify deployment success
+              if: success()
+              run: |
+                  curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
+                    -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
+                    -H "Title: 🚀 Deployment Successful" \
+                    -H "Priority: default" \
+                    -H "Tags: rocket,tada" \
+                    -d "Site deployed successfully to ${{ steps.deployment.outputs.page_url }}. Commit: ${{ github.sha }}"
+
+            - name: Notify deployment failure
+              if: failure()
+              run: |
+                  curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
+                    -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
+                    -H "Title: 💥 Deployment Failed" \
+                    -H "Priority: urgent" \
+                    -H "Tags: boom,warning" \
+                    -d "Deployment failed for commit ${{ github.sha }}. Check the logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

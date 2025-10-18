@@ -31,7 +31,10 @@
         "cq:type-check": "astro check",
         "dev": "astro dev",
         "preview": "astro preview",
-        "start": "astro dev"
+        "start": "astro dev",
+        "test": "playwright test",
+        "test:headed": "playwright test --headed",
+        "test:ui": "playwright test --ui"
     },
     "dependencies": {
         "@astrojs/check": "0.9.4",
@@ -48,6 +51,7 @@
         "typescript": "5.9.2"
     },
     "devDependencies": {
+        "@playwright/test": "1.56.1",
         "prettier": "3.6.2",
         "prettier-plugin-astro": "0.14.1"
     }
