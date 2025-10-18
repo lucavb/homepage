@@ -12,10 +12,13 @@ This rule defines the standards and workflow for creating and managing blog cont
 ### File Organization
 - All blog posts go in `src/content/blog/` directory
 - Use `.mdx` format for all blog posts to enable component imports
-- **File names should closely match the title content**, not arbitrary names
+- **IMPORTANT: The user will ALWAYS provide a simple/dummy filename** (e.g., `cursor-new-features.mdx`)
+  - **You MUST rename the file to create a proper slug** based on the title content
+  - Example: User provides `cursor-new-features.mdx` → Rename to `cursor-planning-mode-vs-hooks.mdx`
   - Example: Title "Agent Hooks: Amazon's Take on Reactive Development" → `agent-hooks-reactive-development.mdx`
   - Capture the main concepts from the title in the slug
-- Create corresponding image directories: `src/assets/images/blog/slug-name/`
+  - **Always ask or propose a better slug if the initial filename is generic**
+- Create corresponding image directories: `src/assets/images/blog/slug-name/` (using the new slug)
 
 ### Frontmatter Schema
 Follow the schema defined in [src/content/config.ts](mdc:src/content/config.ts):
@@ -144,11 +147,11 @@ Use ImageLightbox component for screenshots:
 ## Publication Workflow
 
 ### Blog Post Setup Process
-1. **Choose appropriate slug** based on title content
-2. **Create frontmatter** with all required fields
-3. **Add component imports** (AutoOptimizedImage + ImageLightbox if needed)
+1. **Rename the file to a proper slug** - User always provides a simple/dummy filename; rename it based on title content
+2. **Create frontmatter** with all required fields (using the new slug for heroImagePath)
+3. **Add component imports** (AutoOptimizedImage + ImageLightbox if needed) using the new slug
 4. **Convert PNG to JPEG** using ImageMagick at 85% quality
-5. **Create image directory** for the post
+5. **Create image directory** for the post (using the new slug)
 6. **Add hero image** at the top of the post
 7. **Process any screenshots** and integrate with ImageLightbox
 
