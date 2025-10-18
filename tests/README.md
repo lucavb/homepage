@@ -27,14 +27,35 @@ The Playwright config automatically starts the Astro preview server before runni
 
 ## Test Coverage
 
-Current smoke tests cover:
+Tests are organized into focused files for better maintainability:
 
-- **Homepage**: Verifies all key sections load (Hero, About, Experience, Projects, Blog, Contact) and no console errors
+### `pages.spec.ts` - Page Loading Tests (5 tests)
+
+- **Homepage**: Verifies all key sections load and no console errors
 - **Blog Index**: Verifies blog page loads and lists posts
 - **Blog Post**: Verifies individual blog posts load correctly
 - **Projects Page**: Verifies projects page loads
 - **Impressum**: Verifies impressum page loads
-- **Navigation**: Verifies navigation between pages works
+
+### `navigation.spec.ts` - Navigation Tests (4 tests)
+
+- **Page Navigation**: Tests Blog and Projects page links
+- **Anchor Hash Links**: Tests header navigation (About, Experience, Projects, Blog, Contact)
+- **View All Links**: Tests "View All Projects" and "View All Posts" links
+- **Hero CTAs**: Tests "View My Work" and "Let's Connect" buttons
+
+### `interactive.spec.ts` - Interactive Features (2 tests)
+
+- **Theme Toggle**: Tests switching between Light, Dark, and System themes
+- **Email Reveal**: Tests click-to-reveal email functionality
+
+### `social-links.spec.ts` - Social Links Validation (3 tests)
+
+- **Header Links**: Validates GitHub, LinkedIn, and Email links in header
+- **Footer Links**: Validates GitHub, LinkedIn, and Email links in footer
+- **Impressum Link**: Validates Impressum link in footer
+
+**Total**: 14 tests × 3 browsers (Chromium, Firefox, WebKit) = 42 test runs
 
 ## Continuous Integration
 
@@ -63,10 +84,15 @@ Add these secrets in your GitHub repository settings (Settings → Secrets and v
 
 ## Adding New Tests
 
-1. Create or edit test files in the `tests/` directory
-2. Follow the existing patterns for console error detection
-3. Use descriptive test names
-4. Run tests locally before pushing
+1. Add tests to the appropriate spec file based on what you're testing:
+    - `pages.spec.ts` - New page load tests
+    - `navigation.spec.ts` - New navigation flows
+    - `interactive.spec.ts` - Interactive features like forms, toggles, etc.
+    - `social-links.spec.ts` - External links and contact methods
+2. For page load tests, use the `setupConsoleErrorTracking()` helper (see `pages.spec.ts`)
+3. Use descriptive test names that explain what's being tested
+4. Run tests locally before pushing: `npm test`
+5. Consider creating a new spec file if you're testing a distinct feature area
 
 ## Playwright Configuration
 

@@ -1,14 +1,19 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+function setupConsoleErrorTracking(page: Page) {
+    const errors: string[] = [];
+    page.on('pageerror', (error: Error) => errors.push(error.message));
+    page.on('console', (msg: any) => {
+        if (msg.type() === 'error') {
+            errors.push(msg.text());
+        }
+    });
+    return errors;
+}
 
 test.describe('Homepage', () => {
     test('should load and display all key sections', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('pageerror', (error) => errors.push(error.message));
-        page.on('console', (msg) => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
-            }
-        });
+        const errors = setupConsoleErrorTracking(page);
 
         await page.goto('/');
 
@@ -26,13 +31,7 @@ test.describe('Homepage', () => {
 
 test.describe('Blog', () => {
     test('should load blog index page', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('pageerror', (error) => errors.push(error.message));
-        page.on('console', (msg) => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
-            }
-        });
+        const errors = setupConsoleErrorTracking(page);
 
         await page.goto('/blog/');
 
@@ -62,13 +61,7 @@ test.describe('Blog', () => {
 
 test.describe('Projects', () => {
     test('should load projects page', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('pageerror', (error) => errors.push(error.message));
-        page.on('console', (msg) => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
-            }
-        });
+        const errors = setupConsoleErrorTracking(page);
 
         await page.goto('/projects/');
 
@@ -81,13 +74,7 @@ test.describe('Projects', () => {
 
 test.describe('Impressum', () => {
     test('should load impressum page', async ({ page }) => {
-        const errors: string[] = [];
-        page.on('pageerror', (error) => errors.push(error.message));
-        page.on('console', (msg) => {
-            if (msg.type() === 'error') {
-                errors.push(msg.text());
-            }
-        });
+        const errors = setupConsoleErrorTracking(page);
 
         await page.goto('/impressum/');
 
@@ -95,19 +82,5 @@ test.describe('Impressum', () => {
         await expect(page.getByRole('heading', { name: /Impressum/i })).toBeVisible();
 
         expect(errors, `Console errors detected: ${errors.join(', ')}`).toHaveLength(0);
-    });
-});
-
-test.describe('Navigation', () => {
-    test('should have working page navigation links', async ({ page }) => {
-        await page.goto('/');
-
-        await page.click('a[href="/blog"]');
-        await expect(page).toHaveURL(/\/blog/);
-
-        await page.goto('/');
-
-        await page.click('a[href="/projects"]');
-        await expect(page).toHaveURL(/\/projects/);
     });
 });
