@@ -15,31 +15,31 @@ interface Props {
 }
 
 const {
-    src,
     alt,
-    width = 800,
-    height,
-    loading = 'lazy',
-    decoding = 'async',
     class: className = 'w-full h-auto object-cover rounded-lg',
+    decoding = 'async',
+    height,
+    lightboxId = `lightbox-${Math.random().toString(36).substring(2, 11)}`,
+    loading = 'lazy',
     sizes = '(min-width: 1200px) 800px, (min-width: 800px) 600px, (min-width: 600px) 500px, 400px',
-    lightboxId = `lightbox-${Math.random().toString(36).substr(2, 9)}`,
+    src,
+    width = 800,
 } = Astro.props;
 ---
 
 <div class="relative group cursor-pointer" data-lightbox-trigger={lightboxId}>
     <Picture
-        src={src}
         alt={alt}
-        width={width}
-        height={height}
-        widths={[400, 600, 800, 1024]}
-        sizes={sizes}
-        formats={['avif', 'webp', 'jpg']}
-        quality={85}
         class={className}
-        loading={loading}
         decoding={decoding}
+        formats={['avif', 'webp', 'jpg']}
+        height={height}
+        loading={loading}
+        quality={85}
+        sizes={sizes}
+        src={src}
+        width={width}
+        widths={[400, 600, 800, 1024]}
     />
 
     <!-- Lens icon overlay -->
@@ -105,30 +105,32 @@ const {
             document.addEventListener('keydown', this.handleKeydown.bind(this));
         }
 
-        handleClick(event) {
-            const trigger = event.target.closest('[data-lightbox-trigger]');
-            const closeBtn = event.target.closest('[data-lightbox-close]');
-            const overlay = event.target.closest('[data-lightbox-overlay]');
+        handleClick(event: MouseEvent) {
+            if (event.target instanceof HTMLElement) {
+                const target = event.target;
+                const trigger = target.closest('[data-lightbox-trigger]');
+                const closeBtn = target.closest('[data-lightbox-close]');
+                const overlay = target.closest('[data-lightbox-overlay]');
 
-            if (trigger) {
-                const lightboxId = trigger.getAttribute('data-lightbox-trigger');
-                if (lightboxId) this.openLightbox(lightboxId);
-            } else if (closeBtn) {
-                const lightboxId = closeBtn.getAttribute('data-lightbox-close');
-                if (lightboxId) this.closeLightbox(lightboxId);
-            } else if (overlay) {
-                // Close if clicking anywhere except on the image itself or close button
-                const clickedOnImage = event.target.closest('picture, img');
-                const clickedOnCloseBtn = event.target.closest('[data-lightbox-close]');
-
-                if (!clickedOnImage && !clickedOnCloseBtn) {
-                    const lightboxId = overlay.getAttribute('data-lightbox-overlay');
+                if (trigger) {
+                    const lightboxId = trigger.getAttribute('data-lightbox-trigger');
+                    if (lightboxId) this.openLightbox(lightboxId);
+                } else if (closeBtn) {
+                    const lightboxId = closeBtn.getAttribute('data-lightbox-close');
                     if (lightboxId) this.closeLightbox(lightboxId);
+                } else if (overlay) {
+                    const clickedOnImage = target.closest('picture, img');
+                    const clickedOnCloseBtn = target.closest('[data-lightbox-close]');
+
+                    if (!clickedOnImage && !clickedOnCloseBtn) {
+                        const lightboxId = overlay.getAttribute('data-lightbox-overlay');
+                        if (lightboxId) this.closeLightbox(lightboxId);
+                    }
                 }
             }
         }
 
-        handleKeydown(event) {
+        handleKeydown(event: KeyboardEvent) {
             if (event.key === 'Escape') {
                 const openLightbox = document.querySelector('[data-lightbox-overlay]:not(.hidden)');
                 if (openLightbox) {
@@ -138,7 +140,7 @@ const {
             }
         }
 
-        openLightbox(lightboxId) {
+        openLightbox(lightboxId: string) {
             const lightbox = document.getElementById(lightboxId);
             if (lightbox) {
                 lightbox.classList.remove('hidden');
@@ -147,7 +149,7 @@ const {
             }
         }
 
-        closeLightbox(lightboxId) {
+        closeLightbox(lightboxId: string) {
             const lightbox = document.getElementById(lightboxId);
             if (lightbox) {
                 lightbox.classList.add('hidden');
