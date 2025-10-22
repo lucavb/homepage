@@ -53,4 +53,18 @@ test.describe('Navigation', () => {
         await page.getByRole('link', { name: /Let's Connect/i }).click();
         await expect(page).toHaveURL(/#contact/);
     });
+
+    test('should navigate back to home from blog page using "Back to Home" button', async ({ page }) => {
+        await page.goto('/blog');
+
+        await page.getByRole('link', { name: 'Back to Home' }).click();
+        await expect(page).toHaveURL('/');
+    });
+
+    test('should navigate back to home from projects page using "Back to Home" button', async ({ page }) => {
+        await page.goto('/projects');
+
+        await page.getByRole('link', { name: 'Back to Home' }).click();
+        await expect(page).toHaveURL('/');
+    });
 });
