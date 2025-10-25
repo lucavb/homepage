@@ -5,6 +5,12 @@ import Footer from '@components/home/Footer.astro';
 import Header from '@components/home/Header.astro';
 import PageHero from '@components/general/PageHero.astro';
 import aicommitsImage from '../assets/images/aicommits.png';
+import wollwerkImage from '../assets/images/wollwerk-thumbnail.jpg';
+import lunchSlackBotImage from '../assets/images/lunch-slack-bot-thumbnail.jpg';
+import ollamaExporterImage from '../assets/images/ollama-exporter-thumbnail.jpg';
+import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thumbnail.png';
+import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
+import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
 import type { ImageMetadata } from 'astro';
 
 const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata =>
@@ -36,7 +42,7 @@ const enhancedProjects = [
         achievements: ['Modern UI/UX', 'Responsive design', 'Inventory management', 'SEO optimized'],
         technologies: ['Ruby on Rails', 'EmberJS', 'JavaScript', 'CSS', 'HTML'],
         liveUrl: 'https://www.wollwerk.org/',
-        thumbnail: '/assets/images/wollwerk-thumbnail.png',
+        thumbnail: wollwerkImage,
     },
     {
         title: '✨ Weather-Aware Lunch Slack Bot',
@@ -54,7 +60,7 @@ const enhancedProjects = [
         ],
         technologies: ['TypeScript', 'AWS Lambda', 'DynamoDB', 'API Gateway', 'OpenTofu', 'Slack API'],
         githubUrl: 'https://github.com/lucavb/lunch-slack-bot',
-        thumbnail: '/assets/images/lunch-slack-bot-thumbnail.jpg',
+        thumbnail: lunchSlackBotImage,
     },
     {
         title: '✨ Ollama Prometheus Exporter',
@@ -68,7 +74,7 @@ const enhancedProjects = [
         technologies: ['TypeScript', 'Node.js', 'Prometheus', 'Docker', 'Ollama API'],
         githubUrl: 'https://github.com/lucavb/ollama-exporter',
         liveUrl: 'https://hub.docker.com/r/lucabecker42/ollama-exporter',
-        thumbnail: '/assets/images/ollama-exporter-thumbnail.jpg',
+        thumbnail: ollamaExporterImage,
     },
     {
         title: 'Homebridge HTTP Motion Sensor',
@@ -87,7 +93,7 @@ const enhancedProjects = [
         technologies: ['TypeScript', 'Node.js', 'Homebridge API', 'HomeKit', 'HTTP Server', 'IoT'],
         githubUrl: 'https://github.com/lucavb/homebridge-http-motion-sensor',
         liveUrl: 'https://www.npmjs.com/package/homebridge-http-motion-sensor',
-        thumbnail: '/assets/images/homebridge-http-motion-sensor-thumbnail.png',
+        thumbnail: homebridgeImage,
     },
     {
         title: 'Stylelint Checkstyle Reporter',
@@ -101,7 +107,7 @@ const enhancedProjects = [
         technologies: ['JavaScript', 'Node.js', 'Stylelint', 'XML', 'NPM'],
         githubUrl: 'https://github.com/lucavb/stylelint-checkstyle-reporter',
         liveUrl: 'https://www.npmjs.com/package/stylelint-checkstyle-reporter',
-        thumbnail: '/assets/images/stylelint-checkstyle-reporter-thumbnail.png',
+        thumbnail: stylelintImage,
     },
     {
         title: 'Conventional Changelog JIRA Extension',
@@ -115,7 +121,7 @@ const enhancedProjects = [
         technologies: ['JavaScript', 'Node.js', 'JIRA API', 'Git', 'Conventional Commits'],
         githubUrl: 'https://github.com/lucavb/conventional-changelog-conventionalcommits-jira',
         liveUrl: 'https://www.npmjs.com/package/conventional-changelog-conventionalcommits-jira',
-        thumbnail: '/assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png',
+        thumbnail: conventionalChangelogImage,
     },
 ];
 ---

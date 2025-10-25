@@ -1,12 +1,11 @@
 ---
-import { Image } from 'astro:assets';
+import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 import { IProjectDetails } from '@types';
 
 const { projectDetail } = Astro.props as IProjectDetails;
 const { title, thumbnail, liveUrl, githubUrl } = projectDetail;
 
-// Type guard to check if thumbnail is ImageMetadata - updated
 const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
     return typeof src === 'object' && src !== null && 'src' in src;
 };
@@ -20,13 +19,15 @@ const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
     >
         {
             isImageMetadata(thumbnail) ? (
-                <Image
+                <Picture
                     src={thumbnail}
                     alt={`${title} project screenshot`}
                     class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                    formats={['avif', 'webp', 'jpg']}
                     loading="lazy"
                     width={400}
                     height={192}
+                    widths={[300, 400, 600]}
                 />
             ) : (
                 <img

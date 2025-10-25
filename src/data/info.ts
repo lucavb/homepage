@@ -1,4 +1,9 @@
 import aicommitsImage from '../assets/images/aicommits.png';
+import wollwerkImage from '../assets/images/wollwerk-thumbnail.jpg';
+import lunchSlackBotImage from '../assets/images/lunch-slack-bot-thumbnail.jpg';
+import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thumbnail.png';
+import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
+import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
 
 export const info = {
     baseUrl: 'https://luca-becker.me',
@@ -124,34 +129,34 @@ Currently, I am leading a team from a technical standpoint and managing the infr
         {
             isFeatured: true,
             liveUrl: 'https://www.wollwerk.org/',
-            thumbnail: '/assets/images/wollwerk-thumbnail.png',
+            thumbnail: wollwerkImage,
             title: 'Wollwerk',
         },
         {
             githubUrl: 'https://github.com/lucavb/lunch-slack-bot',
             isFeatured: true,
-            thumbnail: '/assets/images/lunch-slack-bot-thumbnail.jpg',
+            thumbnail: lunchSlackBotImage,
             title: 'Weather-Aware Lunch Slack Bot',
         },
         {
             githubUrl: 'https://github.com/lucavb/homebridge-http-motion-sensor',
             isFeatured: false,
             liveUrl: 'https://www.npmjs.com/package/homebridge-http-motion-sensor',
-            thumbnail: '/assets/images/homebridge-http-motion-sensor-thumbnail.png',
+            thumbnail: homebridgeImage,
             title: 'Homebridge HTTP Motion Sensor',
         },
         {
             githubUrl: 'https://github.com/lucavb/stylelint-checkstyle-reporter',
             isFeatured: false,
             liveUrl: 'https://www.npmjs.com/package/stylelint-checkstyle-reporter',
-            thumbnail: '/assets/images/stylelint-checkstyle-reporter-thumbnail.png',
+            thumbnail: stylelintImage,
             title: 'stylelint-checkstyle-reporter',
         },
         {
             githubUrl: 'https://github.com/lucavb/conventional-changelog-conventionalcommits-jira',
             isFeatured: false,
             liveUrl: 'https://www.npmjs.com/package/conventional-changelog-conventionalcommits-jira',
-            thumbnail: '/assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png',
+            thumbnail: conventionalChangelogImage,
             title: 'conventional-changelog-conventionalcommits-jira',
         },
     ],
