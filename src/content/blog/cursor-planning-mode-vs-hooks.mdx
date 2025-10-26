@@ -1,0 +1,128 @@
+---
+title: "Cursor's New Features: One Hit, One Miss"
+description: 'Planning Mode proves Cursor can iterate thoughtfully, while Cursor Hooks feels rushed. A detailed review of both features from six months of daily use.'
+publishDate: 2025-10-26
+tags: ['cursor', 'ai-coding', 'developer-tools', 'ide', 'workflow']
+heroImagePath: 'cursor-planning-mode-vs-hooks/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/cursor-planning-mode-vs-hooks/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Cursor IDE showing Planning Mode and Hooks features side by side"
+    loading="eager"
+/>
+
+I've been using Cursor as my daily driver for about six months now, and I'll admit—I've become a bit of a fanboy. It's the closest thing we have to the "Apple product" of AI-assisted coding: polished, intuitive, and genuinely productive. So when Cursor dropped two major features recently, I was excited to put them through their paces.
+
+One feature is a genuine productivity boost that I'll be using regularly. The other feels like it was shipped before it was ready.
+
+Let me walk you through both.
+
+## Planning Mode: Better Late Than Never
+
+Cursor's new Planning Mode is essentially their answer to what Amazon's Kiro has been doing with [spec-driven development](https://luca-becker.me/blog/first-look-at-kiro-amazons-new-agentic-coding-tool-beta-impressions/). The concept is straightforward: before the AI starts generating code, it creates an implementation plan that you can review and refine together.
+
+To be fair, this isn't exactly groundbreaking—tools like RooCode, Cline, and KiloCode have had planning features for a while now. Cursor is catching up here rather than leading. But what matters is the execution.
+
+I'll be honest—I was initially skeptical. In six months of using Cursor, I'd maybe "planned" features manually once or twice. The whole "just prompt and it will do something" atmosphere wasn't exactly inviting me to slow down and think strategically. But having it baked right into the workflow? That changes things.
+
+### Testing It in the Real World
+
+I decided to test Planning Mode with a non-trivial task: integrating AWS Bedrock support into [aicommits](https://github.com/lucavb/aicommits), my AI-powered commit message tool that I've been developing with AI assistance since spring. This seemed like the perfect test case—it wasn't the most straightforward feature, but it also wasn't rocket science.
+
+The planning process itself was surprisingly collaborative. Cursor asked clarifying questions before generating the plan, which helped refine the scope. Unlike Kiro's three-step workflow, Cursor gives you one comprehensive plan and lets you iterate on it. For this particular feature, where I didn't have a clear roadmap in my head, working through the plan with the AI actually made sense.
+
+Then came the implementation. And this is where I was genuinely impressed: **the entire AWS Bedrock integration was done in 2-3 minutes**.
+
+Now, before you think this was flawless, let me be clear—it wasn't. The agent got me about 95% of the way there, but there were two bugs I had to manually resolve:
+
+1. **The model listing quirk**: AWS Bedrock has an unusual way of exposing models. There are ON_DEMAND models, but those aren't the frontier models people actually want to use. The good stuff lives in inference profiles. The solution required calling both `ListFoundationModelsCommand` and `ListInferenceProfilesCommand` to get the complete picture.
+
+2. **Credential loading**: The Vercel AI SDK wasn't automatically loading AWS credentials the way I needed, so I had to manually include the credential-provider package to rely solely on AWS authentication methods.
+
+You can see the [final implementation here](https://github.com/lucavb/aicommits/commit/3aaf7324e7286c230a3e1ebe72227be6dcd61acc) if you're curious about the details.
+
+### Understanding the 95% Reality
+
+What became clear to me through this experience is something I think every developer using these tools needs to internalize: **AI agents consistently get you 95% of the way there, but that final 5% requires human intervention—and that's the slow part**.
+
+The debugging phase took the most time. The agent wrote solid code, it just didn't cover all the edge cases. But I have to admit, even though I could have built this feature myself, having the planning mode guide the implementation made it considerably easier. A colleague of mine has been preaching this methodology for a while, and I kind of ignored it. Knowing what I know now, I'd say I wasn't entirely wrong—the approach of "planning everything" can be too much for certain tasks. But for features with unclear requirements or unfamiliar territory? Planning Mode is a genuine win.
+
+### What's Missing
+
+There are some missed opportunities here. Unlike Kiro, Cursor doesn't save the plan within the repo. This feels like a wasted opportunity for team collaboration. Those plans could be valuable documentation, showing the reasoning behind implementation decisions. Kiro understood this with their [agent hooks approach](https://luca-becker.me/blog/agent-hooks-reactive-development/), and it's puzzling that Cursor didn't follow suit.
+
+But overall? **Planning Mode is a hit**. It's fast, it's integrated naturally into the workflow, and it encourages a development practice that I should have been doing all along but wasn't.
+
+If you haven't tried it yet, hit `CMD + .` to cycle through Cursor's agent modes. Keep tapping until you land on Planning Mode and give it a shot on your next non-trivial feature. You might be surprised how much smoother the process feels when you and the AI are on the same page from the start.
+
+## Cursor Hooks: A Half-Baked Implementation
+
+Now let's talk about [Cursor Hooks](https://cursor.com/docs/agent/hooks)—and buckle up, because this one frustrated me.
+
+The concept is solid: create custom automation hooks that trigger at specific points in your development workflow. Think formatters that run after code generation, or branch management, or custom linting rules. The potential is obvious.
+
+The execution? Not so much.
+
+### The UX Disaster
+
+Let me paint you a picture of what getting started with Cursor Hooks looks like:
+
+1. You navigate to the settings page where hooks are _listed_, but you can't actually create one there2. You manually write a `.json` configuration file
+2. You write a shell script (yes, a shell script in 2024) to handle the hook logic
+3. You echo JSON back to STDOUT because that's how Cursor reads your hook's output5. You restart Cursor because there's no hot-reloading6. You realize it's not working
+4. You discover hooks must live in your home folder, not your project repo
+   
+This is the developer experience Cursor shipped. For a product that I've been praising as the polished alternative in the AI IDE space, **this feels remarkably lackluster**.
+
+### The Technical Gotchas
+
+The problems run deeper than just UX friction. Here's what I discovered while trying to get a simple Prettier formatting hook working:
+
+**Documentation mismatch**: The official examples show bash scripts. For an IDE used primarily by JavaScript/TypeScript developers, this feels tone-deaf. Yes, STDIN/STDOUT communication is universal, but know your audience.
+
+**Environment limitations**: The hook doesn't run in your normal shell (or at least doesn't seem to). For me this mean that tools like `npx` weren't available. I had to manually load `nvm` and configure the environment:
+
+```bash
+# Load nvm if available
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+```
+
+**Scope restrictions**: The `afterFileEdit` hook for instance only triggers on agent edits, not manual edits. They advertise this as useful for formatters, but if it doesn't run when I edit files, what's the point?
+
+**No team sharing**: Because hooks must live in your home directory, there's no way to share them with your team. This kills one of the most valuable use cases—standardizing workflows across a development team.
+
+**Even AI models didn't stand a chance**: When I tried to set it up, Claude Sonnet 4.5 in tandem with the official docs was no help; the model completely misunderstood the file format. Not entirely sure how Claude Sonnet 4.5 got this so wrong.
+
+### What Could Have Been
+
+I was excited about practical use cases. Imagine a hook that automatically checks out a new branch for every AI conversation—perfect for developers who aren't always super organized and sometimes mix tasks. Or hooks that could prompt mini sub-agents, like [Kiro offers with their agent hooks](https://luca-becker.me/blog/agent-hooks-reactive-development/).
+
+Instead, we got a feature that feels like it was shipped because Kiro did it first, not because it was ready.
+
+### My Assessment
+
+**This isn't even flagged as beta, but it should be**.
+
+After getting it working, I disabled Cursor Hooks again. Offering STDIN/STDOUT communication might be more universal, but Cursor needs to know their audience. This is a VSCode-based IDE used by people writing JavaScript and TypeScript. They can handle `.mjs` or `.mts` files. They don't want to wrangle bash scripts with JSON echoing.
+
+For a product that usually feels incredibly polished, Cursor Hooks is a rare misstep.
+
+## Wrapping Up
+
+Cursor's Planning Mode proves that when they take time to integrate features thoughtfully, they can genuinely improve how we work. Yes, they're late to the party—other tools have had this for a while—but the implementation is solid. It's made me reconsider my development workflow, and I'll be using it regularly going forward.
+
+Cursor Hooks, on the other hand, feels rushed—like a checkbox feature added because competitors have it, not because it's ready for prime time. It needs significant improvement before it becomes genuinely useful.
+
+The good news? Cursor has shown they can iterate and polish. I hope they give Hooks the attention it deserves, because the underlying concept has potential.
+
+In the meantime, I'll be planning my features and skipping the hooks.
+
+---
+
+_What's your experience with these features? Have you found workflows where Cursor Hooks actually shine? Let me know in the comments—I'd love to hear if I'm missing something._
