@@ -5,8 +5,8 @@ import Header from '@components/home/Header.astro';
 import Footer from '@components/home/Footer.astro';
 import BlogCard from '@components/general/BlogCard.astro';
 import PageHero from '@components/general/PageHero.astro';
+import { calculateReadingTime } from '@utils';
 
-// Get all blog posts and sort by date (most recent first)
 const allBlogPosts = await getCollection('blog', ({ data }) => {
     return !data.draft;
 });
@@ -22,6 +22,7 @@ const blogPosts = allBlogPosts
         draft: post.data.draft,
         thumbnail: post.data.thumbnail,
         heroImagePath: post.data.heroImagePath,
+        readingTime: calculateReadingTime(post.body),
     }));
 ---
 

@@ -47,6 +47,7 @@ export interface IBlogPost {
     draft: boolean;
     thumbnail?: string;
     heroImagePath?: string;
+    readingTime?: number;
 }
 
 export interface IBlogPostCard {

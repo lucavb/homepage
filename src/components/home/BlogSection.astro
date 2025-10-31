@@ -2,8 +2,8 @@
 import { getCollection } from 'astro:content';
 import BlogCard from '@components/general/BlogCard.astro';
 import SectionTitle from '@components/general/SectionTitle.astro';
+import { calculateReadingTime } from '@utils';
 
-// Get all blog posts and sort by date (most recent first)
 const allBlogPosts = await getCollection('blog', ({ data }) => {
     return !data.draft;
 });
@@ -20,6 +20,7 @@ const recentBlogPosts = allBlogPosts
         draft: post.data.draft,
         thumbnail: post.data.thumbnail,
         heroImagePath: post.data.heroImagePath,
+        readingTime: calculateReadingTime(post.body),
     }));
 ---
 

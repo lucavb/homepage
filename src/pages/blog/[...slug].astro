@@ -7,6 +7,7 @@ import Header from '@components/home/Header.astro';
 import Footer from '@components/home/Footer.astro';
 import PageHero from '@components/general/PageHero.astro';
 import ReadingProgress from '@components/general/ReadingProgress.astro';
+import { calculateReadingTime } from '@utils';
 
 export async function getStaticPaths() {
     const blogEntries = await getCollection('blog');
@@ -19,6 +20,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+const readingTime = calculateReadingTime(entry.body);
 
 let ogImageUrl = entry.data.thumbnail || '/assets/images/og-image.jpg';
 
@@ -70,6 +72,7 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
                 backLinkHref="/blog"
                 publishDate={entry.data.publishDate}
                 tags={entry.data.tags}
+                readingTime={readingTime}
             />
 
             <!-- Blog Content -->

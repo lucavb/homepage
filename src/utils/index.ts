@@ -5,6 +5,19 @@ export const createLogo = (name: string) =>
         .join('')
         .toUpperCase();
 
+export const calculateReadingTime = (content: string): number => {
+    const wordsPerMinute = 200;
+    const text = content
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`[^`]+`/g, '')
+        .replace(/[#*\[\]()]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const wordCount = text.split(' ').filter((word) => word.length > 0).length;
+    const readingTime = Math.ceil(wordCount / wordsPerMinute);
+    return Math.max(1, readingTime);
+};
+
 export const setupEmailProtection = (
     elementId: string,
     options: {
