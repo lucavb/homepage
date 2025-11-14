@@ -1,0 +1,430 @@
+---
+title: 'AI Code Reviews: DIY vs Copilot Six Weeks Later'
+description: 'Six weeks running OpenCode and GitHub Copilot in parallel on production code. Real costs, actual bugs caught, and which approach wins when UX battles capability.'
+publishDate: 2025-11-14
+heroImagePath: 'ai-code-reviews-diy-vs-copilot/hero.jpg'
+tags: ['ai', 'code-review', 'github-copilot', 'opencode', 'cursor', 'aws-bedrock', 'automation', 'developer-tools']
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/ai-code-reviews-diy-vs-copilot/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="AI Code Reviews comparison diagram showing OpenCode and GitHub Copilot side by side"
+    loading="eager"
+/>
+
+# AI Code Reviews: DIY vs Copilot Six Weeks Later
+
+Code reviews are a bottleneck. You know it, your team knows it, and that junior developer who's been waiting three days for feedback on a two-line change definitely knows it. The promise of AI-assisted code review is simple: catch the obvious stuff automatically so human reviewers can focus on architecture, business logic, and whether naming that variable `data2` was really the best choice.
+
+We've spent the past six weeks running two different AI review systems in parallel on real production code: a self-hosted setup using [OpenCode](https://github.com/sst/opencode/) with AWS Bedrock (Claude Haiku 4.5), and GitHub Copilot's native PR review feature. Not in a lab. Not on toy projects. On a 31,000-line NestJS backend and a 70,000-line React frontend at my client.
+
+I got the idea from [Cursor CLI's code review cookbook](https://cursor.com/docs/cli/cookbook/code-review), which demonstrates how to use their CLI tool for automated PR reviews. That inspired us to explore both DIY approaches and platform solutions to see what works best in practice.
+
+Here are our lessons learned.
+
+## The Setup
+
+**The DIY Approach: OpenCode + AWS Bedrock**
+
+We chose OpenCode because it has a similar feature set to Cursor CLI but connects easily to AWS Bedrock without requiring additional subscriptions. My client only has access to AWS Bedrock for AI inference, so this was the path of least resistance. The stack:
+
+- OpenCode running in GitHub Actions
+- [Claude Haiku 4.5](https://www.anthropic.com/news/claude-haiku-4-5) via AWS Bedrock (switched from Sonnet after the first two days)
+- Triggered on PR open and via manual `/review` comment
+- Custom plugin for file access control
+
+**AI Code Reviews as a Service: GitHub Copilot**
+
+GitHub Copilot's PR review feature, which we've been running for about four weeks. The setup is simpler:
+
+- $19 per seat per month for unlimited reviews
+- Native GitHub integration
+- Configured via [`.instructions.md` files](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions) per repo
+- Zero infrastructure to maintain
+- For Enterprise and Business users, your code is not used to train GitHub's models
+
+**Important:** Both systems run as advisory reviewers only. Neither has permission to block merges or approve PRs. They provide additional signal for human reviewers, not automated gatekeeping.
+
+Both systems review the same code, often on the same PRs.
+
+## The Economics
+
+**OpenCode + Haiku 4.5: ~$2/day per repository**
+
+We started with Claude Sonnet 4.5 at about $12/day for two repos. Scaling to 20 repositories would have meant $4800/month. We switched to Claude Haiku 4.5 (released two days before we started) and costs dropped to a third of Sonnet pricing.
+
+With the manual trigger workflow (more on that later), we're now at roughly $2/day per repo, or about $40/month per repository. For our two-repo setup, that's $80/month total, or $4/day.
+
+**GitHub Copilot: $19/seat/month, unlimited**
+
+For a team of 5-10 developers actively using it, you're looking at $95-190/month total, regardless of how many repositories or how many reviews. No per-review costs means developers can spam it without worrying about the bill.
+
+**The Cost Crossover**
+
+For a small team working across many repositories, OpenCode's usage-based pricing might get expensive. For a larger team focused on fewer repos, Copilot's per-seat model could be cheaper. For us, Copilot makes more sense economically.
+
+**The Real-World Scale**
+
+Over six weeks, we've run both systems through low triple-digit PR counts. That's enough volume to surface real patterns and edge cases, but not so much that the novelty wore off. The team's verdict: definitely net positive despite the rough edges we'll discuss below.
+
+## The Hidden Cost: Token Waste on Generated Files
+
+Our GraphQL codegen creates files with 8,000+ lines. AI agents try to read whatever files seem helpful, so you either trust them to be smart about it or block them outright. We chose the latter. I built a custom plugin to prevent OpenCode from reading certain files:
+
+```typescript
+import type { Plugin } from '@opencode-ai/plugin';
+
+export const FileAccessControl: Plugin = async () => {
+    return {
+        'tool.execute.before': async (input, output) => {
+            if (input.tool === 'read' && output.args?.filePath) {
+                const filePath = output.args.filePath;
+                const fileName = filePath.split('/').pop() || filePath;
+
+                if ((fileName.startsWith('.env') || fileName.endsWith('.env')) && fileName !== '.env.sample') {
+                    throw new Error('Do not read .env files');
+                }
+
+                if (fileName === 'yarn.lock') {
+                    throw new Error('Do not read yarn.lock file');
+                }
+
+                if (filePath.includes('.generated.')) {
+                    throw new Error('Do not read generated files (*.generated.*)');
+                }
+            }
+        },
+    };
+};
+```
+
+This intercepts the `read` tool call and blocks environment files, lock files, and anything with `.generated.` in the path. The catch: it only prevents explicit reads. The AI still sees the full diff from `gh pr diff`, which doesn't support filtering. You can hope that the diff only shows the changed parts of the file rather than the entire 8,000 lines, but I'd still recommend updating generated files outside of the actual PR when possible to keep the diff clean.
+
+With Copilot's black box approach, we have no idea if it's burning tokens on generated files or not. We just have to trust it's smart enough to skip them.
+
+## What They Actually Catch: The Good
+
+Both systems have caught real bugs that would have made it to production. Here are some examples:
+
+**Bugs Caught by OpenCode:**
+
+- "Missing radix in parseInt(): should be parseInt(nextToken, 10) to avoid octal interpretation. Also lacks NaN fallback."
+- "The getUserInviteRedirectPageError is extracted but never handled. If the query fails, users will be stuck on the loading screen indefinitely."
+- Logic error in tests where the test asserted a property was set to `true` when in practice it was `false`. These false positives would have hidden actual bugs.
+
+**Bugs Caught by Copilot:**
+
+- "Missing return statement in map callback. The JSX is not being returned, so no items will be rendered."
+- "The first array element 'a,' contains a trailing comma which will cause string matching to fail in tests expecting 'a'."
+- "The `animateTo` function returns an Animated.CompositeAnimation but `.start()` is never called on it, so the animation will not execute."
+
+These justify the cost. They are bugs that would have looked like broken functionality in production but got caught in 30 minutes instead of waiting days for human review.
+
+## The Downside of Automated Reviews
+
+Both systems also produce comments that make you wonder if the AI actually understood what the PR was trying to do.
+
+**Copilot's misses:**
+
+One PR refactored how translation namespaces were passed to remote components. Copilot commented:
+
+> ✨ Removed `defaultTranslationNamespace` prop. Verify that remote apps now correctly receive their namespace via the refactored `useLoadRemoteComponent` hook. If namespace injection fails, translations may fall back unexpectedly.
+
+This was the entire point of the PR. The developer's response: "You didn't get the point, reviewer." Other misses included flagging renamed files as errors and adding cheerleader comments that provide no value.
+
+**OpenCode's challenges:**
+
+Before we tuned the prompts, OpenCode would flag every non-English translation file as having "missing translations" for new keys. It didn't know we have an automated translation process that handles this after the fact. We added context to the prompt explaining our translation workflow, and it stopped producing those warnings.
+
+It also suggests improvements that are technically correct but not aligned with the codebase: "Add JSDoc comment explaining the method filters organizations with associated users and uses offset pagination." Sure, nice to have, but we don't use JSDoc everywhere. It's noise if it doesn't match your conventions.
+
+Overall, I think my colleague's direct assessment on which he prefers provides a reasonable summary:
+
+> It depends. In a few cases it was really quite dumb. I think generally the bot [OpenCode with Haiku] is better, you maybe need to tune the prompt a bit so it stays more on topic. But it's generally definitely smarter. But I find the usability of Copilot nicer, and sometimes easier to understand what it means (though sometimes also not understandable).
+
+So: OpenCode in our experience is smarter overall, but requires tuning. Copilot is easier to use, but sometimes produces nonsense.
+
+## The False Positive Problem (And Why It Still Works)
+
+Here's an uncomfortable truth: in our experience roughly 50% of AI review comments are false positives or noise. That sounds terrible until you understand the nuance.
+
+**The surprising part:** False positives affect PR authors and final reviewers differently.
+
+**For PR authors:** The 50% noise rate is genuinely annoying. You wrote the code, you understand the context, and now you're explaining to a bot why its suggestion doesn't apply. It's friction at the exact moment you want to move on to the next task.
+
+**For final human reviewers:** False positives are barely an issue. However, the developer is also deep in the topic and so they can identify those false positives quite quickly.
+
+**Our workflow:** AI reviews first → PR author addresses legitimate issues → Human reviewer sees a cleaner PR with fewer mechanical problems. The human reviewer benefits from the signal without suffering from the noise.
+
+We're revisiting our prompts next week to drive that 50% down. But even at current rates, the entire team agrees: it's definitely net positive. Remember, these are advisory comments only—not blocking merges—which makes the false positive tolerance much higher.
+
+## The UX Reality: Integration Matters
+
+This is where GitHub's native integration gives Copilot a substantial advantage that's easy to underestimate until you're using both daily.
+
+**GitHub Copilot's integration advantage:**
+
+- Native UI button right in the PR interface
+- One click to re-request review
+- Seamlessly integrated into the PR workflow
+- Feels like part of the platform (because it is)
+
+**OpenCode's approach:**
+
+- Leave a `/review` comment to trigger
+- Less discoverable for new team members
+- Feels like a "bolt-on" even though it works fine
+- More cognitive overhead
+
+That "re-request" button is worth more than it seems. It's about reducing friction at the exact moment when developers are most impatient.
+
+## Adjusting our OpenCode workflow
+
+**Workflow evolution:**
+
+We started with OpenCode reviewing on every push. Too expensive. We switched to on-demand triggers via `/review` comments. Now: PR opens → automatic review → developer addresses feedback → types `/review` for another pass → human reviewer sees the cleaned-up version. This cut costs significantly.
+
+**Model selection:**
+
+We switched from Claude Sonnet 4.5 to Haiku 4.5 after two days primarily for cost. The surprise: we didn't notice meaningful quality degradation. Haiku is theoretically "worse," but in practice, for code review tasks, it performs well enough that the 3x cost savings make it the obvious choice.
+
+**Recommendation:** Start with [Haiku 4.5](https://www.anthropic.com/news/claude-haiku-4-5). Don't overthink it. If you hit obvious quality issues, upgrade to Sonnet, but we haven't needed to.
+
+**Prompt tuning:**
+
+We've made several adjustments to OpenCode's prompts:
+
+- Added context about our automated translation process
+- Built the file access control plugin to prevent wasting tokens on generated files
+- Still tuning to keep it "more on topic"
+
+The nice part: OpenCode lets us iterate on these prompts. With Copilot's black box, we can provide instructions via `.instructions.md` files, but we can't see what it's actually doing or debug why it made certain comments.
+
+**The unsolved problem: sharing instructions**
+
+Every tool in this space has the same limitation: instruction files must be checked into each repository individually. No way to share org-wide guidelines. Update your review guidelines? Update them in every repo. Nobody's solved this yet.
+
+## When These Tools Actually Help
+
+After six weeks, here's what we've learned about when AI code review actually provides value:
+
+**Works well for:** Catching logic errors, finding subtle bugs, fast feedback on basic issues.
+
+**Struggles with:** Understanding PR intent, domain-specific context, consistency.
+
+**Humans still needed for:** Architecture decisions, business logic, maintainability.
+
+The goal: AI catches mechanical issues so human reviewers can focus on "is this the right approach?" instead of "you forgot a return statement."
+
+**One warning:** Junior developers might go down rabbit holes faster when AI suggests changes. Teach your team to treat AI feedback like any other review comment. Be critical.
+
+## Setup Time Reality Check
+
+The time investment difference is real but not as significant as you might think:
+
+**OpenCode setup:** Roughly 2 hours from zero to working reviews. This includes GitHub Actions configuration, AWS Bedrock permissions, initial prompt tuning, and building the file access control plugin. For the value it provides, that's not a significant investment.
+
+**GitHub Copilot setup:** About 15 minutes. Enable it in your organization settings, add a `.instructions.md` file to your repo, done.
+
+If 2 hours of setup time is a dealbreaker, that tells you something about your team's priorities and appetite for customization versus convenience.
+
+## The Decision Framework
+
+So which approach should you choose? Here's a neutral assessment based on our experience:
+
+<MermaidDiagram diagram={`
+graph TD
+    Start[Need AI Code Review?] --> OnGitHub{Using GitHub?}
+
+    OnGitHub -->|Yes| TryCopilot[Consider GitHub Copilot]
+    OnGitHub -->|No| NeedDIY[Need DIY Solution]
+
+    TryCopilot --> CopilotTradeoff{Acceptable<br/>trade-offs?}
+    CopilotTradeoff -->|Black box OK<br/>Native integration valuable| UseCopilot[✓ Use Copilot]
+    CopilotTradeoff -->|Need transparency<br/>or custom models| ConsiderDIY[Consider DIY]
+
+    ConsiderDIY --> Privacy{Privacy/<br/>Compliance<br/>requirements?}
+    NeedDIY --> Privacy
+
+    Privacy -->|Must self-host<br/>or use specific models| UseDIY[Use DIY Approach]
+    Privacy -->|Cloud services OK| CheckAPI{What API<br/>access?}
+
+    CheckAPI -->|AWS Bedrock| OpenCode[OpenCode]
+    CheckAPI -->|Cursor subscription| CursorCLI[Cursor CLI]
+
+    OpenCode --> DIYTradeoffs[Accept DIY trade-offs:<br/>- More setup/maintenance<br/>- Manual triggers<br/>- Prompt tuning needed<br/>+ Transparency<br/>+ Debuggable<br/>+ Extensible]
+    CursorCLI --> DIYTradeoffs
+
+    UseCopilot --> CopilotTradeoffs[Accept Copilot trade-offs:<br/>- Black box operation<br/>- Limited configurability<br/>- Per-seat pricing<br/>+ Native integration<br/>+ Zero maintenance<br/>+ Just works]
+
+    UseDIY --> OtherOptions[Also consider:<br/>- CodeRabbit<br/>- Other solutions]
+
+    style UseCopilot fill:#90EE90
+    style UseDIY fill:#87CEEB
+    style DIYTradeoffs fill:#FFE4B5
+    style CopilotTradeoffs fill:#FFE4B5
+
+`} />
+
+**Choose GitHub Copilot if:**
+
+- You're already on GitHub Enterprise
+- Native platform integration matters (that re-request button is genuinely valuable)
+- You want zero configuration and maintenance
+- You can tolerate the black box (can't see what it's doing or why)
+- Per-seat pricing works for your team size (also enables it in your developers' IDEs!)
+- Convenience trumps control
+
+**Choose a DIY approach (OpenCode, Cursor CLI, or similar) if:**
+
+- You're not on GitHub (GitLab, Bitbucket, self-hosted Git)
+- Privacy or compliance requires self-hosted models or specific cloud providers
+- You need transparency (see what files it reviewed, understand its reasoning)
+- You want extensibility (custom plugins, MCP integration)
+- You're willing to invest time in prompt tuning and workflow optimization
+- Usage-based pricing works better for your situation (many repos, small team)
+
+**What about the model provider?**
+
+If you're going the DIY route, choose your tool based on what API access you have:
+
+- **AWS Bedrock access?** → OpenCode works great
+- **Cursor subscription?** → Cursor CLI is slightly more polished
+
+The quality of output primarily comes from the underlying LLM, not the wrapper tool. Since you can get Claude Sonnet 4.5 and Haiku 4.5 through multiple providers, the tool choice is mostly about convenience and what you already pay for.
+
+**Other options worth knowing about:**
+
+- **BugBot**: A GitHub App similar to Copilot offered by Cursor directly
+- **CodeRabbit**: Another major player in this space (we haven't tested it, so can't offer direct comparison)
+- Various other solutions exist depending on your platform and needs
+
+## The Verdict After Six Weeks
+
+**What's working:** Both catch real bugs. Fast feedback (30 minutes vs. days). Reasonable costs ($2-4/day DIY, $19/seat Copilot). Low triple-digit PR volume shows this scales to real workloads.
+
+**What's not:** Noise alongside signal (~50% false positives, though impact varies by role). Missing PR intent. No shared instructions across repos.
+
+**The key insight:** False positives are more painful for PR authors than final reviewers. The advisory-only nature (no merge blocking) makes this tolerable. We're tuning prompts to improve, but even now: definitely net positive.
+
+**The preference:** My colleague prefers Copilot despite OpenCode being "definitely smarter." Native integration beats capability. Sometimes "good enough and easy" wins.
+
+**Cursor CLI vs OpenCode?** Largely interchangeable. Use whichever matches your existing subscriptions.
+
+**The value:** Not replacing human reviewers. Accelerating feedback and catching mechanical issues. Developers get feedback in 30 minutes, address obvious problems, then human reviewers see cleaner PRs. At $2-4/day or $19/seat/month, one prevented production bug pays for itself.
+
+Six weeks in, we're still learning. The usability gap between DIY and native solutions is real, but both deliver value.
+
+---
+
+**Want to try this yourself?**
+
+- **GitHub Copilot**: Available to GitHub Enterprise customers at $19 per seat per month
+- **OpenCode**: Open source, check out [their documentation](https://github.com/sst/opencode/) for setup instructions
+- **Cursor CLI**: Available with Cursor subscription
+
+Start with whichever option matches your current infrastructure. The worst that happens is you waste a few dollars and learn what doesn't work for your team. The best that happens is you catch bugs before production and speed up your review process.
+
+Either way, you'll have better data than just wondering if AI code review is worth it.
+
+<details>
+<summary><strong>Click to expand: Example OpenCode GitHub Actions Workflow</strong></summary>
+
+Here's a real-world OpenCode GitHub Actions workflow from the [Homebridge HTTP Motion Sensor project](https://github.com/lucavb/homebridge-http-motion-sensor) that demonstrates how to set up automated code reviews:
+
+```yaml
+name: OpenCode Review
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+    code-review:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+
+            - name: Install OpenCode CLI
+              run: npm install -g opencode-ai
+
+            - name: Perform code review
+              timeout-minutes: 10
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  LITELLM_API_KEY: ${{ secrets.LITELLM_API_KEY }}
+                  LITELLM_ENDPOINT: ${{ secrets.LITELLM_ENDPOINT }}
+              run: |
+                  opencode run --model litellm/anthropic/claude-sonnet-4-5 "You are operating in a GitHub Actions runner performing automated code review. The gh CLI is available and authenticated via GH_TOKEN. You may comment on pull requests.
+
+                  Context:
+                  - Repo: ${{ github.repository }}
+                  - PR Number: ${{ github.event.pull_request.number }}
+                  - PR Head SHA: ${{ github.event.pull_request.head.sha }}
+                  - PR Base SHA: ${{ github.event.pull_request.base.sha }}
+
+                  Objectives:
+                  1) Re-check existing review comments and resolve them when issues are addressed
+                  2) Review the current PR diff and flag only clear, high-severity issues
+                  3) Leave very short inline comments (1-2 sentences) on changed lines only and a brief summary at the end
+
+                  Procedure:
+                  - Get existing comments: gh pr view --json comments,reviews
+                  - Get diff: gh pr diff
+                  - Read related files when you deem the information valuable for context (imports, dependencies, types, etc.)
+                  - If a previously reported issue appears fixed by nearby changes:
+                    * Reply with: ✅ This issue appears to be resolved by the recent changes
+                    * Resolve the conversation using: gh pr comment <comment-id> --resolve
+                  - Avoid duplicates: skip if similar feedback already exists on or near the same lines
+
+                  Commenting rules:
+                  - Max 10 inline comments total; prioritize the most critical issues
+                  - One issue per comment; place on the exact changed line
+                  - Natural tone, specific and actionable; do not mention automated or high-confidence
+                  - Use emojis: 🚨 Critical 🔒 Security ⚡ Performance ⚠️ Logic ✅ Resolved ✨ Improvement
+
+                  Focus areas for this TypeScript/Homebridge project:
+                  - Homebridge API compatibility and best practices
+                  - TypeScript type safety and proper interfaces
+                  - Error handling and logging patterns
+                  - Configuration validation with Zod
+                  - HTTP server security and validation
+                  - Memory leaks and resource management
+                  - Network error handling and retries
+
+                  Submission:
+                  - Submit one review containing inline comments plus a concise summary
+                  - Use: gh pr review --comment for new reviews
+                  - Use: gh pr comment <comment-id> --resolve to resolve addressed issues
+                  - Do not use: gh pr review --approve or --request-changes"
+```
+
+This workflow demonstrates the key elements of a production OpenCode setup:
+
+- Triggers on PR events (opened, synchronize, reopened, ready_for_review)
+- Includes proper permissions for reading contents and writing PR comments
+- Uses secrets for API credentials
+- Contains a detailed prompt with project-specific focus areas
+- Implements comment resolution logic for previously reported issues
+- Sets reasonable limits (10 inline comments max, 10-minute timeout)
+
+</details>
+
+---
+
+_What's your experience with AI code reviews? Are you running Copilot, building your own solution, or still reviewing everything manually? I'd love to hear what's working (or not working) for your team in the comments._
