@@ -9,65 +9,62 @@ const { title, thumbnail, liveUrl, githubUrl } = projectDetail;
 const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
     return typeof src === 'object' && src !== null && 'src' in src;
 };
+
+const primaryUrl = liveUrl || githubUrl;
 ---
 
 <article
     class="bg-white dark:bg-gray-800 rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
 >
-    <div
-        class="h-48 bg-gradient-to-br from-sky-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center overflow-hidden"
-    >
-        {
-            isImageMetadata(thumbnail) ? (
-                <Picture
-                    src={thumbnail}
-                    alt={`${title} project screenshot`}
-                    class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                    formats={['avif', 'webp', 'jpg']}
-                    loading="lazy"
-                    width={400}
-                    height={192}
-                    widths={[300, 400, 600]}
-                />
-            ) : (
-                <img
-                    src={thumbnail}
-                    alt={`${title} project screenshot`}
-                    class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                    loading="lazy"
-                    width="400"
-                    height="192"
-                />
-            )
-        }
-    </div>
-    <div class="p-6">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h3>
-        <div class="flex space-x-4">
+    <a href={primaryUrl} target="_blank" class="block hover:no-underline">
+        <div
+            class="h-48 bg-gradient-to-br from-sky-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center overflow-hidden"
+        >
             {
-                liveUrl && (
-                    <a
-                        href={liveUrl}
-                        target="_blank"
-                        class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
-                        aria-label={`View ${title} live demo`}
-                    >
-                        View Live →
-                    </a>
-                )
-            }
-            {
-                githubUrl && (
-                    <a
-                        href={githubUrl}
-                        target="_blank"
-                        class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-semibold"
-                        aria-label={`View ${title} source code on GitHub`}
-                    >
-                        GitHub →
-                    </a>
+                isImageMetadata(thumbnail) ? (
+                    <Picture
+                        src={thumbnail}
+                        alt={`${title} project screenshot`}
+                        class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                        formats={['avif', 'webp', 'jpg']}
+                        loading="lazy"
+                        width={400}
+                        height={192}
+                        widths={[300, 400, 600]}
+                    />
+                ) : (
+                    <img
+                        src={thumbnail}
+                        alt={`${title} project screenshot`}
+                        class="w-full h-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+                        loading="lazy"
+                        width="400"
+                        height="192"
+                    />
                 )
             }
         </div>
-    </div>
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{title}</h3>
+            <div class="flex gap-4">
+                {
+                    liveUrl && (
+                        <span class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold">
+                            View Live →
+                        </span>
+                    )
+                }
+                {
+                    githubUrl && (
+                        <span
+                            class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-semibold cursor-pointer"
+                            onclick={`event.preventDefault(); event.stopPropagation(); window.open('${githubUrl}', '_blank');`}
+                        >
+                            GitHub →
+                        </span>
+                    )
+                }
+            </div>
+        </div>
+    </a>
 </article>
