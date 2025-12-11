@@ -98,7 +98,9 @@ const {
     // Realm-safe type guard using the document's Element constructor (not the script's)
     // This avoids cross-realm instanceof issues with Astro's script bundling
     function isElement(node: EventTarget | null): node is Element {
-        if (node === null) return false;
+        if (node === null) {
+            return false;
+        }
         const ElementConstructor = globalThis.document?.defaultView?.Element;
         if (ElementConstructor) {
             return node instanceof ElementConstructor;
