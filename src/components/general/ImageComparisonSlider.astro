@@ -1,0 +1,302 @@
+---
+import { Picture } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+    leftImage: ImageMetadata;
+    rightImage: ImageMetadata;
+    leftAlt: string;
+    rightAlt: string;
+    leftLabel?: string;
+    rightLabel?: string;
+    class?: string;
+}
+
+const { leftImage, rightImage, leftAlt, rightAlt, leftLabel, rightLabel, class: className = '' } = Astro.props;
+
+const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11)}`;
+---
+
+<div
+    class={`relative w-full overflow-hidden rounded-lg shadow-lg select-none ${className}`}
+    id={sliderId}
+    role="img"
+    aria-label={`Image comparison: ${leftAlt} and ${rightAlt}`}
+>
+    <div class="w-full">
+        <Picture
+            src={rightImage}
+            alt={rightAlt}
+            widths={[400, 600, 800, 1024, 1600]}
+            sizes="(min-width: 1200px) 1024px, (min-width: 800px) 800px, (min-width: 600px) 600px, 400px"
+            formats={['avif', 'webp', 'jpg']}
+            quality={85}
+            class="w-full h-auto object-cover"
+            loading="lazy"
+            decoding="async"
+        />
+    </div>
+
+    {
+        rightLabel && (
+            <div class="absolute top-4 right-4 bg-blue-600 dark:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
+                {rightLabel}
+            </div>
+        )
+    }
+
+    <div
+        class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
+        data-left-container
+        style="clip-path: inset(0 50% 0 0); will-change: clip-path;"
+    >
+        <Picture
+            src={leftImage}
+            alt={leftAlt}
+            widths={[400, 600, 800, 1024, 1600]}
+            sizes="(min-width: 1200px) 1024px, (min-width: 800px) 800px, (min-width: 600px) 600px, 400px"
+            formats={['avif', 'webp', 'jpg']}
+            quality={85}
+            class="w-full h-auto object-cover"
+            loading="lazy"
+            decoding="async"
+        />
+    </div>
+
+    {
+        leftLabel && (
+            <div class="absolute top-4 left-4 bg-indigo-600 dark:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
+                {leftLabel}
+            </div>
+        )
+    }
+
+    <div
+        class="absolute top-0 bottom-0 w-1 bg-white dark:bg-gray-200 cursor-ew-resize group"
+        data-slider-handle
+        style="left: 50%; transform: translateX(-50%); will-change: left;"
+        role="slider"
+        aria-label="Drag to compare images"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+        aria-valuetext="50% comparison"
+        tabindex="0"
+    >
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white dark:bg-gray-200 rounded-full shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
+        >
+            <div class="flex gap-1">
+                <div class="w-0.5 h-4 bg-gray-700 dark:bg-gray-800 rounded-full"></div>
+                <div class="w-0.5 h-4 bg-gray-700 dark:bg-gray-800 rounded-full"></div>
+            </div>
+        </div>
+
+        <div
+            class="absolute top-1/2 -translate-y-1/2 -left-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+            <svg fill="currentColor" viewBox="0 0 24 24" class="drop-shadow-lg">
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+            </svg>
+        </div>
+
+        <div
+            class="absolute top-1/2 -translate-y-1/2 -right-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        >
+            <svg fill="currentColor" viewBox="0 0 24 24" class="drop-shadow-lg">
+                <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<script>
+    class ImageComparisonSlider {
+        private container: HTMLElement;
+        private handle: HTMLElement;
+        private leftContainer: HTMLElement;
+        private isDragging: boolean = false;
+        private currentPosition: number = 50;
+        private rafId: number | null = null;
+        private pendingX: number | null = null;
+
+        private boundStartDrag: (event: MouseEvent | TouchEvent) => void;
+        private boundOnDrag: (event: MouseEvent | TouchEvent) => void;
+        private boundStopDrag: () => void;
+        private boundOnKeyDown: (event: KeyboardEvent) => void;
+        private boundOnContainerClick: (event: MouseEvent) => void;
+
+        constructor(containerId: string) {
+            const container = document.getElementById(containerId);
+            if (!container) throw new Error(`Container ${containerId} not found`);
+
+            this.container = container;
+            const handle = container.querySelector('[data-slider-handle]') as HTMLElement;
+            const leftContainer = container.querySelector('[data-left-container]') as HTMLElement;
+
+            if (!handle || !leftContainer) throw new Error('Required elements not found');
+
+            this.handle = handle;
+            this.leftContainer = leftContainer;
+
+            this.boundStartDrag = this.startDrag.bind(this);
+            this.boundOnDrag = this.onDrag.bind(this);
+            this.boundStopDrag = this.stopDrag.bind(this);
+            this.boundOnKeyDown = this.onKeyDown.bind(this);
+            this.boundOnContainerClick = this.onContainerClick.bind(this);
+
+            this.init();
+        }
+
+        init() {
+            this.handle.addEventListener('mousedown', this.boundStartDrag);
+            document.addEventListener('mousemove', this.boundOnDrag);
+            document.addEventListener('mouseup', this.boundStopDrag);
+
+            this.handle.addEventListener('touchstart', this.boundStartDrag);
+            document.addEventListener('touchmove', this.boundOnDrag, { passive: false });
+            document.addEventListener('touchend', this.boundStopDrag);
+
+            this.handle.addEventListener('keydown', this.boundOnKeyDown);
+            this.container.addEventListener('click', this.boundOnContainerClick);
+        }
+
+        destroy() {
+            document.removeEventListener('mousemove', this.boundOnDrag);
+            document.removeEventListener('mouseup', this.boundStopDrag);
+            document.removeEventListener('touchmove', this.boundOnDrag, { passive: false } as AddEventListenerOptions);
+            document.removeEventListener('touchend', this.boundStopDrag);
+
+            this.handle.removeEventListener('mousedown', this.boundStartDrag);
+            this.handle.removeEventListener('touchstart', this.boundStartDrag);
+            this.handle.removeEventListener('keydown', this.boundOnKeyDown);
+            this.container.removeEventListener('click', this.boundOnContainerClick);
+
+            if (this.rafId !== null) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+        }
+
+        startDrag(event: MouseEvent | TouchEvent) {
+            this.isDragging = true;
+            this.container.style.cursor = 'ew-resize';
+            event.preventDefault();
+        }
+
+        stopDrag() {
+            this.isDragging = false;
+            this.container.style.cursor = '';
+
+            if (this.rafId !== null) {
+                cancelAnimationFrame(this.rafId);
+                this.rafId = null;
+            }
+            this.pendingX = null;
+        }
+
+        onDrag(event: MouseEvent | TouchEvent) {
+            if (!this.isDragging) return;
+
+            const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+            this.scheduleUpdate(clientX);
+
+            if ('touches' in event) {
+                event.preventDefault();
+            }
+        }
+
+        onContainerClick(event: MouseEvent) {
+            if ((event.target as HTMLElement).closest('[data-slider-handle]')) return;
+            this.updatePosition(event.clientX);
+        }
+
+        scheduleUpdate(clientX: number) {
+            this.pendingX = clientX;
+
+            if (this.rafId === null) {
+                this.rafId = requestAnimationFrame(() => {
+                    if (this.pendingX !== null) {
+                        this.updatePosition(this.pendingX);
+                        this.pendingX = null;
+                    }
+                    this.rafId = null;
+                });
+            }
+        }
+
+        onKeyDown(event: KeyboardEvent) {
+            let newPosition = this.currentPosition;
+
+            switch (event.key) {
+                case 'ArrowLeft':
+                    newPosition = Math.max(0, this.currentPosition - 5);
+                    break;
+                case 'ArrowRight':
+                    newPosition = Math.min(100, this.currentPosition + 5);
+                    break;
+                case 'Home':
+                    newPosition = 0;
+                    break;
+                case 'End':
+                    newPosition = 100;
+                    break;
+                default:
+                    return;
+            }
+
+            event.preventDefault();
+            this.currentPosition = newPosition;
+            this.applyPosition();
+        }
+
+        updatePosition(clientX: number) {
+            const rect = this.container.getBoundingClientRect();
+            const x = clientX - rect.left;
+            const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+
+            this.currentPosition = percentage;
+            this.applyPosition();
+        }
+
+        applyPosition() {
+            const percentage = this.currentPosition;
+
+            this.handle.style.left = `${percentage}%`;
+            this.leftContainer.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+            this.handle.setAttribute('aria-valuenow', percentage.toFixed(0));
+            this.handle.setAttribute('aria-valuetext', `${percentage.toFixed(0)}% comparison`);
+        }
+    }
+
+    let sliderInstances: ImageComparisonSlider[] = [];
+    let isViewTransitionListenerRegistered = false;
+
+    function initializeSliders() {
+        sliderInstances.forEach((instance) => instance.destroy());
+        sliderInstances = [];
+
+        const sliders = document.querySelectorAll('[id^="comparison-slider-"]');
+        sliders.forEach((slider) => {
+            if (slider.id) {
+                try {
+                    const instance = new ImageComparisonSlider(slider.id);
+                    sliderInstances.push(instance);
+                } catch (error) {
+                    console.error(`Failed to initialize slider ${slider.id}:`, error);
+                }
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeSliders);
+    } else {
+        initializeSliders();
+    }
+
+    if (!isViewTransitionListenerRegistered) {
+        document.addEventListener('astro:after-swap', initializeSliders);
+        isViewTransitionListenerRegistered = true;
+    }
+</script>
