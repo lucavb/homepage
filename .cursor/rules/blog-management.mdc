@@ -70,16 +70,23 @@ Use AutoOptimizedImage component for hero images:
 ```
 
 ### Screenshots and Additional Images
-Use ImageLightbox component for screenshots:
+**IMPORTANT**: Use `ImageLightbox` (not `AutoOptimizedImage`) for:
+- Screenshots of UI elements
+- Images with small details readers may want to examine
+- Any image where click-to-enlarge improves the reading experience
+
+The lightbox allows readers to click and see the full-size image in an overlay.
 
 ```mdx
 <ImageLightbox
     src={screenshotImage}
     alt="Descriptive alt text explaining what the screenshot shows"
-    loading="lazy"
-    class="w-full my-6 shadow-lg rounded-lg"
 />
 ```
+
+**When to use which component:**
+- `AutoOptimizedImage`: Hero images only (displayed full-width, no interaction needed)
+- `ImageLightbox`: Screenshots, UI details, diagrams with fine details
 
 ### Image Processing Workflow
 **CRITICAL**: Use Astro's automatic optimization correctly:
