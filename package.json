@@ -37,13 +37,13 @@
         "test:ui": "playwright test --ui"
     },
     "dependencies": {
-        "@astrojs/check": "0.9.5",
-        "@astrojs/mdx": "4.3.10",
-        "@astrojs/rss": "4.0.13",
+        "@astrojs/check": "0.9.6",
+        "@astrojs/mdx": "4.3.13",
+        "@astrojs/rss": "4.0.14",
         "@astrojs/sitemap": "3.6.0",
         "@astrojs/tailwind": "6.0.2",
         "@tailwindcss/typography": "0.5.19",
-        "astro": "5.15.7",
+        "astro": "5.16.5",
         "astro-robots-txt": "1.0.0",
         "mermaid": "11.12.2",
         "rehype-autolink-headings": "7.1.0",
