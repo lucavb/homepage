@@ -3,15 +3,15 @@ import { Picture } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
-    src: ImageMetadata;
     alt: string;
-    width?: number;
-    height?: number;
-    loading?: 'lazy' | 'eager';
-    decoding?: 'async' | 'sync' | 'auto';
     class?: string;
-    sizes?: string;
+    decoding?: 'async' | 'sync' | 'auto';
+    height?: number;
     lightboxId?: string;
+    loading?: 'lazy' | 'eager';
+    sizes?: string;
+    src: ImageMetadata;
+    width?: number;
 }
 
 const {
@@ -95,6 +95,18 @@ const {
 </div>
 
 <script>
+    // Realm-safe type guard using the document's Element constructor (not the script's)
+    // This avoids cross-realm instanceof issues with Astro's script bundling
+    function isElement(node: EventTarget | null): node is Element {
+        if (node === null) return false;
+        const ElementConstructor = globalThis.document?.defaultView?.Element;
+        if (ElementConstructor) {
+            return node instanceof ElementConstructor;
+        }
+        // Fallback for edge cases where defaultView isn't available
+        return (node as Node).nodeType === 1;
+    }
+
     class ImageLightbox {
         constructor() {
             this.init();
@@ -106,8 +118,8 @@ const {
         }
 
         handleClick(event: MouseEvent) {
-            if (event.target instanceof HTMLElement) {
-                const target = event.target;
+            const target = event.target;
+            if (isElement(target)) {
                 const trigger = target.closest('[data-lightbox-trigger]');
                 const closeBtn = target.closest('[data-lightbox-close]');
                 const overlay = target.closest('[data-lightbox-overlay]');
