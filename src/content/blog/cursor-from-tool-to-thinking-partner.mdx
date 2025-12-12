@@ -122,7 +122,7 @@ Second, in teams: PR reviews were already a bottleneck before AI coding tools. N
 
 I've written about [using AI for code reviews](/blog/ai-code-reviews-diy-vs-copilot). The DIY approach with tools like OpenCode versus GitHub Copilot's built-in review features. Both can help. But there's another pattern I've been exploring: using Ask mode in Cursor to just chat about a git commit or PR.
 
-It's the "poor man's version" of structured review, but it works surprisingly well. You can paste a diff and ask questions. "What does this change actually do?" "Are there edge cases I should worry about?" "Does this match the pattern we use elsewhere in the codebase?" The agent can reason about code changes in a way that surfaces issues you might miss during manual review.
+It's the "poor man's version" of structured review, but it works surprisingly well. You can paste a commit sha and ask questions. "What does this change actually do?" "Are there edge cases I should worry about?" "Does this match the pattern we use elsewhere in the codebase?" The agent can reason about code changes in a way that surfaces issues you might miss during manual review.
 
 Cursor's built-in review feature in Agent mode is also worth mentioning. The UX needs work: you get a small spinner, then eventually a low-contrast toast in the bottom left corner saying results are ready. No audio cue, easy to miss if you've switched to another window or tab.
 
