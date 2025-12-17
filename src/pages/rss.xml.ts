@@ -13,7 +13,7 @@ export async function GET() {
     return rss({
         title: `${info.name} - Blog`,
         description:
-            'Insights on modern web development, AI-assisted coding, and technology trends from a senior software consultant.',
+            'Insights on modern web development, AI-assisted coding, and technology trends from a principal software consultant.',
         site: info.baseUrl,
         items: publishedPosts.map((post) => ({
             title: post.data.title,
