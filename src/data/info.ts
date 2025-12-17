@@ -4,6 +4,7 @@ import lunchSlackBotImage from '../assets/images/lunch-slack-bot-thumbnail.jpg';
 import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thumbnail.png';
 import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
 import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
+import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
 
 export const info = {
     baseUrl: 'https://luca-becker.me',
@@ -158,6 +159,13 @@ Currently, I am leading a team from a technical standpoint and managing the infr
             liveUrl: 'https://www.npmjs.com/package/conventional-changelog-conventionalcommits-jira',
             thumbnail: conventionalChangelogImage,
             title: 'conventional-changelog-conventionalcommits-jira',
+        },
+        {
+            githubUrl: 'https://github.com/lucavb/hoymiles-wifi-exporter',
+            isFeatured: false,
+            liveUrl: 'https://ghcr.io/lucavb/hoymiles-wifi-exporter',
+            thumbnail: hoymilesImage,
+            title: 'Hoymiles WiFi Exporter',
         },
     ],
 };

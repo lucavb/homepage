@@ -11,6 +11,7 @@ import ollamaExporterImage from '../assets/images/ollama-exporter-thumbnail.jpg'
 import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thumbnail.png';
 import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
 import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
+import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
 import type { ImageMetadata } from 'astro';
 
 const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata =>
@@ -94,6 +95,20 @@ const enhancedProjects = [
         githubUrl: 'https://github.com/lucavb/homebridge-http-motion-sensor',
         liveUrl: 'https://www.npmjs.com/package/homebridge-http-motion-sensor',
         thumbnail: homebridgeImage,
+    },
+    {
+        title: '✨ Hoymiles WiFi Exporter',
+        description:
+            'Built a lightweight Prometheus exporter for Hoymiles WiFi inverters that monitors solar panel performance in real-time. Features comprehensive metrics for PV power, grid voltage, temperature monitoring, and DTU connectivity. Includes Docker deployment with automatic image publishing and configurable scraping intervals for production environments.',
+        image: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+        type: 'Smart Home/Monitoring ✨',
+        duration: '1.5 hours',
+        team: '1 developer + AI',
+        achievements: ['Docker Hub image', 'GHCR deployment', 'Production-ready', 'Real-time monitoring'],
+        technologies: ['Python', 'Prometheus', 'Docker', 'hoymiles-wifi', 'GitHub Actions'],
+        githubUrl: 'https://github.com/lucavb/hoymiles-wifi-exporter',
+        liveUrl: 'https://ghcr.io/lucavb/hoymiles-wifi-exporter',
+        thumbnail: hoymilesImage,
     },
     {
         title: 'Stylelint Checkstyle Reporter',
