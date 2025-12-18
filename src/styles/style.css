@@ -65,4 +65,32 @@
     .footer-icons {
         @apply dark:text-white flex items-center border border-gray-800 dark:border-white p-4 rounded-lg justify-center;
     }
+    .gradient-hover-name {
+        background-size: 200% auto;
+        background-position: 0% center;
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-image: linear-gradient(90deg, #111827, #111827);
+    }
+    .dark .gradient-hover-name {
+        background-image: linear-gradient(90deg, #ffffff, #ffffff);
+    }
+    .gradient-hover-name:hover {
+        background-image: linear-gradient(90deg, #2563eb, #4f46e5, #9333ea, #4f46e5, #2563eb);
+        animation: gradient-flow 2s linear infinite;
+    }
+    .dark .gradient-hover-name:hover {
+        background-image: linear-gradient(90deg, #60a5fa, #818cf8, #c084fc, #818cf8, #60a5fa);
+        animation: gradient-flow 2s linear infinite;
+    }
+}
+
+@keyframes gradient-flow {
+    0% {
+        background-position: 0% center;
+    }
+    100% {
+        background-position: 100% center;
+    }
 }
