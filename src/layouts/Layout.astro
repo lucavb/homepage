@@ -150,6 +150,24 @@ const structuredData = {
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
 
+            // Enhanced outbound link tracking
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('a');
+                if (!link || !link.href) return;
+
+                var url = new URL(link.href, window.location.href);
+                var isExternal = url.hostname !== window.location.hostname;
+                var isDownload = /\.(pdf|zip|exe|dmg|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url.pathname);
+
+                if (isExternal && !isDownload) {
+                    var linkText = link.innerText || link.getAttribute('aria-label') || url.hostname;
+                    _paq.push(['trackEvent', 'Outbound Link', url.hostname, linkText.substring(0, 100)]);
+                } else if (isDownload) {
+                    var filename = url.pathname.split('/').pop();
+                    _paq.push(['trackEvent', 'Download', filename]);
+                }
+            });
+
             // Load tracker script
             (function () {
                 var d = document,
