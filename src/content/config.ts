@@ -10,6 +10,7 @@ const blogCollection = defineCollection({
         draft: z.boolean().default(false),
         thumbnail: z.string().optional(),
         heroImagePath: z.string().optional(),
+        relatedPosts: z.array(z.string()).optional(),
     }),
 });
 

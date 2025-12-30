@@ -15,15 +15,15 @@ const formatDate = (date: Date) => {
 ---
 
 <article
-    class="text-center bg-white dark:bg-gray-800 rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-lg group border border-gray-200 dark:border-gray-700"
+    class="text-center bg-white dark:bg-gray-800 rounded-lg cursor-pointer transition-all duration-300 shadow-sm hover:shadow-lg group border border-gray-200 dark:border-gray-700 flex flex-col"
 >
     <a
         href={`/blog/${id}`}
-        class="block p-6 hover:no-underline"
+        class="flex flex-col h-full p-6 hover:no-underline"
         onclick={`_paq && _paq.push(['trackEvent', 'Blog', 'Post Click', '${title}']);`}
     >
         <div
-            class="h-48 bg-gradient-to-br from-sky-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 rounded-lg mb-4 flex items-center justify-center overflow-hidden"
+            class="aspect-[3/2] bg-gradient-to-br from-sky-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600 rounded-lg mb-4 flex items-center justify-center overflow-hidden"
         >
             <BlogThumbnail thumbnail={thumbnail} heroImagePath={heroImagePath} title={title} />
         </div>
@@ -42,12 +42,14 @@ const formatDate = (date: Date) => {
         >
             {title}
         </h4>
-        <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
-            {description.length > 120 ? description.substring(0, 120) + '...' : description}
-        </p>
+        <div class="flex-1 flex flex-col">
+            <p class="text-gray-600 dark:text-gray-300 text-sm mb-4">
+                {description.length > 120 ? description.substring(0, 120) + '...' : description}
+            </p>
+        </div>
         {
             tags && tags.length > 0 && (
-                <div class="flex flex-wrap justify-center gap-1 mb-4">
+                <div class="flex flex-wrap justify-center gap-1 mt-auto">
                     {tags.slice(0, 2).map((tag) => (
                         <span class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full">
                             {tag}
