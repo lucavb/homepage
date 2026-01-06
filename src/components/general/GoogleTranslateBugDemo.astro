@@ -1,0 +1,202 @@
+---
+
+---
+
+<div class="demo-container my-8 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-gray-100 dark:bg-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Interactive Demo</span>
+    </div>
+
+    <div class="p-6 bg-white dark:bg-gray-900">
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Live Preview -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Live Preview</h4>
+                <div
+                    id="demo-preview"
+                    class="p-4 border border-gray-300 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800 min-h-[60px] flex items-center"
+                >
+                    <div id="demo-parent">Hello, world!</div>
+                </div>
+                <p id="demo-status" class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Initial state: Text is a direct child of the parent div
+                </p>
+            </div>
+
+            <!-- DOM Structure -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">DOM Structure</h4>
+                <pre
+                    id="dom-structure"
+                    class="p-4 bg-gray-900 text-gray-100 rounded text-xs overflow-x-auto"><code>&lt;div id="demo-parent"&gt;
+  └─ "Hello, world!"  <span class="text-green-400">← Text node</span>
+&lt;/div&gt;</code></pre>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="mt-6 flex flex-wrap gap-3">
+            <button
+                id="btn-translate"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Simulate Google Translate
+            </button>
+            <button
+                id="btn-react-cleanup"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+            >
+                Simulate React Cleanup
+            </button>
+            <button
+                id="btn-reset"
+                class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded transition-colors"
+            >
+                Reset
+            </button>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-display" class="mt-4 hidden">
+            <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded">
+                <p class="text-red-700 dark:text-red-400 font-mono text-sm" id="error-message"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const demoParent = document.getElementById('demo-parent');
+    const domStructure = document.getElementById('dom-structure');
+    const demoStatus = document.getElementById('demo-status');
+    const btnTranslate = document.getElementById('btn-translate');
+    const btnReactCleanup = document.getElementById('btn-react-cleanup');
+    const btnReset = document.getElementById('btn-reset');
+    const errorDisplay = document.getElementById('error-display');
+    const errorMessage = document.getElementById('error-message');
+
+    let originalTextNode: Text | null = null;
+    let isTranslated = false;
+
+    function updateDomStructure(html: string) {
+        if (domStructure) {
+            domStructure.innerHTML = `<code>${html}</code>`;
+        }
+    }
+
+    function showError(msg: string) {
+        if (errorDisplay && errorMessage) {
+            errorMessage.textContent = msg;
+            errorDisplay.classList.remove('hidden');
+        }
+    }
+
+    function hideError() {
+        if (errorDisplay) {
+            errorDisplay.classList.add('hidden');
+        }
+    }
+
+    function reset() {
+        if (demoParent) {
+            demoParent.innerHTML = 'Hello, world!';
+            originalTextNode = demoParent.firstChild as Text;
+        }
+        isTranslated = false;
+
+        if (btnTranslate) {
+            btnTranslate.removeAttribute('disabled');
+        }
+        if (btnReactCleanup) {
+            btnReactCleanup.setAttribute('disabled', '');
+        }
+
+        updateDomStructure(`&lt;div id="demo-parent"&gt;
+  └─ "Hello, world!"  <span class="text-green-400">← Text node</span>
+&lt;/div&gt;`);
+
+        if (demoStatus) {
+            demoStatus.textContent = 'Initial state: Text is a direct child of the parent div';
+        }
+        hideError();
+    }
+
+    function simulateGoogleTranslate() {
+        if (!demoParent || isTranslated) return;
+
+        originalTextNode = demoParent.firstChild as Text;
+
+        const outerFont = document.createElement('font');
+        outerFont.dir = 'auto';
+        outerFont.style.verticalAlign = 'inherit';
+        const innerFont = document.createElement('font');
+        innerFont.dir = 'auto';
+        innerFont.style.verticalAlign = 'inherit';
+        innerFont.textContent = 'Hallo Welt!';
+
+        outerFont.appendChild(innerFont);
+        demoParent.innerHTML = '';
+        demoParent.appendChild(outerFont);
+
+        isTranslated = true;
+
+        if (btnTranslate) {
+            btnTranslate.setAttribute('disabled', '');
+        }
+        if (btnReactCleanup) {
+            btnReactCleanup.removeAttribute('disabled');
+        }
+
+        updateDomStructure(`&lt;div id="demo-parent"&gt;
+  └─ &lt;font&gt;  <span class="text-yellow-400">← Google Translate wrapper</span>
+       └─ &lt;font&gt;
+            └─ "Hallo Welt!"
+&lt;/div&gt;
+
+<span class="text-red-400">⚠ Original text node is gone!</span>
+<span class="text-red-400">  React still thinks it's here.</span>`);
+
+        if (demoStatus) {
+            demoStatus.innerHTML =
+                '<span class="text-yellow-600 dark:text-yellow-400">Translated: Google Translate wrapped the text in &lt;font&gt; elements</span>';
+        }
+    }
+
+    function simulateReactCleanup() {
+        if (!demoParent || !isTranslated || !originalTextNode) return;
+
+        try {
+            demoParent.removeChild(originalTextNode);
+        } catch (e) {
+            const error = e as Error;
+            showError(
+                `NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.`,
+            );
+
+            updateDomStructure(`&lt;div id="demo-parent"&gt;
+  └─ &lt;font&gt;
+       └─ &lt;font&gt;
+            └─ "Hallo Welt!"
+&lt;/div&gt;
+
+<span class="text-red-400">💥 React tried: parent.removeChild(textNode)</span>
+<span class="text-red-400">   But textNode is not a child of parent!</span>`);
+
+            if (demoStatus) {
+                demoStatus.innerHTML =
+                    '<span class="text-red-600 dark:text-red-400">Error: React cannot find the text node it created</span>';
+            }
+        }
+
+        if (btnReactCleanup) {
+            btnReactCleanup.setAttribute('disabled', '');
+        }
+    }
+
+    reset();
+
+    btnTranslate?.addEventListener('click', simulateGoogleTranslate);
+    btnReactCleanup?.addEventListener('click', simulateReactCleanup);
+    btnReset?.addEventListener('click', reset);
+</script>
