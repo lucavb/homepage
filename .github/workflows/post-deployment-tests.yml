@@ -59,26 +59,49 @@ jobs:
                   path: playwright-report/
                   retention-days: 30
 
+            - name: Run Lighthouse CI
+              id: lighthouse
+              continue-on-error: true
+              run: npx @lhci/cli@0.14.x autorun
+
+            - name: Upload Lighthouse report
+              if: always()
+              uses: actions/upload-artifact@v6
+              with:
+                  name: lighthouse-report
+                  path: .lighthouseci/
+                  retention-days: 30
+
             - name: Notify test success
-              if: steps.playwright.outcome == 'success'
+              if: steps.playwright.outcome == 'success' && steps.lighthouse.outcome == 'success'
               run: |
                   curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
                     -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
                     -H "Title: ✅ Post-Deployment Tests Passed" \
                     -H "Priority: default" \
                     -H "Tags: white_check_mark,test_tube" \
-                    -d "All smoke tests passed on production site. Deployment is healthy."
+                    -d "All smoke tests and Lighthouse CI passed on production site. Deployment is healthy."
 
-            - name: Notify test failure
+            - name: Notify Playwright failure
               if: steps.playwright.outcome == 'failure'
               run: |
                   curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
                     -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
-                    -H "Title: ⚠️ Post-Deployment Tests Failed" \
+                    -H "Title: ⚠️ Playwright Tests Failed" \
                     -H "Priority: high" \
                     -H "Tags: warning,test_tube" \
-                    -d "Some smoke tests failed on production. Check the report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    -d "Playwright tests failed on production. Check the report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+            - name: Notify Lighthouse failure
+              if: steps.lighthouse.outcome == 'failure'
+              run: |
+                  curl -u "${{ secrets.NTFY_USERNAME }}:${{ secrets.NTFY_PASSWORD }}" \
+                    -X POST "${{ secrets.NTFY_BASE_URL }}/${{ secrets.NTFY_TOPIC }}" \
+                    -H "Title: ⚠️ Lighthouse CI Failed" \
+                    -H "Priority: high" \
+                    -H "Tags: warning,lighthouse" \
+                    -d "Lighthouse performance budgets not met. Check the report: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
             - name: Fail job if tests failed
-              if: steps.playwright.outcome == 'failure'
+              if: steps.playwright.outcome == 'failure' || steps.lighthouse.outcome == 'failure'
               run: exit 1
