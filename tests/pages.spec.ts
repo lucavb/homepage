@@ -55,7 +55,7 @@ test.describe('Blog', () => {
 
         await page.waitForLoadState('networkidle');
 
-        await expect(page.locator('article, .prose')).toBeVisible();
+        await expect(page.locator('.prose').first()).toBeVisible();
     });
 });
 
