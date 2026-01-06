@@ -70,6 +70,7 @@ jobs:
               with:
                   name: lighthouse-report
                   path: .lighthouseci/
+                  if-no-files-found: ignore
                   retention-days: 30
 
             - name: Notify test success
