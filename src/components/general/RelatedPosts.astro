@@ -19,7 +19,7 @@ const getTagScore = (postTags: string[] | undefined, currentTags: string[] | und
     if (!postTags || !currentTags || postTags.length === 0 || currentTags.length === 0) {
         return 0;
     }
-    const overlap = postTags.filter(tag => currentTags.includes(tag)).length;
+    const overlap = postTags.filter((tag) => currentTags.includes(tag)).length;
     return overlap;
 };
 
@@ -27,8 +27,8 @@ let relatedPosts: IBlogPost[] = [];
 
 if (relatedPostIds && relatedPostIds.length > 0) {
     relatedPosts = allPosts
-        .filter(post => relatedPostIds.includes(post.slug))
-        .map(post => ({
+        .filter((post) => relatedPostIds.includes(post.slug))
+        .map((post) => ({
             id: post.slug,
             title: post.data.title,
             description: post.data.description,
@@ -42,9 +42,9 @@ if (relatedPostIds && relatedPostIds.length > 0) {
 
 if (relatedPosts.length < 3 && tags && tags.length > 0) {
     const tagBasedPosts = allPosts
-        .filter(post => post.slug !== currentPostId)
-        .filter(post => !relatedPostIds?.includes(post.slug))
-        .map(post => ({
+        .filter((post) => post.slug !== currentPostId)
+        .filter((post) => !relatedPostIds?.includes(post.slug))
+        .map((post) => ({
             post,
             score: getTagScore(post.data.tags, tags),
         }))
@@ -72,11 +72,11 @@ if (relatedPosts.length < 3 && tags && tags.length > 0) {
 
 if (relatedPosts.length < 3) {
     const recentPosts = allPosts
-        .filter(post => post.slug !== currentPostId)
-        .filter(post => !relatedPosts.some(rp => rp.id === post.slug))
+        .filter((post) => post.slug !== currentPostId)
+        .filter((post) => !relatedPosts.some((rp) => rp.id === post.slug))
         .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
         .slice(0, 3 - relatedPosts.length)
-        .map(post => ({
+        .map((post) => ({
             id: post.slug,
             title: post.data.title,
             description: post.data.description,
@@ -99,10 +99,8 @@ const shouldShowRelatedPosts = relatedPosts.length > 0;
     shouldShowRelatedPosts && (
         <section class="mt-24 pt-12 pb-8 bg-gray-50 dark:bg-gray-800/50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 rounded-2xl">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                    Continue Reading
-                </h2>
-                <div class="w-32 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mb-4"></div>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Continue Reading</h2>
+                <div class="w-32 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 mx-auto mb-4" />
                 <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                     Explore more articles on similar topics
                 </p>
