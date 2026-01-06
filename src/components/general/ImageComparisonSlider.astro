@@ -20,8 +20,8 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
 <div
     class={`relative w-full overflow-hidden rounded-lg shadow-lg select-none ${className}`}
     id={sliderId}
-    role="img"
-    aria-label={`Image comparison: ${leftAlt} and ${rightAlt}`}
+    role="group"
+    aria-label={`Image comparison slider: ${leftAlt} and ${rightAlt}`}
 >
     <div class="w-full">
         <Picture
@@ -30,7 +30,7 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
             widths={[400, 600, 800, 1024, 1600]}
             sizes="(min-width: 1200px) 1024px, (min-width: 800px) 800px, (min-width: 600px) 600px, 400px"
             formats={['avif', 'webp', 'jpg']}
-            quality={85}
+            quality={75}
             class="w-full h-auto object-cover"
             loading="lazy"
             decoding="async"
@@ -56,7 +56,7 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
             widths={[400, 600, 800, 1024, 1600]}
             sizes="(min-width: 1200px) 1024px, (min-width: 800px) 800px, (min-width: 600px) 600px, 400px"
             formats={['avif', 'webp', 'jpg']}
-            quality={85}
+            quality={75}
             class="w-full h-auto object-cover"
             loading="lazy"
             decoding="async"
