@@ -1,15 +1,11 @@
+// Matomo types are defined in src/types/matomo.ts and augment the global Window interface
+
 interface ScrollDepthTracked {
     [key: string]: boolean;
 }
 
 interface TimeTracked {
     [key: string]: boolean;
-}
-
-declare global {
-    interface Window {
-        _paq?: any[][];
-    }
 }
 
 function initScrollDepthTracking(): void {

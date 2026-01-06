@@ -1,5 +1,7 @@
 import type { ImageMetadata } from 'astro';
 
+export * from './matomo';
+
 export interface IMetaHead {
     title: string;
     description: string;
