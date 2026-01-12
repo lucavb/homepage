@@ -19,6 +19,12 @@ export interface IExperience {
     startDate: string;
     endDate: string;
     description: string[];
+    skills?: string[];
+}
+
+export interface ILanguage {
+    name: string;
+    level: string;
 }
 export interface IExperiences {
     title: string;

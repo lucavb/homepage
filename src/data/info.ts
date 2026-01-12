@@ -119,6 +119,14 @@ Currently, I am leading a team from a technical standpoint and managing the infr
         linkedin: 'https://www.linkedin.com/in/lucabecker/',
     },
 
+    languages: [
+        { name: 'German', level: 'Native' },
+        { name: 'English', level: 'C1' },
+        { name: 'French', level: 'B1' },
+    ],
+
+    cvSummary: `Principal Consultant with 6+ years of full-stack experience. I've become deeply interested in how AI tools like Cursor change the way we build software: less typing, more thinking about what we actually want to build. I use Planning Mode as a sparring partner to talk through architecture before writing code, and I write about these workflows on my blog. My technical background spans TypeScript, Angular, React, Java, Spring Boot, AWS, and Kubernetes. Currently leading a team at TNG Technology Consulting.`,
+
     projects: [
         {
             githubUrl: 'https://github.com/lucavb/aicommits',
