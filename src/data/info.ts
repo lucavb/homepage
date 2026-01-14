@@ -10,11 +10,12 @@ export const info = {
     baseUrl: 'https://luca-becker.me',
     name: 'Luca Becker',
     jobDescription: 'Principal Consultant & AI-Coding Specialist',
-    about: `I'm a principal software consultant specializing in modern development practices and AI-assisted workflows.
-I focus on building robust digital solutions and helping teams adopt modern development practices, whether they are websites, applications, or anything in between. Since starting my professional software development career in December 2019, I have specialized in Front-end Development and Full Stack Engineering.
-Currently, I work at TNG Technology Consulting as a Principal Consultant, where I have supported multiple clients as a Full Stack Engineer. Over these years, I have honed my skills in TypeScript, React, Angular, Java, Spring Boot, and cloud technologies like AWS and Kubernetes.
-I am committed to continuous learning and exploration of new technologies. Recently, I've become deeply passionate about AI-assisted development, particularly how tools like Cursor and LLMs are revolutionizing the way we build software. These technologies allow us to focus on the important questions of software design and architecture rather than getting bogged down in implementation details.
-Currently, I am leading a team from a technical standpoint and managing the infrastructure at my second client, ensuring successful project delivery and technical excellence while embracing modern development practices.`,
+    heroDescription: `Infrastructure, team leadership, and helping developers work effectively with AI tools.`,
+    metaDescription: `Principal Consultant at TNG Technology Consulting. Full-stack engineer specializing in AI-assisted development, team leadership, and cloud infrastructure.`,
+    aboutHeading: `Passionate about transforming businesses through technology`,
+    about: `At my current client, I'm responsible for infrastructure and dev-enablement, leading a team while still writing code - mostly AI-assisted these days. At TNG Technology Consulting, I'm driving initiatives around AI-assisted coding: how to use it effectively, how to teach it, and where it's taking professional software development.
+
+My technical background spans TypeScript, React, Angular, Java, Spring Boot, and cloud technologies like AWS and Kubernetes. I studied Computer Science at KIT with a focus on IT Security and Cryptography.`,
 
     experience: [
         {
@@ -82,7 +83,16 @@ Currently, I am leading a team from a technical standpoint and managing the infr
                 '• Championing AI-assisted development practices, helping colleagues adopt tools like Cursor and GitHub Copilot effectively',
                 '• Sharing knowledge on AI coding workflows through internal presentations and hands-on workshops',
             ],
-            skills: ['AI-Assisted Development', 'Cursor', 'GitHub Copilot', 'Technical Interviews', 'Due Diligence', 'Consulting', 'Kotlin', 'Spring Boot'],
+            skills: [
+                'AI-Assisted Development',
+                'Cursor',
+                'GitHub Copilot',
+                'Technical Interviews',
+                'Due Diligence',
+                'Consulting',
+                'Kotlin',
+                'Spring Boot',
+            ],
         },
 
         {
@@ -131,7 +141,7 @@ Currently, I am leading a team from a technical standpoint and managing the infr
         { name: 'French', level: 'B1' },
     ],
 
-    cvSummary: `Principal Consultant with 6+ years of full-stack experience. I've become deeply interested in how AI tools like Cursor change the way we build software: less typing, more thinking about what we actually want to build. I use Planning Mode as a sparring partner to talk through architecture before writing code, and I write about these workflows on my blog. My technical background spans TypeScript, Angular, React, Java, Spring Boot, AWS, and Kubernetes. Currently leading a team at TNG Technology Consulting.`,
+    cvSummary: `Principal Consultant at TNG Technology Consulting. At my current client, I'm responsible for infrastructure and dev-enablement, leading a team while still writing code - mostly AI-assisted these days. At TNG, I'm driving initiatives around AI-assisted coding: how to use it effectively, how to teach it, and where it's taking professional software development. I write about AI-assisted development workflows on my blog. Full-stack background in TypeScript, Java, Spring Boot, AWS, Kubernetes.`,
 
     projects: [
         {
