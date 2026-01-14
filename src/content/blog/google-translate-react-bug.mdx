@@ -130,9 +130,7 @@ Click through this demo to see the bug in action. First, simulate what Google Tr
 In our codebase, the failing component was using a React fragment to render text:
 
 ```jsx
-<Markdown components={{ p: ({ children }) => <>{children}</> }}>
-    {card.description}
-</Markdown>
+<Markdown components={{ p: ({ children }) => <>{children}</> }}>{card.description}</Markdown>
 ```
 
 The custom `p` renderer uses a fragment (`<>{children}</>`), which renders children without any wrapper element. Text nodes end up as direct children of the parent, with no stable element for React to track. When Google Translate wraps those bare text nodes, React loses track of them entirely.
