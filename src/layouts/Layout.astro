@@ -150,6 +150,10 @@ const structuredData = {
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
 
+            // Enable heartbeat timer - tracks time spent even when users don't navigate
+            // Sends a ping every 15 seconds while the page is active
+            _paq.push(['enableHeartBeatTimer', 15]);
+
             // Enhanced outbound link tracking
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('a');
