@@ -150,10 +150,6 @@ const structuredData = {
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
 
-            // Enable heartbeat timer - tracks time spent even when users don't navigate
-            // Sends a ping every 15 seconds while the page is active
-            _paq.push(['enableHeartBeatTimer', 15]);
-
             // Enhanced outbound link tracking
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('a');
@@ -180,6 +176,19 @@ const structuredData = {
                 g.type = 'text/javascript';
                 g.async = true;
                 g.src = 'https://t.sunbury.xyz/matomo.js';
+                
+                // Enable heartbeat timer after script loads
+                // Calling it from _paq queue doesn't work due to initialization timing,
+                // so we explicitly call it after the tracker is ready
+                g.onload = function() {
+                    if (window.Matomo && window.Matomo.getAsyncTracker) {
+                        var tracker = window.Matomo.getAsyncTracker();
+                        if (tracker && tracker.enableHeartBeatTimer) {
+                            tracker.enableHeartBeatTimer(15);
+                        }
+                    }
+                };
+                
                 s.parentNode.insertBefore(g, s);
             })();
         </script>
