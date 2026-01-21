@@ -1,0 +1,137 @@
+---
+title: 'Mining Ethereum Classic with Sunshine: Putting My Solar Surplus to Work'
+description: 'How I automated my RTX 3060 to mine Ethereum Classic only when my balcony solar panels export excess energy, with AI-assisted setup and Prometheus automation.'
+publishDate: 2026-01-21
+tags: ['solar', 'crypto', 'mining', 'prometheus', 'homelab', 'gpu']
+heroImagePath: 'solar-powered-crypto-mining-etc-surplus-energy/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import ImageLightbox from '../../components/general/ImageLightbox.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/solar-powered-crypto-mining-etc-surplus-energy/hero.jpg';
+import grafanaDashboard from '../../assets/images/blog/solar-powered-crypto-mining-etc-surplus-energy/grafana-dashboard.jpg';
+
+<AutoOptimizedImage src={heroImage} alt="Solar-powered cryptocurrency mining setup with RTX 3060 GPU" loading="eager" />
+
+This past week has been unusually sunny in Munich for January. I've repeatedly hit the 600W peak output from my panels while my apartment consumes around 240W when I'm working from home, which means 360W is flowing back to the grid. My modern electricity meter doesn't "go backwards" like the old mechanical ones, and I receive no compensation despite being charged 0.31 EUR per kWh for what I consume.
+
+I also happen to have a homeserver with an RTX 3060 that I bought for AI experiments but rarely have time to actually use. Watching free energy disappear while an idle GPU sat unused felt like a missed opportunity. After the fifth day or so of exporting considerable energy, I finally decided to do something about it.
+
+## Why This Actually Makes Sense (Sort Of)
+
+GPU mining is generally unprofitable in 2026 since ASICs dominate and electricity costs kill margins. But my situation is different: €0 electricity during solar export, €0 hardware cost (already own the GPU), and low opportunity cost (GPU would sit idle anyway). Even with the RTX 3060 drawing ~170W while mining, I won't fully consume the 360W+ surplus I'm regularly exporting.
+
+## The Setup Journey (With AI Assistance)
+
+I used TAIA from TNG to figure this out since it's better at performing web searches. I started with this prompt: "search online which is the best coin to mine currently using a rtx 3060 12gb. i have an lxc container with and a coinbase wallet."
+
+The Coinbase constraint was key since I wanted payouts to go directly to my existing account. TAIA discovered several options (QUAI, Bitcoin Gold, Kaspa, Ravencoin), but none were supported on Coinbase. Ultimately, **Ethereum Classic (ETC)** emerged as the winner since it's GPU-mineable, supported on Coinbase, and has reasonable prices.
+
+### Miner Software: When Plan A Fails
+
+I initially tried [T-Rex miner](https://trex-miner.com/), which is popular, well-known, and has good documentation. It segfaulted immediately on my Alpine Linux container with the issue being the fact that Alpine uses musl instead of glibc, and T-Rex didn't like that.
+
+Rather than fight with compatibility layers, I switched the container to Debian and tried [Rigel](https://github.com/rigelminer/rigel) instead:
+
+- Actively maintained (v1.23.1 at the time)
+- Specifically optimized for NVIDIA GPUs
+- Modern codebase with a proper API for monitoring
+- Lower dev fee (0.7% vs T-Rex's 1%)
+
+Rigel worked flawlessly.
+
+### Pool Selection
+
+TAIA suggested **2miners**, which I hadn't heard of before. It has an established and reliable reputation, a minimum payout of 0.1 ETC (configurable down to 0.01), EU servers for low latency from Munich, and your wallet address serves as your account with no signup needed.
+
+## The Technical Implementation
+
+### The Automation Stack
+
+I already had [Prometheus monitoring my solar panels](/blog/balcony-solar-prometheus-ai-journey/), so I had real-time data on grid import/export to fully automate the mining. The setup:
+
+1. **LXC container** running Debian with GPU passthrough on Proxmox
+2. **Rigel miner** as a systemd service (disabled by default)
+3. **Solar controller script** that queries Prometheus every minute
+4. **Custom Prometheus exporter** to monitor mining metrics
+5. **Cron job** running the controller script
+
+The logic for the controller is the following:
+
+```bash
+IF power < -150W (exporting > 150W) → START miner
+IF power > +50W (importing from grid) → STOP miner
+```
+
+The 200W hysteresis prevents the miner from rapidly cycling on/off when hovering around the threshold. The miner starts at -150W (when we're exporting at least as much as the GPU draws) and doesn't stop until we're importing more than 50W from the grid, which gives stable behavior.
+
+The GPU draws ~150W while mining, so the -150W threshold ensures we only mine when exporting enough to fully offset the GPU's consumption. The +50W stop threshold adds tolerance for brief fluctuations without immediately shutting down.
+
+The cron job checks power consumption every minute and starts/stops the miner accordingly, making the system completely hands-off:
+
+<MermaidDiagram
+    diagram={`
+flowchart TD
+    Solar["☀️ Solar Panels<br/>(600W Max)"]
+    Meter["⚡ Smart Meter<br/>(Tracks Export)"]
+    Prom["📊 Prometheus<br/>(Monitoring)"]
+    Script["🤖 Solar Controller<br/>(Cron Every Minute)"]
+    Miner["🖥️ Rigel Miner<br/>(RTX 3060)"]
+    Pool["🏊 2miners Pool<br/>(ETC Mining)"]
+    Wallet["💰 Coinbase Wallet"]
+    
+    Solar --> Meter
+    Meter --> Prom
+    Prom --> Script
+    Script -->|"Start/Stop"| Miner
+    Miner -->|"Hashrate"| Pool
+    Pool -->|"Payouts"| Wallet
+    
+    classDef hardware fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+    classDef software fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
+    classDef service fill:#d1fae5,stroke:#10b981,stroke-width:2px
+    
+    class Solar,Meter,Miner hardware
+    class Prom,Script software
+    class Pool,Wallet service
+`}
+/>
+
+## The Actual Numbers
+
+- **Hashrate**: ~41.5 MH/s
+- **Power consumption**: ~150W while mining
+- **Estimated daily ETC** (24/7): ~0.001-0.002 ETC
+- **Time to 0.1 ETC minimum payout** (24/7): ~50-100 days
+
+Mining only 4-6 hours per day when the sun is out means realistic payout is 3-6 months. At current ETC prices (~10 EUR), that's about 1 EUR every few months. This isn't a get-rich scheme or even a pay-for-the-panels scheme, but it uses energy that would otherwise be worth nothing to me.
+
+## Looking Ahead to Summer
+
+I exported 2 kWh in one week in January with short days and weak winter sunlight. As we move toward summer with longer days and stronger solar radiation, export will increase significantly. My panels face east (second-worst orientation after north), which limits afternoon output, but morning production is strong.
+
+I'm also looking into battery storage systems, but that's a significant investment requiring more data. For now, mining serves as a fun intermediate solution while I collect usage data.
+
+## Why I Actually Did This
+
+I know this won't make me rich and I know the economic return is marginal at best, but I don't care. This is a fun little project, and I genuinely enjoy looking at dashboards and watching metrics. Like a kid watching numbers go up and graphs change colors, I get a kick out of seeing the automation work: the solar controller starting the miner when the sun hits the panels just right, the hashrate ticking up on Grafana, and the steady accumulation of shares.
+
+<ImageLightbox
+    src={grafanaDashboard}
+    alt="Grafana dashboard showing Rigel ETC miner metrics including hashrate, GPU temperature, power draw, and accepted shares"
+    loading="lazy"
+/>
+
+It's the same joy I get from [monitoring my solar panels](/blog/balcony-solar-prometheus-ai-journey/), from setting up Prometheus exporters, from building infrastructure that _just works_ without my intervention. The satisfaction isn't in the money but in the system itself.
+
+## Waiting for Tomorrow
+
+As I write this, I'm eagerly waiting for sunrise tomorrow at 9:49 with clear skies forecasted. The solar panels will wake up, production will ramp up, and mid-morning the controller will quietly start the miner. During these cold German winter days, the GPU also generates a bit of supplemental heat—sunshine transforming into electricity, then computation, and finally warmth.
+
+If you're sitting on excess solar production and have idle hardware, maybe this will give you ideas. Sometimes the best projects make absolutely no economic sense but bring you joy anyway.
+
+---
+
+_Have you found creative uses for excess solar energy? I'd love to hear about other projects people are running when the sun is out. The setup uses [Rigel miner](https://github.com/rigelminer/rigel), [2miners ETC pool](https://etc.2miners.com/), and a custom Python Prometheus exporter, all running on Proxmox with LXC containers and GPU passthrough._
