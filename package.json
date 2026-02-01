@@ -30,6 +30,7 @@
         "cq:format:check": "prettier --check .",
         "cq:type-check": "astro check",
         "dev": "astro dev",
+        "prepare": "husky",
         "preview": "astro preview",
         "start": "astro dev",
         "test": "playwright test",
@@ -56,7 +57,17 @@
         "@axe-core/playwright": "4.11.0",
         "@lhci/cli": "0.15.1",
         "@playwright/test": "1.58.1",
+        "husky": "9.1.7",
+        "lint-staged": "16.2.7",
         "prettier": "3.8.1",
         "prettier-plugin-astro": "0.14.1"
+    },
+    "lint-staged": {
+        "*.{js,ts,cjs,mjs,astro,json,md,mdx}": [
+            "prettier --write"
+        ],
+        "*": [
+            "astro check"
+        ]
     }
 }
