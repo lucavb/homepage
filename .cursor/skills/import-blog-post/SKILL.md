@@ -14,11 +14,22 @@ Determine the workflow path:
 
 Most commonly, the user arrives with finished text and needs technical setup.
 
+**Key Workflow Principles**:
+
+- **Always analyze existing posts** for tag patterns before creating frontmatter
+- **Use `mv` commands** to relocate files, don't copy/recreate
+- **Run Prettier** at the end for consistent formatting
+- **Never ask the user** for information you can determine autonomously (tags, slug, etc.)
+
+## Related Skills
+
+- **blog-post-images**: For detailed image processing, component selection (AutoOptimizedImage vs ImageLightbox), optimization, and troubleshooting. Use this skill when adding or processing images for blog posts.
+
 ## Import Workflow (Primary)
 
 ### Phase 1: Slug Generation
 
-**User behavior**: Always provides a simple/dummy filename (e.g., `cursor-new-features.mdx`)
+**User behavior**: Always provides a simple/dummy filename (e.g., `blog-post.mdx`, `cursor-new-features.mdx`)
 
 **Your task**:
 
@@ -29,7 +40,7 @@ Most commonly, the user arrives with finished text and needs technical setup.
     - Remove special characters (colons, quotes, etc.)
     - Use hyphens between words
     - Keep it concise but descriptive
-3. Create the MDX file in `src/content/blog/[slug].mdx`
+3. **Move** the file to `src/content/blog/[slug].mdx` using `mv` command (don't copy/recreate)
 
 **Examples**:
 
@@ -55,7 +66,7 @@ draft: false
 
 - **Title**: Under 60 characters, include primary keywords naturally, make it compelling
 - **Description**: 120-160 characters, include keywords, write compelling copy that encourages clicks
-- **Tags**: 3-7 relevant tags, maintain consistency with existing posts in `src/content/blog/`
+- **Tags**: 3-7 relevant tags. **CRITICAL**: Analyze existing posts in `src/content/blog/` by reading frontmatter to identify common tags and patterns. Select tags that match the content AND maintain consistency with the blog's tagging system. Never ask the user for tags - determine them autonomously.
 - **PublishDate**: Use YYYY-MM-DD format, typically today's date for new posts
 - **heroImagePath**: Always `slug/hero.jpg` (relative to `src/assets/images/blog/`)
 - **draft**: Set to `false` for immediate publication, `true` for work-in-progress
@@ -78,39 +89,23 @@ import heroImage from '../../assets/images/blog/slug/hero.jpg';
 
 ### Phase 4: Image Processing Workflow
 
-**CRITICAL**: Use ImageMagick for preprocessing, let Astro handle optimization.
+**CRITICAL**: Use the **blog-post-images** skill for all image processing.
 
-**Step-by-step**:
+```bash
+# Quick reference:
+magick input.png -quality 85 hero.jpg
+mkdir -p src/assets/images/blog/[slug]/
+mv hero.jpg src/assets/images/blog/[slug]/
+```
 
-1. **Convert PNG to JPEG** using ImageMagick (85% quality):
+For detailed image processing instructions, component selection (AutoOptimizedImage vs ImageLightbox), and troubleshooting, see the **blog-post-images** skill.
 
-    ```bash
-    magick input.png -quality 85 hero.jpg
-    ```
+**Key points**:
 
-2. **Create image directory** for the post:
-
-    ```bash
-    mkdir -p src/assets/images/blog/[slug]/
-    ```
-
-3. **Move processed image** into the directory:
-
-    ```bash
-    mv hero.jpg src/assets/images/blog/[slug]/
-    ```
-
-4. **Astro handles the rest automatically**:
-    - Generates responsive sizes: 400px, 600px, 800px, 1024px
-    - Converts to modern formats: AVIF, WebP, JPG
-    - Creates responsive srcsets for optimal loading
-
-**IMPORTANT**: Never manually create multiple image sizes. Astro's image optimization does this automatically.
-
-**Component selection**:
-
-- `<AutoOptimizedImage>` - **ONLY for hero images** (full-width display, no interaction)
-- `<ImageLightbox>` - **For screenshots and UI details** (click-to-enlarge overlay for examining details)
+- Use ImageMagick to convert PNG → JPEG (85% quality)
+- Astro handles further optimization automatically
+- `<ImageLightbox>` is STRONGLY PREFERRED for screenshots/UI images
+- `<AutoOptimizedImage>` is ONLY for hero images
 
 ### Phase 5: Hero Image Placement
 
@@ -152,9 +147,39 @@ import screenshotImage from '../../assets/images/blog/slug/screenshot.jpg';
 <ImageLightbox src={screenshotImage} alt="Descriptive alt text explaining what the screenshot shows" />
 ```
 
-Process additional images the same way as hero images (ImageMagick conversion, place in slug directory).
+Process additional images using the **blog-post-images** skill (ImageMagick conversion, component selection, etc.).
 
-### Phase 7: Pre-Publication Checklist
+### Phase 7: Formatting & Pre-Publication Checklist
+
+**Final formatting** (CRITICAL - always do this):
+
+Run Prettier to ensure consistent code formatting:
+
+```bash
+npx prettier --write src/content/blog/[slug].mdx
+```
+
+**Complete Import Workflow Summary**:
+
+```bash
+# 1. Process hero image (if provided) - see blog-post-images skill for details
+magick input.png -quality 85 hero.jpg
+mkdir -p src/assets/images/blog/[slug]/
+mv hero.jpg src/assets/images/blog/[slug]/
+
+# 2. Move blog post file to proper location with correct slug
+mv src/content/blog-post.mdx src/content/blog/[slug].mdx
+
+# 3. Add frontmatter, imports, and hero image component to the file
+
+# 4. Clean up citation placeholders and format content
+
+# 5. Run Prettier (DO NOT SKIP THIS)
+npx prettier --write src/content/blog/[slug].mdx
+
+# 6. Clean up temporary files
+rm input.png  # if still exists
+```
 
 Before marking `draft: false`, verify:
 
@@ -173,13 +198,13 @@ Before marking `draft: false`, verify:
 - [ ] heroImagePath matches slug: `slug/hero.jpg`
 - [ ] publishDate in YYYY-MM-DD format
 
-**Images**:
+**Images** (see **blog-post-images** skill for details):
 
-- [ ] Hero image processed via ImageMagick (PNG → JPEG at 85% quality)
-- [ ] Hero image placed in correct directory
+- [ ] Images processed via ImageMagick (PNG → JPEG at 85% quality)
+- [ ] Images placed in correct directory: `src/assets/images/blog/[slug]/`
 - [ ] Component imports use correct slug in paths
-- [ ] Hero image displays with AutoOptimizedImage
-- [ ] Screenshots (if any) use ImageLightbox component
+- [ ] Hero image uses AutoOptimizedImage
+- [ ] Screenshots use ImageLightbox (PREFERRED for UI/screenshots)
 - [ ] All images have descriptive alt text
 
 **Content**:
@@ -188,6 +213,7 @@ Before marking `draft: false`, verify:
 - [ ] Code examples tested and properly formatted
 - [ ] Proper heading hierarchy (H2, H3 - never skip levels)
 - [ ] Writing style follows voice guidelines (if refined collaboratively)
+- [ ] Prettier run on final file for consistent formatting
 
 ## Writing/Refinement Workflow (Optional)
 
@@ -241,12 +267,22 @@ Once content is refined and ready:
 
 ## Reference Examples
 
-**Pattern matching**: Check existing posts in `src/content/blog/` for:
+**Pattern matching**: **ALWAYS** check existing posts in `src/content/blog/` for:
 
 - Frontmatter structure
 - Component usage
-- Tag conventions
+- **Tag conventions** (analyze multiple posts to identify common tags and patterns)
 - Internal linking patterns
+
+**Tag Analysis Workflow**:
+
+1. Run `grep "^tags:" src/content/blog/*.mdx` to see all existing tags
+2. Identify frequently used tags that match the new post's content
+3. Select 3-7 tags that are both relevant and consistent with the blog's taxonomy
+4. Common tag patterns to look for:
+    - Tool/platform names: `cursor`, `ai-coding`, `mcp`, etc.
+    - Topics: `automation`, `productivity`, `developer-tools`, etc.
+    - Technology: `typescript`, `react`, `git`, etc.
 
 **Key posts for reference**:
 
@@ -260,9 +296,8 @@ Once content is refined and ready:
 
 **Image processing fails**:
 
-- Ensure ImageMagick is installed: `magick --version`
-- Check input file exists and is readable
-- Verify output directory exists before moving files
+- See **blog-post-images** skill troubleshooting section
+- Quick check: `magick --version`
 
 **Slug conflicts**:
 
@@ -278,7 +313,5 @@ Once content is refined and ready:
 
 **Images not displaying**:
 
-- Verify image exists at `src/assets/images/blog/[slug]/hero.jpg`
-- Check import path matches slug
-- Ensure hero image import comes before usage
-- Run Astro dev server to see build errors
+- See **blog-post-images** skill troubleshooting section
+- Quick checks: file exists, import path matches, correct component used
