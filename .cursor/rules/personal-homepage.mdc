@@ -18,42 +18,6 @@ This is Luca Becker's personal homepage built with Astro, TypeScript, and Tailwi
 - Use the established color scheme and gradient classes
 - Maintain the responsive design patterns already in place
 
-## Image Optimization with Astro
-
-### Image Processing Workflow
-
-Use Astro's automatic image optimization for all images:
-
-1. **Preprocess blog post images** (PNG to JPEG conversion):
-   ```bash
-   # Convert PNG to JPEG at 85% quality (full resolution)
-   magick input.png -quality 85 hero.jpg
-   ```
-
-2. **Place the single source image** in `src/assets/images/blog/post-slug/hero.jpg`
-
-3. **Let Astro handle optimization** - Astro automatically generates all necessary:
-   - Resolutions: 400px, 600px, 800px, 1024px
-   - Formats: AVIF, WebP, JPG
-   - Responsive srcsets
-
-### Image Organization
-
-- Blog images: `src/assets/images/blog/[post-slug]/`
-- Project thumbnails: `src/assets/images/`
-- Always create a dedicated folder for each blog post's images
-- Use descriptive filenames (e.g., `hero.jpg`, `diagram.jpg`)
-
-### Component Usage
-
-Use the existing components that leverage Astro's optimization:
-
-- `<BlogHeroImage />` - For blog post hero images
-- `<AutoOptimizedImage />` - For general images with automatic optimization
-- `<BlogThumbnail />` - For blog post thumbnails
-
-These components automatically handle responsive images and format selection.
-
 ## Styling Guidelines
 
 - Use Tailwind CSS classes exclusively
@@ -73,13 +37,6 @@ These components automatically handle responsive images and format selection.
 - Maintain the established animation patterns (fade-in, hover effects)
 - Use consistent class structures for cards and sections
 
-## Content Management
-
-- Blog posts go in `src/content/blog/`
-- Update `src/data/info.ts` for personal information, projects, and experience
-- Maintain consistent formatting and structure
-- Use proper frontmatter for blog posts
-
 ## Performance Considerations
 
 - Always include `loading="lazy"` and `decoding="async"` for images
@@ -92,7 +49,10 @@ These components automatically handle responsive images and format selection.
 1. Use the existing component patterns
 2. Test both light and dark modes
 3. Ensure responsive behavior across devices
-4. Use Astro's automatic image optimization workflow
-5. Follow the established TypeScript and Astro conventions
+4. Follow the established TypeScript and Astro conventions
 
 Remember: Consistency is key. Always reference existing components and maintain the established patterns and design language.
+
+## Related Skills
+
+- For blog post creation and management, use the **import-blog-post** skill
