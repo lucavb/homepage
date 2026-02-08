@@ -49,20 +49,35 @@ const primaryUrl = liveUrl || githubUrl;
             <div class="flex gap-4">
                 {
                     liveUrl && (
-                        <span class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold">
+                        <span
+                            class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
+                            aria-label={`View ${title} live site`}
+                        >
                             View Live →
                         </span>
                     )
                 }
                 {
-                    githubUrl && (
-                        <span
-                            class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-semibold cursor-pointer"
-                            onclick={`event.preventDefault(); event.stopPropagation(); window.open('${githubUrl}', '_blank');`}
-                        >
-                            GitHub →
-                        </span>
-                    )
+                    githubUrl &&
+                        (liveUrl ? (
+                            <a
+                                href={githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 font-semibold"
+                                aria-label={`View ${title} on GitHub`}
+                                onclick="event.stopPropagation();"
+                            >
+                                GitHub →
+                            </a>
+                        ) : (
+                            <span
+                                class="text-gray-600 dark:text-gray-400 font-semibold"
+                                aria-label={`View ${title} on GitHub`}
+                            >
+                                GitHub →
+                            </span>
+                        ))
                 }
             </div>
         </div>
