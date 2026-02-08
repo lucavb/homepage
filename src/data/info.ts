@@ -133,6 +133,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
     socialMedia: {
         github: 'https://github.com/lucavb',
         linkedin: 'https://www.linkedin.com/in/lucabecker/',
+        matrix: 'https://matrix.to/#/@luca:sunbury.xyz',
     },
 
     languages: [
