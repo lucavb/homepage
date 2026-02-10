@@ -13,10 +13,20 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
         <div class={`relative ${className}`}>
             <button
                 id={id}
-                class="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
+                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-500 dark:text-slate-400"
                 aria-label="Toggle theme"
+                aria-haspopup="true"
+                aria-expanded="false"
             >
-                <svg id={`${id}-icon`} class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                    id={`${id}-icon`}
+                    data-theme-icon
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -28,14 +38,22 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
 
             <div
                 id={`${id}-dropdown`}
-                class="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg opacity-0 invisible transform scale-95 transition-all duration-150 z-50 overflow-hidden"
+                data-theme-dropdown
+                class="absolute top-full right-0 mt-1 w-32 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg opacity-0 invisible transform scale-95 transition-all duration-150 z-50 overflow-hidden"
             >
-                <div class="py-1">
+                <div class="py-1" role="menu">
                     <button
-                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-0"
+                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-0"
                         data-theme="light"
+                        role="menuitem"
                     >
-                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                            class="w-4 h-4 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -46,10 +64,17 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
                         Light
                     </button>
                     <button
-                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-0"
+                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-0"
                         data-theme="dark"
+                        role="menuitem"
                     >
-                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                            class="w-4 h-4 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -60,10 +85,17 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
                         Dark
                     </button>
                     <button
-                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-0"
+                        class="theme-option flex items-center w-full px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-0"
                         data-theme="system"
+                        role="menuitem"
                     >
-                        <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                            class="w-4 h-4 mr-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
@@ -77,13 +109,14 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             </div>
         </div>
     ) : (
-        <div id={id} class={`flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1 ${className}`}>
+        <div id={id} class={`flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-1 ${className}`}>
             <button
-                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 data-theme="system"
                 aria-label="System theme"
+                aria-pressed="false"
             >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -94,11 +127,12 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             </button>
 
             <button
-                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 data-theme="light"
                 aria-label="Light theme"
+                aria-pressed="false"
             >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -109,11 +143,12 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             </button>
 
             <button
-                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                class="theme-option flex items-center justify-center w-8 h-8 rounded-md transition-all duration-200 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                 data-theme="dark"
                 aria-label="Dark theme"
+                aria-pressed="false"
             >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -131,13 +166,13 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
         const browserTheme = document.querySelector('[name="theme-color"]');
 
         const icons = {
-            light: `<svg id="theme-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            light: `<svg id="theme-toggle-icon" data-theme-icon class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
             </svg>`,
-            dark: `<svg id="theme-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            dark: `<svg id="theme-toggle-icon" data-theme-icon class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
             </svg>`,
-            system: `<svg id="theme-toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            system: `<svg id="theme-toggle-icon" data-theme-icon class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
             </svg>`,
         };
@@ -161,7 +196,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             }
 
             // Update dropdown button icon
-            const dropdownIcon = document.querySelector('[id$="-icon"]');
+            const dropdownIcon = document.querySelector('[data-theme-icon]');
             if (dropdownIcon) {
                 dropdownIcon.outerHTML = icons[theme];
             }
@@ -172,21 +207,23 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
                 if (btnTheme === theme) {
                     btn.classList.add(
                         'bg-white',
-                        'dark:bg-gray-700',
+                        'dark:bg-slate-700',
                         'shadow-sm',
-                        'text-gray-900',
-                        'dark:text-gray-100',
+                        'text-slate-900',
+                        'dark:text-slate-100',
                     );
-                    btn.classList.remove('text-gray-600', 'dark:text-gray-400');
+                    btn.classList.remove('text-slate-500', 'dark:text-slate-400');
+                    btn.setAttribute('aria-pressed', 'true');
                 } else {
                     btn.classList.remove(
                         'bg-white',
-                        'dark:bg-gray-700',
+                        'dark:bg-slate-700',
                         'shadow-sm',
-                        'text-gray-900',
-                        'dark:text-gray-100',
+                        'text-slate-900',
+                        'dark:text-slate-100',
                     );
-                    btn.classList.add('text-gray-600', 'dark:text-gray-400');
+                    btn.classList.add('text-slate-500', 'dark:text-slate-400');
+                    btn.setAttribute('aria-pressed', 'false');
                 }
             });
         }
@@ -207,7 +244,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
 
         // Dropdown functionality
         const dropdownButton = document.querySelector('button[id="theme-toggle"]');
-        const dropdown = document.querySelector('[id$="-dropdown"]');
+        const dropdown = document.querySelector('[data-theme-dropdown]');
 
         if (dropdownButton && dropdown) {
             let hideTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -220,12 +257,14 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
                 }
                 dropdown.classList.remove('opacity-0', 'invisible', 'scale-95');
                 dropdown.classList.add('opacity-100', 'visible', 'scale-100');
+                dropdownButton.setAttribute('aria-expanded', 'true');
                 isDropdownOpen = true;
             };
 
             const hideDropdown = () => {
                 dropdown.classList.add('opacity-0', 'invisible', 'scale-95');
                 dropdown.classList.remove('opacity-100', 'visible', 'scale-100');
+                dropdownButton.setAttribute('aria-expanded', 'false');
                 isDropdownOpen = false;
             };
 
@@ -298,7 +337,7 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
                 if (theme) {
                     setTheme(theme);
                     // Hide dropdown after selection
-                    const dropdown = document.querySelector('[id$="-dropdown"]');
+                    const dropdown = document.querySelector('[data-theme-dropdown]');
                     if (dropdown) {
                         dropdown.classList.add('opacity-0', 'invisible', 'scale-95');
                         dropdown.classList.remove('opacity-100', 'visible', 'scale-100');

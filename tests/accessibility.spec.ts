@@ -58,7 +58,7 @@ test.describe('Accessibility', () => {
             // Enable dark mode
             const themeToggle = page.getByRole('button', { name: /Toggle theme/i });
             await themeToggle.hover();
-            await page.getByRole('button', { name: 'Dark' }).click();
+            await page.getByRole('menuitem', { name: 'Dark' }).click();
 
             // Wait for theme transition
             await page.waitForTimeout(300);

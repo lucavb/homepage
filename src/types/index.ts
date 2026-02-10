@@ -8,11 +8,6 @@ export interface IMetaHead {
     ogImageUrl: string;
 }
 
-export interface IHeroProps {
-    name: string;
-    about: string;
-}
-
 export interface IExperience {
     name: string;
     location: string;
@@ -22,10 +17,6 @@ export interface IExperience {
     skills?: string[];
 }
 
-export interface ILanguage {
-    name: string;
-    level: string;
-}
 export interface IExperiences {
     title: string;
     details: IExperience[];
@@ -42,10 +33,6 @@ export interface IProjects {
     projects: IProject[];
 }
 
-export interface IProjectDetails {
-    projectDetail: IProject;
-}
-
 export interface IBlogPost {
     id: string;
     title: string;
@@ -56,8 +43,4 @@ export interface IBlogPost {
     thumbnail?: string;
     heroImagePath?: string;
     relatedPosts?: string[];
-}
-
-export interface IBlogPostCard {
-    blogPost: IBlogPost;
 }

@@ -2,31 +2,31 @@
 import { info } from '@data';
 import NavigationLinks from '@components/general/NavigationLinks.astro';
 import ThemeToggle from '@components/general/ThemeToggle.astro';
-import SocialLinks from '@components/general/SocialLinks.astro';
 import MobileSidebar from '@components/general/MobileSidebar.astro';
 import MobileMenuButton from '@components/general/MobileMenuButton.astro';
+
+interface Props {
+    isHomePage?: boolean;
+}
 
 const { isHomePage = true } = Astro.props;
 ---
 
 <header
-    class="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700"
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass rounded-full shadow-lg shadow-black/5 px-2 w-[calc(100%-2rem)] max-w-3xl"
 >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <a href="/" class="text-2xl font-bold text-gray-900 dark:text-white gradient-hover-name inline-block">
-                {info.name}
-            </a>
+    <div class="flex items-center justify-between py-2 px-4">
+        <a href="/" class="text-lg font-bold text-slate-900 dark:text-white gradient-hover-name inline-block">
+            {info.name}
+        </a>
 
-            <NavigationLinks isHomePage={isHomePage} variant="desktop" />
+        <NavigationLinks isHomePage={isHomePage} variant="desktop" />
 
-            <div class="hidden md:flex items-center space-x-4">
-                <ThemeToggle variant="dropdown" />
-                <SocialLinks emailId="header-email-link" />
-            </div>
-
-            <MobileMenuButton />
+        <div class="hidden md:flex items-center">
+            <ThemeToggle variant="dropdown" />
         </div>
+
+        <MobileMenuButton />
     </div>
 </header>
 
@@ -36,10 +36,6 @@ const { isHomePage = true } = Astro.props;
     import { initEmailProtection } from '@utils';
 
     initEmailProtection([
-        {
-            elementId: 'header-email-link',
-            options: { autoReveal: false, isDisplayElement: false },
-        },
         {
             elementId: 'mobile-email-link',
             options: { autoReveal: false, isDisplayElement: false },

@@ -1,18 +1,18 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Social Links', () => {
-    test('should have correct social media links in header', async ({ page }) => {
+    test('should have correct social media links in contact section', async ({ page }) => {
         await page.goto('/');
 
-        const banner = page.locator('header, [role="banner"]').first();
+        const contact = page.locator('#contact');
 
-        const githubLink = banner.getByRole('link', { name: /GitHub/i });
+        const githubLink = contact.getByRole('link', { name: /GitHub/i });
         await expect(githubLink).toHaveAttribute('href', 'https://github.com/lucavb');
 
-        const linkedinLink = banner.getByRole('link', { name: /LinkedIn/i });
+        const linkedinLink = contact.getByRole('link', { name: /LinkedIn/i });
         await expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/in/lucabecker/');
 
-        const emailLink = banner.getByRole('link', { name: /Email/i });
+        const emailLink = contact.getByRole('link', { name: /Email/i });
         await expect(emailLink).toHaveAttribute('href', 'mailto:hello@luca-becker.me');
     });
 

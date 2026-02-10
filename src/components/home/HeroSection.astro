@@ -3,67 +3,90 @@ import { info } from '@data';
 ---
 
 <!-- Hero Section -->
-<section
-    class="pt-32 pb-20 bg-gradient-to-br from-sky-100 to-indigo-200 dark:from-gray-900 dark:to-blue-900 min-h-screen flex items-center"
->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div class="mb-8">
-            <div
-                class="w-52 h-52 mx-auto mb-6 overflow-hidden rounded-full border-4 border-white dark:border-gray-300 shadow-lg"
-            >
-                <picture>
-                    <source
-                        srcset="/assets/images/hero/400.avif 1x, /assets/images/hero/800.avif 2x"
-                        type="image/avif"
-                    />
-                    <source
-                        srcset="/assets/images/hero/400.webp 1x, /assets/images/hero/800.webp 2x"
-                        type="image/webp"
-                    />
-                    <img
-                        src="/assets/images/hero/400.jpg"
-                        srcset="/assets/images/hero/400.jpg 1x, /assets/images/hero/800.jpg 2x"
-                        alt={info.name}
-                        class="w-full h-full object-cover"
-                        width="400"
-                        height="400"
-                        loading="eager"
-                    />
-                </picture>
-            </div>
+<section class="pt-32 pb-24 bg-slate-50 dark:bg-slate-950 relative min-h-screen flex items-center">
+    <div class="absolute inset-0 overflow-hidden">
+        <div
+            class="absolute -top-40 -right-40 w-96 h-96 bg-violet-500/20 dark:bg-violet-500/40 rounded-full blur-3xl animate-float"
+        >
         </div>
-        <h1
-            class="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 animate-fade-in gradient-hover-name inline-block"
+        <div
+            class="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500/15 dark:bg-blue-500/30 rounded-full blur-3xl animate-float"
+            style="animation-delay: -10s"
         >
-            {info.name}
-        </h1>
-        <h2
-            class="text-2xl md:text-3xl text-blue-600 dark:text-blue-400 font-semibold mb-8 animate-fade-in"
-            style="animation-delay: 0.2s"
-        >
-            {info.jobDescription}
-        </h2>
-        <p
-            class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed animate-fade-in mb-12"
-            style="animation-delay: 0.4s"
-        >
-            {info.heroDescription}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style="animation-delay: 0.6s">
-            <a
-                href="#projects"
-                class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-800 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                onclick="_paq && _paq.push(['trackEvent', 'CTA', 'View My Work', 'Hero Section']);"
-            >
-                View My Work
-            </a>
-            <a
-                href="#contact"
-                class="border-2 border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 px-8 py-4 rounded-lg font-semibold hover:bg-blue-600 hover:text-white dark:hover:bg-blue-400 dark:hover:text-white transition-colors"
-                onclick="_paq && _paq.push(['trackEvent', 'CTA', 'Let\'s Connect', 'Hero Section']);"
-            >
-                Let's Connect
-            </a>
+        </div>
+        <div class="absolute top-1/2 left-1/3 w-64 h-64 bg-indigo-400/10 dark:bg-indigo-400/20 rounded-full blur-3xl">
+        </div>
+        <div class="dot-grid absolute inset-0 pointer-events-none"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid md:grid-cols-5 gap-8 lg:gap-16 items-center">
+            <div class="md:col-span-3 text-center md:text-left">
+                <p
+                    class="text-sm md:text-base font-semibold uppercase tracking-widest bg-gradient-to-r from-violet-600 to-blue-500 dark:from-violet-400 dark:to-blue-400 text-gradient animate-slide-up"
+                    style="animation-delay: 0.15s"
+                >
+                    {info.jobDescription}
+                </p>
+                <h1
+                    class="text-5xl md:text-7xl lg:text-8xl font-bold text-slate-900 dark:text-slate-100 tracking-tight gradient-hover-name inline-block animate-slide-up mt-4 mb-6"
+                >
+                    {info.name}
+                </h1>
+                <p
+                    class="text-lg text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed animate-slide-up mb-10"
+                    style="animation-delay: 0.3s"
+                >
+                    {info.heroDescription}
+                </p>
+                <div
+                    class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start animate-slide-up"
+                    style="animation-delay: 0.45s"
+                >
+                    <a
+                        href="#projects"
+                        class="btn-primary"
+                        onclick="_paq && _paq.push(['trackEvent', 'CTA', 'View My Work', 'Hero Section']);"
+                    >
+                        View My Work
+                    </a>
+                    <a
+                        href="#contact"
+                        class="btn-secondary"
+                        onclick="_paq && _paq.push(['trackEvent', 'CTA', 'Let\'s Connect', 'Hero Section']);"
+                    >
+                        Let's Connect
+                    </a>
+                </div>
+            </div>
+            <div class="md:col-span-2 order-first md:order-last">
+                <div class="relative animate-slide-up" style="animation-delay: 0.2s">
+                    <div
+                        class="w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 mx-auto md:mx-0 bg-gradient-to-br from-violet-500 via-blue-500 to-indigo-500 p-1 rounded-3xl shadow-2xl shadow-violet-500/20 dark:shadow-violet-400/10 rotate-3 hover:rotate-0 transition-transform duration-500"
+                    >
+                        <div class="rounded-[calc(1.5rem-4px)] overflow-hidden w-full h-full">
+                            <picture>
+                                <source
+                                    srcset="/assets/images/hero/400.avif 1x, /assets/images/hero/800.avif 2x"
+                                    type="image/avif"
+                                />
+                                <source
+                                    srcset="/assets/images/hero/400.webp 1x, /assets/images/hero/800.webp 2x"
+                                    type="image/webp"
+                                />
+                                <img
+                                    src="/assets/images/hero/400.jpg"
+                                    srcset="/assets/images/hero/400.jpg 1x, /assets/images/hero/800.jpg 2x"
+                                    alt={info.name}
+                                    class="w-full h-full object-cover"
+                                    width="400"
+                                    height="400"
+                                    loading="eager"
+                                />
+                            </picture>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

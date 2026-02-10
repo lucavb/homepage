@@ -13,32 +13,32 @@ import PageHero from '@components/general/PageHero.astro';
     class="dark"
     robots="noindex, nofollow"
 >
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
         <Header isHomePage={false} />
 
-        <main class="pt-16">
+        <main id="main-content" class="pt-16">
             <PageHero title="Impressum" description="Legal notice and imprint according to German law" />
 
             <!-- Content Section -->
-            <section class="py-20 bg-gray-50 dark:bg-gray-900">
+            <section class="py-20 bg-slate-50 dark:bg-slate-950">
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12">
+                    <div class="bg-white dark:bg-slate-800/80 rounded-2xl shadow-xl dark:shadow-black/20 p-8 md:p-12">
                         <div class="prose prose-lg dark:prose-invert max-w-none">
                             <div class="mb-8">
-                                <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                                     Inhaltlich verantwortlich gemäß §5 TMG:<br />
-                                    <strong class="text-gray-900 dark:text-white">Luca Becker</strong><br />
+                                    <strong class="text-slate-900 dark:text-white">Luca Becker</strong><br />
                                     luca-becker.me, sunbury.xyz<br />
                                     Tegernseer Landstraße 137<br />
                                     81539 München<br />
                                     Tel.: <span
                                         id="phone-number"
-                                        class="cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                                        class="cursor-pointer text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                                         title="Click to reveal phone number">[Click to reveal]</span
                                     ><br />
                                     <span
                                         id="email-link"
-                                        class="cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                                        class="cursor-pointer text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors"
                                         title="Click to reveal email">[Click to reveal email]</span
                                     >
                                 </p>
@@ -46,14 +46,14 @@ import PageHero from '@components/general/PageHero.astro';
 
                             <div class="space-y-8">
                                 <div>
-                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                                         Haftungsausschluss:
                                     </h3>
 
-                                    <h4 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    <h4 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">
                                         Haftung für Inhalte
                                     </h4>
-                                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                                         Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die
                                         Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine
                                         Gewähr übernehmen. Als Diensteanbieter sind wir gemäß Digitale-Dienste-Gesetz
@@ -68,10 +68,10 @@ import PageHero from '@components/general/PageHero.astro';
                                         diese Inhalte umgehend entfernen.
                                     </p>
 
-                                    <h4 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    <h4 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">
                                         Haftung für Links
                                     </h4>
-                                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                                         Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir
                                         keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine
                                         Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige
@@ -83,10 +83,10 @@ import PageHero from '@components/general/PageHero.astro';
                                         Rechtsverletzungen werden wir derartige Links umgehend entfernen.
                                     </p>
 
-                                    <h4 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    <h4 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">
                                         Urheberrecht
                                     </h4>
-                                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
+                                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
                                         Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten
                                         unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung,
                                         Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes
@@ -100,10 +100,10 @@ import PageHero from '@components/general/PageHero.astro';
                                         umgehend entfernen.
                                     </p>
 
-                                    <h4 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+                                    <h4 class="text-xl font-semibold text-slate-900 dark:text-white mb-3">
                                         Datenschutz
                                     </h4>
-                                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                    <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
                                         Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener
                                         Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise
                                         Name, Anschrift oder eMail-Adressen) erhoben werden, erfolgt dies, soweit

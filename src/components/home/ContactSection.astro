@@ -1,107 +1,150 @@
 ---
 import { info } from '@data';
-import SectionTitle from '@components/general/SectionTitle.astro';
 import GitHubIcon from '@components/icons/GitHubIcon.astro';
 import LinkedInIcon from '@components/icons/LinkedInIcon.astro';
 import MatrixIcon from '@components/icons/MatrixIcon.astro';
 import EmailIcon from '@components/icons/EmailIcon.astro';
 ---
 
-<section id="contact" class="py-20 bg-white dark:bg-gray-900">
+<section id="contact" class="py-20 bg-white dark:bg-slate-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle
-            title="Let's Work Together"
-            description="Interested in collaborating? I'd be happy to discuss your project and explore how I might help."
-        />
+        <div class="grid md:grid-cols-2 gap-12">
+            <!-- Left side -->
+            <div>
+                <h2 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">Let's Work Together</h2>
+                <p class="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                    Interested in collaborating? I'd be happy to discuss your project and explore how I might help.
+                </p>
 
-        <div class="max-w-4xl mx-auto">
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="text-center">
-                    <div
-                        class="bg-blue-100 dark:bg-blue-900 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="w-8 h-8 text-blue-600 dark:text-blue-400"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
                         >
-                            <rect width="20" height="16" x="2" y="4" rx="2"></rect>
-                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                        </svg>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="w-5 h-5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true"
+                            >
+                                <rect width="20" height="16" x="2" y="4" rx="2"></rect>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Email</span>
+                            <div>
+                                <span
+                                    id="email-display"
+                                    class="cursor-pointer text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 transition-colors underline text-sm font-medium"
+                                    title="Click to reveal email"
+                                >
+                                    [Click to reveal email]
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Email</h3>
-                    <span
-                        id="email-display"
-                        class="cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline"
-                        title="Click to reveal email"
-                    >
-                        [Click to reveal email]
-                    </span>
-                </div>
-
-                <div class="text-center">
-                    <div
-                        class="bg-blue-100 dark:bg-blue-900 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center"
-                    >
-                        <svg
-                            class="w-8 h-8 text-blue-600 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
                         >
-                            <path
-                                d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-                            ></path>
-                            <circle cx="12" cy="10" r="3"></circle>
-                        </svg>
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                                ></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="text-sm text-slate-500 dark:text-slate-400">Location</span>
+                            <p class="text-sm font-medium text-slate-900 dark:text-white">Munich, Germany</p>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Location</h3>
-                    <p class="text-gray-600 dark:text-gray-300">Munich, Germany</p>
                 </div>
             </div>
 
-            <div class="text-center">
-                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Connect With Me</h3>
-                <div class="flex justify-center space-x-6">
+            <!-- Right side: Social links -->
+            <div class="flex flex-col justify-end">
+                <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
+                    Connect With Me
+                </h3>
+                <div class="grid grid-cols-2 gap-3 -mb-4">
                     <a
                         href={info.socialMedia.linkedin}
                         target="_blank"
-                        class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
                         aria-label="LinkedIn"
                         onclick="_paq && _paq.push(['trackEvent', 'Contact', 'LinkedIn', 'Contact Section']);"
                     >
-                        <LinkedInIcon class="w-6 h-6" />
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
+                        >
+                            <LinkedInIcon class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white">LinkedIn</span>
+                        </div>
                     </a>
                     <a
                         href={info.socialMedia.github}
                         target="_blank"
-                        class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
                         aria-label="GitHub"
                         onclick="_paq && _paq.push(['trackEvent', 'Contact', 'GitHub', 'Contact Section']);"
                     >
-                        <GitHubIcon class="w-6 h-6" />
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
+                        >
+                            <GitHubIcon class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white">GitHub</span>
+                        </div>
                     </a>
                     <a
                         href={info.socialMedia.matrix}
                         target="_blank"
-                        class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        rel="noopener noreferrer"
+                        class="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
                         aria-label="Matrix"
                         onclick="_paq && _paq.push(['trackEvent', 'Contact', 'Matrix', 'Contact Section']);"
                     >
-                        <MatrixIcon class="w-6 h-6" />
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
+                        >
+                            <MatrixIcon class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white">Matrix</span>
+                        </div>
                     </a>
                     <a
                         id="email-link"
                         href="#"
-                        class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                        class="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
                         aria-label="Email"
                     >
-                        <EmailIcon class="w-6 h-6" />
+                        <div
+                            class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-lg flex items-center justify-center text-violet-600 dark:text-violet-400"
+                        >
+                            <EmailIcon class="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span class="text-sm font-medium text-slate-900 dark:text-white">Email</span>
+                        </div>
                     </a>
                 </div>
             </div>

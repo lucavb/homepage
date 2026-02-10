@@ -8,7 +8,10 @@ const { title, description } = Astro.props;
 ---
 
 <div class="text-center mb-16">
-    <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
-    <div class={`w-24 h-1 bg-blue-600 dark:bg-blue-400 mx-auto ${description ? 'mb-6' : ''}`}></div>
-    {description && <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">{description}</p>}
+    <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">{title}</h2>
+    <div
+        class={`w-24 h-1 bg-gradient-to-r from-violet-500 to-blue-500 mx-auto rounded-full ${description ? 'mb-6' : ''}`}
+    >
+    </div>
+    {description && <p class="text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">{description}</p>}
 </div>

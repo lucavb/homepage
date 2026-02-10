@@ -8,25 +8,25 @@ test.describe('Interactive Features', () => {
         const themeToggleButton = page.getByRole('button', { name: /Toggle theme/i });
 
         await themeToggleButton.hover();
-        await page.getByRole('button', { name: 'Dark' }).waitFor({ state: 'visible' });
+        await page.getByRole('menuitem', { name: 'Dark' }).waitFor({ state: 'visible' });
 
-        await page.getByRole('button', { name: 'Dark' }).click();
+        await page.getByRole('menuitem', { name: 'Dark' }).click();
 
         let theme = await htmlElement.getAttribute('class');
         expect(theme).toContain('dark');
 
         await themeToggleButton.hover();
-        await page.getByRole('button', { name: 'Light' }).waitFor({ state: 'visible' });
+        await page.getByRole('menuitem', { name: 'Light' }).waitFor({ state: 'visible' });
 
-        await page.getByRole('button', { name: 'Light' }).click();
+        await page.getByRole('menuitem', { name: 'Light' }).click();
 
         theme = await htmlElement.getAttribute('class');
         expect(theme).not.toContain('dark');
 
         await themeToggleButton.hover();
-        await page.getByRole('button', { name: 'System' }).waitFor({ state: 'visible' });
+        await page.getByRole('menuitem', { name: 'System' }).waitFor({ state: 'visible' });
 
-        await page.getByRole('button', { name: 'System' }).click();
+        await page.getByRole('menuitem', { name: 'System' }).click();
 
         const systemTheme = await htmlElement.getAttribute('class');
         expect(systemTheme).toBeDefined();

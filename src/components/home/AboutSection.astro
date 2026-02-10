@@ -4,122 +4,152 @@ import SectionTitle from '@components/general/SectionTitle.astro';
 ---
 
 <!-- About Section -->
-<section id="about" class="py-20 bg-white dark:bg-gray-900">
+<section id="about" class="py-20 bg-white dark:bg-slate-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle title="About Me" />
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-                <h3 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Intro text cell (spans 2 cols) -->
+            <div
+                class="md:col-span-2 p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50"
+                data-animate
+            >
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                     {info.aboutHeading}
                 </h3>
-                <div class="space-y-6 text-gray-600 dark:text-gray-300 leading-relaxed">
+                <div class="space-y-4 text-slate-600 dark:text-slate-300 leading-relaxed">
                     {info.about.split('\n').map((paragraph) => paragraph.trim() && <p>{paragraph}</p>)}
                 </div>
-                <div class="grid grid-cols-2 gap-6 mt-8">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Location</h4>
-                        <p class="text-gray-600 dark:text-gray-300">Munich, Germany</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Experience</h4>
-                        <p class="text-gray-600 dark:text-gray-300">5+ Years</p>
-                    </div>
+            </div>
+
+            <!-- Stats cell (dark inverted) -->
+            <div
+                class="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 flex flex-col justify-center"
+                data-animate
+            >
+                <div class="text-5xl font-bold text-slate-900 dark:text-white">5+</div>
+                <div class="text-sm text-slate-500 dark:text-slate-300">Years Experience</div>
+                <div class="text-slate-500 dark:text-slate-400 text-sm mt-4 flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+                        ></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    Munich, Germany
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-6">
-                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div
-                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+        </div>
+
+        <!-- Skill cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:scale-[1.02] transition-transform duration-300"
+                data-animate
+            >
+                <div
+                    class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-xl mb-3 flex items-center justify-center"
+                >
+                    <svg
+                        class="w-5 h-5 text-violet-600 dark:text-violet-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
-                        <svg
-                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            ></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Full Stack Development</h4>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm">
-                        Building scalable web applications with modern technologies and best practices.
-                    </p>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        ></path>
+                    </svg>
                 </div>
-                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div
-                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                <h4 class="font-semibold text-slate-900 dark:text-white mb-2 text-sm">Full Stack Development</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                    Building scalable web applications with modern technologies and best practices.
+                </p>
+            </div>
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:scale-[1.02] transition-transform duration-300"
+                data-animate
+            >
+                <div
+                    class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-xl mb-3 flex items-center justify-center"
+                >
+                    <svg
+                        class="w-5 h-5 text-violet-600 dark:text-violet-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
-                        <svg
-                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
-                            ></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Cloud Architecture</h4>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm">
-                        Designing and implementing cloud-native solutions with AWS and Kubernetes.
-                    </p>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"
+                        ></path>
+                    </svg>
                 </div>
-                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div
-                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                <h4 class="font-semibold text-slate-900 dark:text-white mb-2 text-sm">Cloud Architecture</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                    Designing and implementing cloud-native solutions with AWS and Kubernetes.
+                </p>
+            </div>
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:scale-[1.02] transition-transform duration-300"
+                data-animate
+            >
+                <div
+                    class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-xl mb-3 flex items-center justify-center"
+                >
+                    <svg
+                        class="w-5 h-5 text-violet-600 dark:text-violet-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
-                        <svg
-                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                            ></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">Team Leadership</h4>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm">
-                        Leading technical teams and mentoring developers to achieve project excellence.
-                    </p>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path>
+                    </svg>
                 </div>
-                <div class="text-center p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div
-                        class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg mx-auto mb-4 flex items-center justify-center"
+                <h4 class="font-semibold text-slate-900 dark:text-white mb-2 text-sm">Team Leadership</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                    Leading technical teams and mentoring developers to achieve project excellence.
+                </p>
+            </div>
+            <div
+                class="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:scale-[1.02] transition-transform duration-300"
+                data-animate
+            >
+                <div
+                    class="w-10 h-10 bg-violet-100 dark:bg-violet-900/50 rounded-xl mb-3 flex items-center justify-center"
+                >
+                    <svg
+                        class="w-5 h-5 text-violet-600 dark:text-violet-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
-                        <svg
-                            class="w-6 h-6 text-blue-600 dark:text-blue-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                            ></path>
-                        </svg>
-                    </div>
-                    <h4 class="font-semibold text-gray-900 dark:text-white mb-3">AI-Assisted Development</h4>
-                    <p class="text-gray-600 dark:text-gray-300 text-sm">
-                        Passionate about leveraging AI tools like Cursor and LLMs to focus on software design over
-                        implementation details.
-                    </p>
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                        ></path>
+                    </svg>
                 </div>
+                <h4 class="font-semibold text-slate-900 dark:text-white mb-2 text-sm">AI-Assisted Development</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
+                    Passionate about leveraging AI tools like Cursor and LLMs to focus on software design over
+                    implementation details.
+                </p>
             </div>
         </div>
     </div>

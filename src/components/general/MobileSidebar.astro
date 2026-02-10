@@ -18,21 +18,21 @@ const { isHomePage = true } = Astro.props;
 
 <div
     id="mobile-sidebar"
-    class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden"
     role="dialog"
     aria-modal="true"
     aria-labelledby="mobile-menu-title"
     aria-hidden="true"
 >
     <div class="flex flex-col h-full">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <span id="mobile-menu-title" class="text-xl font-bold text-gray-900 dark:text-white">Menu</span>
+        <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
+            <span id="mobile-menu-title" class="text-xl font-bold text-slate-900 dark:text-white">Menu</span>
             <button
                 id="mobile-menu-close"
-                class="p-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
+                class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-500 dark:text-slate-400"
                 aria-label="Close menu"
             >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"
                     ></path>
                 </svg>
@@ -41,9 +41,9 @@ const { isHomePage = true } = Astro.props;
 
         <NavigationLinks isHomePage={isHomePage} variant="mobile" />
 
-        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-gray-900 dark:text-white">Theme</span>
+                <span class="text-sm font-medium text-slate-900 dark:text-white">Theme</span>
                 <ThemeToggle id="mobile-theme-toggle" variant="toggle" />
             </div>
             <SocialLinks size="lg" emailId="mobile-email-link" class="justify-center space-x-6" />
@@ -67,6 +67,9 @@ const { isHomePage = true } = Astro.props;
         mobileMenuButton?.setAttribute('aria-label', 'Close menu');
         mobileSidebar?.setAttribute('aria-hidden', 'false');
 
+        document.querySelector('main')?.setAttribute('inert', '');
+        document.querySelector('header')?.setAttribute('inert', '');
+
         setTimeout(() => {
             mobileMenuClose?.focus();
         }, 100);
@@ -80,6 +83,9 @@ const { isHomePage = true } = Astro.props;
         mobileMenuButton?.setAttribute('aria-expanded', 'false');
         mobileMenuButton?.setAttribute('aria-label', 'Open menu');
         mobileSidebar?.setAttribute('aria-hidden', 'true');
+
+        document.querySelector('main')?.removeAttribute('inert');
+        document.querySelector('header')?.removeAttribute('inert');
 
         mobileMenuButton?.focus();
     };

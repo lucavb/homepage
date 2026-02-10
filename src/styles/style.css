@@ -25,10 +25,7 @@
 
 @layer components {
     body {
-        @apply bg-white dark:bg-gray-900;
-    }
-    .container {
-        @apply max-w-[1112px] mx-auto px-4;
+        @apply bg-slate-50 dark:bg-slate-950;
     }
     h1,
     h2,
@@ -60,37 +57,128 @@
             'Segoe UI',
             Roboto,
             sans-serif;
-        @apply text-gray-700 dark:text-gray-300;
+        @apply text-slate-600 dark:text-slate-300;
     }
-    .footer-icons {
-        @apply dark:text-white flex items-center border border-gray-800 dark:border-white p-4 rounded-lg justify-center;
-    }
+    /* === Name gradient hover effect === */
     .gradient-hover-name {
         background-size: 200% auto;
         background-position: 0% center;
         background-clip: text;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        background-image: linear-gradient(90deg, #111827, #111827);
+        background-image: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed, #3b82f6, #7c3aed);
+        filter: grayscale(1) brightness(0.2);
+        transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: gradient-flow 3s linear infinite paused;
     }
     .dark .gradient-hover-name {
-        background-image: linear-gradient(90deg, #ffffff, #ffffff);
+        background-image: linear-gradient(90deg, #a78bfa, #60a5fa, #a78bfa, #60a5fa, #a78bfa);
+        filter: grayscale(1) brightness(2.5);
     }
     .gradient-hover-name:hover {
-        background-image: linear-gradient(90deg, #2563eb, #4f46e5, #9333ea, #4f46e5, #2563eb);
-        animation: gradient-flow 2s linear infinite;
+        filter: grayscale(0) brightness(1);
+        animation-play-state: running;
     }
-    .dark .gradient-hover-name:hover {
-        background-image: linear-gradient(90deg, #60a5fa, #818cf8, #c084fc, #818cf8, #60a5fa);
-        animation: gradient-flow 2s linear infinite;
+
+    /* === Gradient text utility === */
+    .text-gradient {
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* === CTA button styles === */
+    .btn-primary {
+        @apply bg-gradient-to-r from-violet-600 to-blue-500 text-white px-6 py-3 rounded-full font-medium
+            hover:from-violet-500 hover:to-blue-400 transition-all duration-300
+            shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40;
+    }
+    .btn-secondary {
+        @apply bg-white/10 dark:bg-white/5 backdrop-blur-sm border border-slate-300 dark:border-white/10
+            text-slate-900 dark:text-white px-6 py-3 rounded-full font-medium
+            hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-300;
+    }
+
+    /* === Dot grid pattern overlay === */
+    .dot-grid {
+        background-image: radial-gradient(circle, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+        mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    }
+    .dark .dot-grid {
+        background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    }
+
+    /* === Glass surface === */
+    .glass {
+        @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-white/10;
     }
 }
+
+/* ========== Animations ========== */
 
 @keyframes gradient-flow {
     0% {
         background-position: 0% center;
     }
     100% {
-        background-position: 100% center;
+        background-position: 200% center;
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(30px, -20px);
+    }
+}
+
+/* === Animation utility classes === */
+@media (prefers-reduced-motion: no-preference) {
+    .animate-slide-up {
+        animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .animate-float {
+        animation: float 20s ease-in-out infinite;
+    }
+
+    /* Scroll-triggered animation base */
+    [data-animate] {
+        opacity: 0;
+        transform: translateY(16px);
+        transition:
+            opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    [data-animate].is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-slide-up {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    [data-animate] {
+        opacity: 1;
+        transform: none;
     }
 }

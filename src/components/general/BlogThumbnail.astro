@@ -57,14 +57,14 @@ if (heroImagePath) {
             <img
                 src={thumbnailSrc}
                 alt={`${title} blog post thumbnail`}
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
+                class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out rounded-lg"
                 loading="lazy"
                 decoding="async"
             />
         </picture>
     ) : (
-        <div class="text-blue-600 dark:text-blue-400">
-            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="text-violet-600 dark:text-violet-400">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
