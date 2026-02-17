@@ -1,0 +1,344 @@
+---
+title: 'Stop Adding Secrets to Your mcp.json: Adding OAuth to Remote MCP Servers with Authelia'
+description: 'Add OAuth to remote MCP servers with an nginx gateway and Authelia. No more API keys in mcp.json. Just a URL and a browser login.'
+publishDate: 2026-02-17
+tags: ['mcp', 'oauth', 'security', 'homelab', 'ai-coding', 'sso']
+heroImagePath: 'mcp-oauth-gateway-authelia/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/mcp-oauth-gateway-authelia/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="OAuth gateway architecture for securing remote MCP servers with nginx and Authelia"
+    loading="eager"
+/>
+
+If you've used [MCP](https://modelcontextprotocol.io/) servers with [Cursor](https://cursor.com/), [Claude Code](https://www.anthropic.com/claude-code), or any other AI coding tool, then you've seen this before. You find a cool MCP server, you set it up, and then you paste an API key or token straight into your `mcp.json` or maybe you get to put it in an environment variable.
+
+I've been revamping my entire homelab setup recently, migrating from old Portainer-managed Docker containers to a proper CI/CD pipeline with Kubernetes. The kind of project where you start with "this will take a weekend" and three weeks later you're writing Terraform for your DNS server. I'm planning to write about the full overhaul separately, but this post is about one specific container that wasn't the lowest hanging fruit.
+
+At this point I had already migrated a fair share of containers to helm charts and was applying them locally when I stumbled across the [Prometheus MCP server](https://github.com/pab1it0/prometheus-mcp-server) that I once setup. I liked it a lot. But I had recently put [Authelia](https://www.authelia.com/) in front of Prometheus's web UI, and it wouldn't make much sense to expose an MCP server with zero authentication while Prometheus itself sits behind SSO.
+
+The question was: how do you add auth to an MCP server without just adding another secret to `mcp.json`?
+
+## The Atlassian Experience: How It Should Work
+
+Then I remembered the [Atlassian MCP server](https://www.atlassian.com/platform/remote-mcp-server). In case you haven't used it, here's the entire Cursor config:
+
+```json
+{
+    "mcpServers": {
+        "atlassian": {
+            "command": "npx",
+            "args": ["-y", "mcp-remote", "https://mcp.atlassian.com/v1/sse"]
+        }
+    }
+}
+```
+
+With this being the entire config for it. When Cursor connects, [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) opens your browser, you log into Atlassian, approve the connection, and it redirects back to localhost. The token is handled entirely by the OAuth flow and stored by `mcp-remote`.
+
+So this has got me thinking: I have an OIDC provider now and I do have an MCP server. How hard could it be to wire them together?
+
+If you've read any of my blog posts then you can probably guess what comes next. This was actually one of the reasons why I wanted my homelab checked into a repository because it means I can now run Cursor on it.
+
+## The Idea: An OIDC Gateway for Any MCP Server
+
+Most MCP servers don't know about OAuth. They are simple HTTP servers that accept requests and return tool results. They don't know about tokens, authorization codes, or PKCE flows.
+
+But `mcp-remote`, the npm package that bridges stdio-based MCP clients to remote HTTP servers, _does_ speak OAuth. It knows how to:
+
+1. Fetch OAuth discovery metadata from `/.well-known/` endpoints
+2. Open a browser for the user to authenticate
+3. Handle the redirect callback
+4. Attach Bearer tokens to subsequent requests
+
+So the idea was somewhat simple: **put a thin [nginx](https://nginx.org/) layer in front of your MCP server that does three things:**
+
+- **Serves OAuth discovery metadata** that tells `mcp-remote` where to find your OIDC provider's authorization and token endpoints
+- **Validates Bearer tokens** by checking each request's token against your OIDC provider's userinfo endpoint
+- **Proxies authenticated requests** by forwarding valid requests to the actual MCP server
+
+Your MCP server stays dumb and happy. Nginx handles the OAuth process. And from the client side, it looks exactly like the Atlassian experience: just a URL, no secrets.
+
+The best part? This pattern works with any OIDC provider. If it speaks OIDC, then you can connect it.
+
+Here's what the full flow looks like end to end:
+
+<MermaidDiagram
+    id="oauth-sequence"
+    diagram={`
+sequenceDiagram
+    participant Cursor
+    participant mcp-remote
+    participant nginx as nginx Gateway
+    participant Authelia as Authelia (OIDC)
+    participant MCP as MCP Server
+    participant Browser
+
+    Cursor->>mcp-remote: Start MCP connection
+    mcp-remote->>nginx: Initial request
+    nginx-->>mcp-remote: 401 + WWW-Authenticate: Bearer
+
+    mcp-remote->>nginx: GET /.well-known/oauth-protected-resource
+    nginx-->>mcp-remote: Resource metadata (server URL, issuer)
+    mcp-remote->>nginx: GET /.well-known/oauth-authorization-server
+    nginx-->>mcp-remote: OAuth metadata (endpoints, PKCE)
+
+    mcp-remote->>Browser: Open authorization URL
+    Browser->>Authelia: Authorization request + PKCE challenge
+    Authelia->>Browser: Login page
+    Browser->>Authelia: User authenticates
+    Authelia->>Browser: Redirect to 127.0.0.1/oauth/callback?code=...
+    Browser->>mcp-remote: Authorization code
+
+    mcp-remote->>Authelia: Exchange code for token (+ PKCE verifier)
+    Authelia-->>mcp-remote: Access token
+
+    mcp-remote->>nginx: MCP request + Bearer token
+    nginx->>Authelia: Validate token (userinfo endpoint)
+    Authelia-->>nginx: 200 OK (token valid)
+    nginx->>MCP: Proxy request
+    MCP-->>nginx: Tool result
+    nginx-->>mcp-remote: Response
+    mcp-remote-->>Cursor: Tool result
+
+`}
+/>
+
+## The Implementation
+
+I built this in a single pair-programming session with Opus 4.6 for the planning, Sonnet 4.5 for the implementation. About 60 minutes wall clock time.
+
+### The OAuth Gateway (nginx ConfigMap)
+
+This is the centerpiece. nginx serves three `/.well-known/` documents as static JSON and uses `auth_request` to validate tokens:
+
+<details>
+<summary><strong>Click to expand: nginx ConfigMap</strong></summary>
+
+```yaml
+data:
+    nginx.conf: |
+        worker_processes auto;
+        error_log /dev/stderr warn;
+        pid /var/run/nginx.pid;
+        events {
+            worker_connections 1024;
+        }
+        http {
+            include /etc/nginx/mime.types;
+            default_type application/octet-stream;
+            log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                            '$status $body_bytes_sent "$http_referer" '
+                            '"$http_user_agent" "$http_x_forwarded_for"';
+            access_log /dev/stdout main;
+            sendfile on;
+            keepalive_timeout 65;
+
+            server {
+                listen 8080;
+                server_name _;
+
+                # Serve OAuth discovery metadata as static JSON
+                location /.well-known/ {
+                    root /etc/nginx/metadata;
+                    default_type application/json;
+                    add_header Cache-Control "no-cache, no-store, must-revalidate";
+                }
+
+                # Internal: validate Bearer token via Authelia's userinfo endpoint
+                location = /auth-validate {
+                    internal;
+                    proxy_pass https://sso.internal.sunbury.xyz/api/oidc/userinfo;
+                    proxy_pass_request_body off;
+                    proxy_set_header Content-Length "";
+                    proxy_set_header Authorization $http_authorization;
+                }
+
+                # Main proxy: authenticate then forward to MCP server
+                location / {
+                    auth_request /auth-validate;
+                    error_page 401 = @unauthorized;
+
+                    proxy_pass http://localhost:8000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Host $host;
+                    proxy_set_header X-Real-IP $remote_addr;
+                    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                    proxy_set_header X-Forwarded-Proto $scheme;
+                    proxy_buffering off;
+                    proxy_cache off;
+                }
+
+                # Return proper WWW-Authenticate header for unauthorized requests
+                location @unauthorized {
+                    add_header WWW-Authenticate 'Bearer realm="Prometheus MCP"' always;
+                    add_header Content-Type 'application/json' always;
+                    return 401 '{"error":"unauthorized","error_description":"Bearer token required"}';
+                }
+            }
+        }
+```
+
+</details>
+
+The `@unauthorized` handler is important because it returns the `WWW-Authenticate: Bearer` header that tells `mcp-remote` "you need to do an OAuth flow."
+
+Then the OAuth discovery documents that `mcp-remote` fetches to figure out where to send the user for authentication:
+
+<details>
+<summary><strong>Click to expand: OAuth Discovery Documents</strong></summary>
+
+```yaml
+oauth-authorization-server: |
+    {
+      "issuer": "https://sso.internal.sunbury.xyz",
+      "authorization_endpoint": "https://sso.internal.sunbury.xyz/api/oidc/authorization",
+      "token_endpoint": "https://sso.internal.sunbury.xyz/api/oidc/token",
+      "userinfo_endpoint": "https://sso.internal.sunbury.xyz/api/oidc/userinfo",
+      "jwks_uri": "https://sso.internal.sunbury.xyz/jwks.json",
+      "response_types_supported": ["code"],
+      "grant_types_supported": ["authorization_code"],
+      "code_challenge_methods_supported": ["S256"],
+      "token_endpoint_auth_methods_supported": ["none", "client_secret_basic", "client_secret_post"]
+    }
+oauth-protected-resource: |
+    {
+      "resource": "https://prometheus-mcp.internal.sunbury.xyz",
+      "authorization_servers": ["https://sso.internal.sunbury.xyz"]
+    }
+```
+
+</details>
+
+These are just static JSON files that nginx serves from disk. No logic, no templating at runtime. `mcp-remote` reads them and knows: "Ah, to talk to this MCP server, I need to authenticate via Authelia at `sso.internal.sunbury.xyz`."
+
+### The Two-Container Deployment
+
+The MCP server itself and the nginx gateway run as a sidecar pair in the same pod:
+
+<details>
+<summary><strong>Click to expand: Two-Container Pod Spec</strong></summary>
+
+```yaml
+containers:
+    - name: nginx
+      image: 'nginx:1.27-alpine'
+      securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+              drop:
+                  - ALL
+          readOnlyRootFilesystem: true
+      ports:
+          - name: http
+            containerPort: 8080
+      # ... volume mounts for config and metadata
+
+    - name: mcp-server
+      image: ghcr.io/pab1it0/prometheus-mcp-server:latest
+      env:
+          - name: PROMETHEUS_URL
+            value: 'http://prometheus.prometheus.svc.cluster.local:9090'
+          - name: PROMETHEUS_MCP_SERVER_TRANSPORT
+            value: 'http'
+          - name: PROMETHEUS_MCP_BIND_HOST
+            value: '0.0.0.0'
+          - name: PROMETHEUS_MCP_BIND_PORT
+            value: '8000'
+      startupProbe:
+          tcpSocket:
+              port: mcp
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          failureThreshold: 60
+```
+
+</details>
+
+nginx listens on 8080 (non-privileged, rootless), the MCP server listens on 8000. They talk over localhost. The security context is tight: `runAsUser: 65534` (nobody), all capabilities dropped, read-only root filesystem on nginx. The startup probe gives the MCP server 5 minutes to get ready, which it needs because the container installs pip dependencies on boot.
+
+### The Authelia OIDC Client
+
+On the Authelia side, this is registered as a **public client** with no client secret. Because `mcp-remote` runs on your local machine, it can't securely store a secret anyway. Instead, it uses [PKCE](https://datatracker.ietf.org/doc/html/rfc7636) (Proof Key for Code Exchange) with S256:
+
+- **Client ID**: `prometheus-mcp`
+- **Redirect URI**: `http://127.0.0.1/oauth/callback`
+- **Scopes**: `openid profile email`
+- **Grant type**: `authorization_code`
+- **PKCE**: Required, S256
+
+### The Payoff: The Cursor Config
+
+And here's what your `mcp.json` looks like at the end:
+
+```json
+{
+    "mcpServers": {
+        "prometheus": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote",
+                "https://prometheus-mcp.internal.sunbury.xyz/mcp",
+                "--host",
+                "127.0.0.1",
+                "--static-oauth-client-info",
+                "{\"client_id\":\"prometheus-mcp\"}",
+                "--transport",
+                "http-only"
+            ]
+        }
+    }
+}
+```
+
+No API keys. No tokens. No secrets. Just a URL and a client ID. When Cursor connects, your browser opens Authelia's SSO page. You log in (or you're already logged in), approve, and you're back. Exactly like the Atlassian experience.
+
+## The Gotchas
+
+This went smoother than my last infrastructure adventure, but there were still a few bumps worth calling out.
+
+**Don't forget DNS.** This sounds obvious, but when you're creating a new subdomain for an internal service, someone has to add the DNS entry. In my case, the agent forgot to add the Unbound alias and `mcp-remote` just threw `ENOTFOUND` errors. The fix was one small Terraform block:
+
+```hcl
+resource "opnsense_unbound_host_alias" "prometheus_mcp_internal_sunbury_xyz_alias" {
+  override = opnsense_unbound_host_override.k3s_1_svc.id
+  enabled  = true
+  hostname = "prometheus-mcp.internal"
+  domain   = "sunbury.xyz"
+}
+```
+
+**Use `127.0.0.1` for the redirect URI.** Pass `--host 127.0.0.1` to `mcp-remote` and register `http://127.0.0.1/oauth/callback` in Authelia. Authelia's loopback exception ignores the port during validation, so `mcp-remote` can use any available port.
+
+**The `resource` field must point to YOUR server.** In the `oauth-protected-resource` discovery document, the `resource` field has to be the URL of your MCP server, not the OIDC provider's issuer URL. The resource is what you're protecting, not who's doing the protecting.
+
+**SSE is deprecated. Use HTTP transport.** I initially built this with SSE (Server-Sent Events) transport because that's what the MCP server image defaulted to. The migration was a one-line change: `PROMETHEUS_MCP_SERVER_TRANSPORT` from `"sse"` to `"http"`, and the URL in the Cursor config uses `/mcp` as the endpoint. Pass `--transport http-only` to `mcp-remote` to make sure it uses the streamable HTTP transport and doesn't try to fall back to SSE.
+
+## Next Steps
+
+What I've built here is binary auth: you're either authenticated or you're not. The MCP server doesn't know or care _who_ you are. It just knows someone with a valid Authelia session is asking for Prometheus data.
+
+But the real power of OAuth in front of MCP servers is **per-user scoping**. Imagine a Confluence MCP server behind [Keycloak](https://www.keycloak.org/) where the server receives the authenticated user's identity and only returns pages that _you_ have access to. Or a GitHub MCP server that scopes its responses to your repositories. Or an internal documentation server that respects team boundaries.
+
+That's the next step. This will also be of interest to us at TNG. I have previously written my own MCP server to be able to talk to Confluence. Now with this TNG might be able to run the MCP server remotely and everyone just uses Keycloak to sign in.
+
+There's also the question of ergonomics. Right now, the `--static-oauth-client-info` flag and the `mcp-remote` wrapper are necessary because Cursor doesn't natively handle OAuth for arbitrary MCP servers. But that's changing. Atlassian's MCP server already uses Cursor's built-in auth support. No `mcp-remote` needed, just a URL. For self-hosted setups like mine, the missing piece is **dynamic client registration** ([RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591)). Instead of manually registering a client ID in Authelia, the MCP client would register itself on the fly. Authelia has this scheduled for version 4.40.0 (the current release is 4.39.x). Once that lands, the config could slim down to just a URL, identical to the Atlassian experience. No `mcp-remote`, no `--static-oauth-client-info`, no manual client registration.
+
+## Wrapping Up
+
+If you've got an OIDC provider running (Authelia, Keycloak, [Authentik](https://goauthentik.io/), whatever), this is a very achievable project. The pattern is straightforward: nginx as a gateway that serves OAuth metadata and validates tokens, your MCP server unchanged behind it, `mcp-remote` on the client side handling the flow.
+
+The config surface is small. The moving parts are well-understood. And the result is that your `mcp.json` stops being a secrets file.
+
+I'm planning a longer post about the full homelab overhaul: the CI/CD pipeline, the migration from Portainer, getting Authelia working after years of failed attempts. Stay tuned for that.
+
+---
+
+_In the meantime, what MCP servers are you running that could use proper auth? And if you've wired up something similar with Keycloak or Authentik, I'd love to hear how your setup differs._
