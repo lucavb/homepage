@@ -1,0 +1,178 @@
+---
+title: 'The Biggest Overhaul to My Homelab Setup Yet'
+description: 'My homelab was already working fine, but I rebuilt it anyway to get easier rollbacks, simpler disaster recovery, and a faster way to ship changes with AI.'
+publishDate: 2026-02-20
+tags: ['homelab', 'gitops', 'kubernetes', 'ai-coding', 'self-hosted', 'automation']
+heroImagePath: 'biggest-homelab-overhaul-yet/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/biggest-homelab-overhaul-yet/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="High-level infrastructure map of my homelab GitOps overhaul across multiple sites"
+    loading="eager"
+/>
+
+I should probably start with the most honest version of this story: **nothing was really broken** nor is anything strictly **necessary**.
+
+My homelab was running rather well. Services were up. The setup was usable. Life was okay.
+
+And then I decided to rebuild a huge chunk of it anyway, because why not.
+
+Not because I urgently had to. Not because a production outage forced me. Mostly because I wanted a better operating model: less "I hope this works," more "I know exactly what changed and how to undo it."
+
+## Why Migrate If It Already Works?
+
+You can run a perfectly fine homelab without OpenTofu, Ansible roles, Kubernetes charts, encrypted secrets in git, and a stack of CI workflows. Plenty of people do, and that is totally valid.
+
+I still went for it because I wanted a setup that feels calmer to operate and more professional:
+
+- Changes are tracked, diffable, and reproducible.
+- Rollbacks are straightforward.
+- Disaster recovery is less drama and more redeploying known-good state.
+- Adding a new service becomes a normal development workflow, not a one-off adventure.
+
+So yes, it is overkill. But it is useful overkill.
+
+## What Actually Changed
+
+At a high level, I moved from a mostly manual/container-by-container setup to a GitOps-style workflow across my homelab domains.
+
+That means infrastructure and platform changes now live in git and flow through commit → plan/lint → merge → deploy.
+
+In a team one would probably talk about PR reviews now. Since this is a one-man show, so the human review part is… minimal. But I still like having a “change preview” step before anything applies (even if it's just me looking at the diff), and I might add AI reviews for infrastructure changes to catch obvious mistakes early.
+
+The stack behind that includes:
+
+- [OpenTofu](https://opentofu.org/) for infrastructure domains (DNS, firewall/networking, [Proxmox](https://www.proxmox.com/) resources)
+- [Ansible](https://www.ansible.com/) for host/bootstrap configuration
+- [k3s](https://k3s.io/) + [Helm](https://helm.sh/) for platform workloads
+- [Forgejo Actions](https://forgejo.org/) for automation
+- [SOPS](https://getsops.io/) + [age](https://github.com/FiloSottile/age) for secrets
+
+This is spread across multiple sites, but managed from one repo with one consistent model.
+
+## Rough Infrastructure Diagram
+
+This is a simplified map of what I am running right now and how changes flow through the system:
+
+<MermaidDiagram
+    id="homelab-overhaul-architecture"
+    diagram={`
+flowchart TB
+    Dev[Developer]
+    Repo[HomeInfrastructureRepo]
+    Forgejo[ForgejoAndActions]
+    Runners[RunnerPool]
+
+    subgraph homeSite [HomeSite]
+        OPNsense[OPNsenseRouter]
+        K3sHome[K3sHomeCluster]
+        GarageHome[GarageS3StateAndStorage]
+        LegacyHome[LegacyLXCAndVMs]
+    end
+
+    subgraph vpsSite [VpsSite]
+        ProxmoxVps[ProxmoxHost]
+        LegacyVps[LegacyLXCWorkloads]
+    end
+
+    subgraph offsiteSite [OffsiteSite]
+        ProxmoxOffsite[ProxmoxHost]
+        GarageOffsite[GarageOffsiteBackup]
+        LegacyOffsite[LegacyLXCWorkloads]
+    end
+
+    Dev --> Repo
+    Repo --> Forgejo
+    Forgejo -->|"PR plan and lint"| Runners
+    Forgejo -->|"Merge to main deploy"| Runners
+
+    Runners -->|"OpenTofu and Ansible changes"| OPNsense
+    Runners -->|"Helm deploys"| K3sHome
+    Runners -->|"Proxmox and network via WireGuard"| ProxmoxVps
+    Runners -->|"Proxmox and network via WireGuard"| ProxmoxOffsite
+
+    K3sHome -->|"Backup target"| GarageOffsite
+    OPNsense --> ProxmoxVps
+    OPNsense --> ProxmoxOffsite
+
+    K3sHome --> LegacyHome
+    ProxmoxVps --> LegacyVps
+    ProxmoxOffsite --> LegacyOffsite
+
+`}
+/>
+
+## The Luxury You Get Back
+
+The practical wins are why I am sticking with this direction.
+
+### 1) Rollback Is Boring (In a Good Way)
+
+If I push a bad change, rollback is no longer "let me remember what I manually touched." It is usually just reverting a commit and letting the pipeline reconcile.
+
+That is a very different stress level.
+
+### 2) Disaster Recovery Gets Much Simpler
+
+With the desired state in code, recovery is less about heroic debugging and more about reapplying known configuration.
+
+Obviously you still need working backups and sane procedures. But having the environment encoded in git massively reduces the guesswork.
+
+### 3) Shipping New Services Is Faster
+
+The "how do I deploy this safely?" question is mostly solved once and reused.
+
+A lot of the work becomes normal iteration inside a familiar flow instead of custom scripting per app.
+
+## Of course AI is involved as well
+
+This was one of the reasons I wanted to do this in the first place: making my setup AI-friendly.
+
+Once infrastructure is declarative and organized, I can use AI tools to help me plan, draft, and implement changes with much better context than in ad-hoc shell sessions. It also gives me a path to automate generating large parts of the infrastructure code itself.
+
+And there is one thing I never thought I'd say: I kinda like [GPT-5.3 Codex](https://openai.com/index/introducing-gpt-5-3-codex). There, I said it. The guy who's been advocating for Anthropic models for month now likes GPT for once. It has been as good as the Claude Opus 4.6 family for me these past two weeks. It has reasonable planning/thinking capabilities, and it is cheaper than the Claude models in Cursor.
+
+Nowadays, I can just add new services or so quite easily to my homelab setup or get new ideas on what to improve.
+
+## What This Series Is Really About
+
+I want this series to document the migration, but also to make one point clear:
+
+**a proper homelab setup does not have to be that difficult.**
+
+You do not need to copy everything I built. You can start small and still get most of the benefits:
+
+- Put one infrastructure domain in git.
+- Add one plan/deploy workflow.
+- Encrypt one class of secrets properly.
+- Migrate one service into a repeatable deployment flow.
+
+That alone already changes how your homelab feels to operate.
+
+In follow-up posts, I will go deeper into:
+
+- the OpenTofu plan/deploy model for DNS, networking, and Proxmox
+- Kubernetes app delivery with Helm + Forgejo Actions
+- secrets management with SOPS + age
+- multi-site topology and what I would simplify if starting again
+- backup/restore and rollback drills
+
+## What Is Still Not Perfect
+
+This is still a migration in progress, not a finished "look how clean everything is" architecture tour.
+
+Some services are intentionally still where they are. Some edge cases are still manual. Some decisions will probably change again.
+
+But the direction is now much clearer, and more importantly, the system is easier to reason about under pressure.
+
+That alone made this overhaul worth doing.
+
+---
+
+_If your own setup currently "works, but feels fragile," you are exactly who I am writing this series for. What does your current homelab deployment process look like? Are you team "SSH and Docker run" or have you already made the jump to GitOps?_
