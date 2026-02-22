@@ -63,7 +63,7 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
         <Header isHomePage={false} />
 
-        <main id="main-content" class="pt-16">
+        <main id="main-content">
             <PageHero
                 title={entry.data.title}
                 description={entry.data.description}
@@ -74,7 +74,7 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
             />
 
             <!-- Blog Content -->
-            <section class="py-20 bg-white dark:bg-slate-950">
+            <section class="py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-950">
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     {
                         entry.data.draft && (
