@@ -56,7 +56,7 @@
     "devDependencies": {
         "@axe-core/playwright": "4.11.0",
         "@lhci/cli": "0.15.1",
-        "@playwright/test": "1.58.1",
+        "@playwright/test": "1.58.2",
         "husky": "9.1.7",
         "lint-staged": "16.2.7",
         "prettier": "3.8.1",
