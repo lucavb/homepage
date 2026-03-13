@@ -40,13 +40,13 @@
         "lighthouse": "lhci autorun"
     },
     "dependencies": {
-        "@astrojs/check": "0.9.6",
-        "@astrojs/mdx": "4.3.13",
-        "@astrojs/rss": "4.0.15",
-        "@astrojs/sitemap": "3.7.0",
+        "@astrojs/check": "0.9.7",
+        "@astrojs/mdx": "4.3.14",
+        "@astrojs/rss": "4.0.17",
+        "@astrojs/sitemap": "3.7.1",
         "@astrojs/tailwind": "6.0.2",
         "@tailwindcss/typography": "0.5.19",
-        "astro": "5.17.3",
+        "astro": "5.18.1",
         "astro-robots-txt": "1.0.0",
         "mermaid": "11.12.3",
         "rehype-autolink-headings": "7.1.0",
