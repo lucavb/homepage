@@ -1,0 +1,234 @@
+---
+title: 'Hardening npm as a Consumer and Publisher'
+description: 'Axios got compromised, but the bigger lesson is how to harden npm as a consumer and, if relevant to you, as a publisher too.'
+publishDate: 2026-04-06
+tags: ['npm', 'security', 'publishing', 'developer-tools']
+heroImagePath: 'hardening-npm-consumer-publisher/hero.jpg'
+draft: false
+relatedPosts: ['check-your-typescript-packages', 'cursor-sandboxing-leaks-secrets']
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/hardening-npm-consumer-publisher/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="npm logo inside a glowing shield representing package security and hardening measures"
+    loading="eager"
+/>
+
+As someone who spends most of his time in Node.js and TypeScript, npm security is a topic close to home.
+
+The recent [Axios incident](https://www.microsoft.com/en-us/security/blog/2026/04/01/mitigating-the-axios-npm-supply-chain-compromise/) was a wake-up call for me too. I had already moved away from long-lived npm tokens, partly because npm more or less pushed the ecosystem in that direction anyway. But on the consumer side, I still had work left to do. I had not rolled out minimum release age settings everywhere yet, and seeing how short the malicious Axios window was made that gap feel much less theoretical.
+
+There is an old joke about outrunning a bear: you do not need to be faster than the bear, just faster than the slowest person next to you. Security is not exactly like that, but only to a point. Perfect security is hard. Reducing your attack surface and making yourself a less convenient victim still matters a lot.
+
+## What Actually Happened
+
+Two malicious Axios versions, `1.14.1` and `0.30.4`, were published to npm through a compromised maintainer account. According to [Microsoft's incident write-up](https://www.microsoft.com/en-us/security/blog/2026/04/01/mitigating-the-axios-npm-supply-chain-compromise/) and the [Axios postmortem issue](https://github.com/axios/axios/issues/10636), the attacker did not visibly rewrite Axios itself. Instead, they injected a dependency called `plain-crypto-js@4.2.1`, which used a `postinstall` hook to drop a cross-platform RAT.
+
+That detail matters.
+
+This was not some random typo-squatted package with twelve weekly downloads. Axios is one of the most widely used packages in the JavaScript ecosystem. It was also not a nice clean example of malware where somebody wrote `node exploit.js` in broad daylight and called it a day. The payload was hidden behind a transitive dependency, install-time execution, and obfuscation. [StepSecurity's forensic write-up](https://www.stepsecurity.io/blog/axios-compromised-on-npm-malicious-versions-drop-remote-access-trojan) is worth reading for that reason alone. It shows how little had to visibly change in Axios itself for the release to become dangerous.
+
+The malicious versions were live for only a few hours before they were removed. [Microsoft says](https://www.microsoft.com/en-us/security/blog/2026/04/01/mitigating-the-axios-npm-supply-chain-compromise/) roughly three hours. [Axios's own postmortem](https://github.com/axios/axios/issues/10636) says about three hours as well. That is short enough to make the story feel almost comforting if you were lucky, and long enough to be a very real problem if your tooling happened to resolve those versions during that window.
+
+The main lesson I took from it is simple: popular packages are not safe by default.
+
+## npm Security Is Asymmetric
+
+Most npm security advice focuses on one side only.
+
+Pretty much everybody consumes packages. Not everybody publishes them. In theory, you can publish packages without really consuming any, but in practice that is rare enough that it barely changes the argument.
+
+So the consumer question applies to almost everyone: how do you limit blast radius when prevention fails anyway?
+
+The publisher question is narrower: if you publish packages, how do you make compromise harder?
+
+If you do both, you need both. But even if you never publish a single package in your life, the consumer side still matters because you are almost certainly pulling code from npm every day.
+
+Publisher-side hardening helps reduce the chance that your package gets hijacked. Consumer-side hardening helps you survive when somebody else's package gets hijacked. Those are related problems, but they do not apply equally to every reader.
+
+If you only consume packages and never publish them, skip ahead to the consumer section first. That is the part most likely to change your day-to-day risk profile fastest.
+
+## Publisher Side: How You Make Compromise Harder
+
+If you publish npm packages, the three controls I would push hardest are these:
+
+### 1. Publish From CI With Trusted Publishing
+
+If you are still publishing from a local machine with long-lived credentials floating around, I would change that first.
+
+Trusted Publishing with OIDC is the best default we currently have. npm's own [Trusted Publishing docs](https://docs.npmjs.com/trusted-publishers/) are pretty explicit about the goal: publish directly from CI/CD using OIDC, eliminate long-lived tokens, and use short-lived workflow-specific credentials instead. GitHub's own [OIDC docs](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/about-security-hardening-with-openid-connect) make the same argument from the workflow side: short-lived credentials are easier to scope and rotate than hardcoded secrets.
+
+It also makes provenance easier. npm's [provenance docs](https://docs.npmjs.com/generating-provenance-statements/) describe it as a way to publicly establish where a package was built and who published it.
+
+For GitHub Actions, the workflow shape is roughly this:
+
+```yaml
+permissions:
+    contents: read
+    id-token: write
+```
+
+That said, Axios is also a useful reminder that this is not magic. npm's own [Trusted Publishing page](https://docs.npmjs.com/trusted-publishers/) says the workflow is accepted "in addition to traditional authentication methods like npm tokens and manual publishes." That matters. If the registry still accepts other publish paths, a stolen maintainer account can bypass the nicer flow entirely. The Axios postmortem goes into that nuance in the discussion around the compromised release path. Trusted Publishing is still worth doing. It is just not enough on its own.
+
+### 2. Treat Maintainer Accounts Like Production Infrastructure
+
+Use WebAuthn or hardware-backed 2FA if you can. npm's [2FA documentation](https://docs.npmjs.com/configuring-two-factor-authentication) explicitly calls out security-key support via WebAuthn. If a package matters, the maintainer account matters too.
+
+Software-based 2FA on a compromised machine is better than nothing, but it is not the same thing as a hardware-backed security key. The more critical the package, the less I would want "my laptop got popped" to translate directly into "the package got popped too."
+
+The uncomfortable part here is that open source maintainers are increasingly real targets. Not theoretical targets. Real targets.
+
+### 3. Stop Tolerating Long-Lived Tokens
+
+This one is less glamorous, but it matters. Long-lived publish credentials are exactly the sort of thing that linger far longer than they should and quietly expand the blast radius of a compromise.
+
+I already moved away from long-lived npm PATs, and honestly, that now looks less like bureaucracy and more like overdue hygiene. npm itself nudges you in this direction now: its [package publishing settings docs](https://docs.npmjs.com/requiring-2fa-for-package-publishing-and-settings-modification) explicitly recommend Trusted Publishing for CI/CD and explain how granular tokens can bypass 2FA unless you disallow tokens entirely.
+
+Beyond that, I would also do the boring things:
+
+- Keep the published surface small with [`files` allowlists](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#files)
+- Run [`npm publish --dry-run`](https://docs.npmjs.com/cli/v9/commands/npm-publish/) or [`npm pack --dry-run`](https://docs.npmjs.com/cli/v9/commands/npm-publish/#files-included-in-package)
+- Make sure ownership and offboarding are not tied to one person's personal setup
+- Have a vague incident plan before you need one
+
+Security incidents are stressful enough without discovering in real time that nobody knows who can revoke what.
+
+## Consumer Side: How You Limit Blast Radius
+
+This is the side I think developers underrate.
+
+A lot of people have internalized the idea that if they pick reputable packages and keep things updated, they are being responsible. Sometimes that is true. Sometimes that is exactly how you ingest the bad release first.
+
+These are the consumer-side controls I care about most right now.
+
+### 1. Use a 3-Day Release Cooldown
+
+If your package manager supports minimum release age, I think a 3-day baseline for third-party dependencies is a very reasonable default.
+
+That is long enough to catch a lot of "published, detected, removed" incidents and short enough that it is still realistic for day-to-day development.
+
+It is not a universal drop-in setting for every environment, though. If you publish internal packages several times a day, need same-day upgrades, or occasionally have to fast-track a security fix, you will want exceptions instead of blindly applying the rule to absolutely everything.
+
+Examples:
+
+```ini
+# .npmrc
+min-release-age=3
+```
+
+```yaml
+# .yarnrc.yml
+npmMinimalAgeGate: '3d'
+```
+
+```yaml
+# pnpm-workspace.yaml
+minimumReleaseAge: 4320
+```
+
+Official docs for all three:
+
+- npm: [`min-release-age`](https://docs.npmjs.com/cli/v11/commands/npm-update#min-release-age)
+- Yarn: [`npmMinimalAgeGate`](https://yarnpkg.com/configuration/yarnrc#npmMinimalAgeGate)
+- pnpm: [`minimumReleaseAge`](https://pnpm.io/11.x/settings#minimumreleaseage)
+
+For consumers who were resolving fresh versions during the compromise window, the Axios incident is exactly the sort of thing these settings help with. The malicious versions were live for roughly three hours. A 3-day gate would have skipped them entirely. Yarn's docs even frame `npmMinimalAgeGate` as protection against compromised fresh packages, and pnpm's docs say the quiet part out loud too: malicious releases are often discovered and removed quickly enough that delay alone blocks a surprising amount of nonsense.
+
+Exceptions matter here too, and support varies by tool:
+
+- Yarn supports [`npmPreapprovedPackages`](https://yarnpkg.com/configuration/yarnrc#npmPreapprovedPackages), which lets you exempt trusted packages or patterns from the age gate
+- pnpm supports [`minimumReleaseAgeExclude`](https://pnpm.io/11.x/settings#minimumreleaseageexclude), which does the same and even allows version-specific exceptions
+- npm supports `min-release-age`, but as far as I can tell it does not yet have an official package-level exclusion mechanism
+
+That makes Yarn and pnpm easier to roll out in mixed environments where you want a default delay for third-party packages without blocking your own internal release flow.
+
+Examples:
+
+```yaml
+# .yarnrc.yml
+npmMinimalAgeGate: '3d'
+npmPreapprovedPackages:
+    - '@my-org/*'
+    - '@types/*'
+```
+
+```yaml
+# pnpm-workspace.yaml
+minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+    - '@my-org/*'
+    - webpack
+```
+
+This is also one of the changes I still want to roll out more consistently on my own side. That is part of why this incident stuck with me.
+
+### 2. Be More Skeptical About Install Scripts
+
+I do not think "disable all install scripts everywhere" is a realistic universal recommendation. Too many packages rely on them for legitimate setup.
+
+But I do think most people treat install-time code as far safer than it really is. npm's own docs for [`ignore-scripts`](https://docs.npmjs.com/cli/v11/commands/npm-update#ignore-scripts) exist for a reason.
+
+My current stance is:
+
+- Be much stricter in CI and other sensitive environments
+- Use `--ignore-scripts` when the situation allows it
+- Treat `postinstall` as a risk signal, not as a normal harmless detail
+
+That means nuance, not panic. But it does mean changing your default attitude from "this is probably fine" to "this deserves scrutiny."
+
+### 3. Verify Trust Signals Where Tooling Allows It
+
+If a package suddenly loses provenance, loses trusted publisher binding, or otherwise changes how it is released, that should be interesting to you. npm has official docs for both [generating provenance statements](https://docs.npmjs.com/generating-provenance-statements/) and [viewing package provenance](https://docs.npmjs.com/viewing-package-provenance/), and it even supports [`npm audit signatures`](https://docs.npmjs.com/generating-provenance-statements/#verifying-provenance-attestations) for verification.
+
+In practice, this part of the ecosystem is still patchy. Verification is often opt-in, and many teams do not check these signals today. But the principle is sound: if the release story changes in a suspicious way, your tooling should make noise.
+
+I would much rather have one annoying false positive than quietly install a malicious release because it had a familiar package name.
+
+### 4. Stop Being So Casual With Fresh Resolution
+
+This is where habits like blind `npx @latest` usage start looking worse.
+
+Fresh resolution at runtime is convenient, but convenience is exactly what makes these attack windows dangerous. The Axios postmortem discussion specifically calls out the risk of fresh resolution in CI and toolchains during the compromise window. Lockfiles, explicit versions, and a little more friction are boring. Boring is good here.
+
+## This Still Does Not Give You Total Security
+
+Even if you do all of the above, you are still not done.
+
+You may secure npm and your application dependency flow much better and still lose at the OS layer, the CI layer, or the maintainer-device layer. That is one reason the [`xz` backdoor](https://lwn.net/Articles/967192/) from 2024 keeps coming to mind when I think about this topic. Different ecosystem, different mechanics, same uncomfortable reminder: reviewing one layer does not mean you have reviewed the whole chain.
+
+That is also why I do not put much faith in the fantasy that AI is going to casually solve this for us. I am not anti-AI here. I use AI all the time. But once you are dealing with obfuscated payloads, lifecycle hooks, and transitive dependencies that exist only to trigger install-time behavior, this stops being a neat "just let the machine review it" story.
+
+Humans are not going to perfectly review everything. AI is not going to perfectly review everything either. The chain is too long, the incentives are messy, and attackers only need one useful gap.
+
+So no, I do not think the answer is perfect review. I think the answer is layered friction, better defaults, and fewer silent trust assumptions.
+
+## My Current npm Security Baseline
+
+In a nutshell, these are the current recommendations I would give today.
+
+### If You Publish Packages
+
+- Publish from CI using Trusted Publishing and OIDC
+- Use WebAuthn or hardware-backed 2FA for maintainer accounts
+- Remove long-lived publish tokens wherever you still can
+- Keep the published artifact small and predictable
+- Treat maintainer account security like production infrastructure, not like an afterthought
+
+### If You Consume Packages
+
+- Set a 3-day minimum release age where your package manager supports it
+- Be skeptical of install scripts, especially in CI and sensitive environments
+- Prefer tooling that can surface provenance and trust changes
+- Avoid fresh-resolution habits when you do not actually need them
+- Stop assuming that popular packages are safe just because they are popular
+
+None of this gives you perfect security. It does, however, give you a much better baseline than "use popular packages and hope for the best."
+
+Axios was the trigger for me to go back and tighten my own baseline. If you work in Node.js and TypeScript all day, I think it should probably do the same for you.
+
+---
+
+_If you publish npm packages or consume them at scale, I would be curious what your current baseline looks like. I suspect a lot of us have tightened the publisher side faster than the consumer side._
