@@ -77,7 +77,7 @@ export function generateBlogMetadata(blogPost: {
     thumbnail?: string;
     publishDate: Date;
     tags: string[];
-    slug: string;
+    id: string;
 }) {
     return generateMetadata({
         title: blogPost.title,
@@ -86,6 +86,6 @@ export function generateBlogMetadata(blogPost: {
         publishDate: blogPost.publishDate,
         tags: blogPost.tags,
         isArticle: true,
-        url: `/blog/${blogPost.slug}`,
+        url: `/blog/${blogPost.id}`,
     });
 }

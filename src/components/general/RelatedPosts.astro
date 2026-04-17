@@ -27,9 +27,9 @@ let relatedPosts: IBlogPost[] = [];
 
 if (relatedPostIds && relatedPostIds.length > 0) {
     relatedPosts = allPosts
-        .filter((post) => relatedPostIds.includes(post.slug))
+        .filter((post) => relatedPostIds.includes(post.id))
         .map((post) => ({
-            id: post.slug,
+            id: post.id,
             title: post.data.title,
             description: post.data.description,
             publishDate: post.data.publishDate,
@@ -42,8 +42,8 @@ if (relatedPostIds && relatedPostIds.length > 0) {
 
 if (relatedPosts.length < 3 && tags && tags.length > 0) {
     const tagBasedPosts = allPosts
-        .filter((post) => post.slug !== currentPostId)
-        .filter((post) => !relatedPostIds?.includes(post.slug))
+        .filter((post) => post.id !== currentPostId)
+        .filter((post) => !relatedPostIds?.includes(post.id))
         .map((post) => ({
             post,
             score: getTagScore(post.data.tags, tags),
@@ -57,7 +57,7 @@ if (relatedPosts.length < 3 && tags && tags.length > 0) {
         })
         .slice(0, 3 - relatedPosts.length)
         .map(({ post }) => ({
-            id: post.slug,
+            id: post.id,
             title: post.data.title,
             description: post.data.description,
             publishDate: post.data.publishDate,
@@ -72,12 +72,12 @@ if (relatedPosts.length < 3 && tags && tags.length > 0) {
 
 if (relatedPosts.length < 3) {
     const recentPosts = allPosts
-        .filter((post) => post.slug !== currentPostId)
-        .filter((post) => !relatedPosts.some((rp) => rp.id === post.slug))
+        .filter((post) => post.id !== currentPostId)
+        .filter((post) => !relatedPosts.some((rp) => rp.id === post.id))
         .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
         .slice(0, 3 - relatedPosts.length)
         .map((post) => ({
-            id: post.slug,
+            id: post.id,
             title: post.data.title,
             description: post.data.description,
             publishDate: post.data.publishDate,
