@@ -1,0 +1,156 @@
+---
+title: "git fsck Saved My Draft. And I Didn't Know It Existed Till It Did."
+description: "My blog post disappeared from the working tree. git fsck --lost-found and git cat-file got it back. I'd never heard of either command before."
+publishDate: 2026-04-21
+tags: ['git', 'ai-coding', 'cursor', 'developer-tools', 'productivity']
+heroImagePath: 'git-fsck-rescue-lost-blog-post/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/git-fsck-rescue-lost-blog-post/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="A single glowing git blob object being fished out with a hook from a sea of anonymous SHA-labeled dangling blobs"
+    loading="eager"
+/>
+
+I was in the middle of cleaning up a draft when my blog post disappeared. Not "moved to a different directory" disappeared. Just gone. The file wasn't in `src/content/blog/`. It wasn't in any subdirectory. Only the hero image I'd added earlier was still sitting in its folder. Checking git status made it worse: the file wasn't tracked, staged, or modified. It simply didn't exist.
+
+I'd been writing for a while and didn't have the stomach to start over. So I asked Cursor to figure out what happened and whether anything could be recovered. What followed was a short lesson in a corner of git I'd never had a reason to open.
+
+## Why the File Vanished
+
+The MDX had been staged (I'd run `git add` on it while working), but the working-tree copy had already been deleted by the time I unstaged it. `git restore --staged` removes the file from the index but leaves the working tree alone. If the working-tree copy is already gone, you end up with nothing on either side.
+
+But here's the thing: when you run `git add`, git doesn't just note that the file exists. It reads the file's contents, hashes them with SHA-1, and writes the result into `.git/objects/` as a **blob**. That blob has no name; it's addressed purely by the hash of its contents. And it stays there even after you unstage the file, even after you delete the file, even after you close the editor. It becomes what git calls a **dangling blob**: an object with no reference pointing at it.
+
+Dangling doesn't mean deleted. It just means nothing is talking about it yet.
+
+## The Cool Feature: `git fsck --lost-found`
+
+[`git fsck`](https://git-scm.com/docs/git-fsck) is a plumbing command: the low-level kind git ships with that's built for scripts and rarely changes between versions. It walks the entire object database and verifies connectivity, reporting any objects that aren't reachable from a known ref (branch, tag, HEAD, stash, reflog entry).
+
+The `--lost-found` flag does something extra: it physically writes those unreachable objects into `.git/lost-found/`. Dangling commits go into `.git/lost-found/commit/`, everything else (blobs, trees) into `.git/lost-found/other/`. For blobs specifically, it writes out the actual file contents, so after running the command you can literally do:
+
+```bash
+ls .git/lost-found/other/
+```
+
+and open those files with any editor to see what's in them.
+
+This is different from `git reflog`, which only recovers **commits**: things you actually committed, then reset or rebased away. Our file had been staged but never committed, so there was no commit and no reflog entry pointing at it. `git fsck` is the right tool precisely because it goes below commits, into the raw object store.
+
+## The Three Plumbing Commands That Open the Object Store
+
+Once you have a blob SHA, [`git cat-file`](https://git-scm.com/docs/git-cat-file) is how you read it. Three flags cover most of what you need:
+
+```bash
+git cat-file -t <sha>   # type: blob, tree, commit, or tag
+git cat-file -s <sha>   # size in bytes
+git cat-file -p <sha>   # contents (pretty-print)
+```
+
+These are also plumbing commands, deliberately human-unfriendly, built to be scripted against. Most developers never type them directly. The commands exist, they're stable, they work exactly as documented. They're just obscure enough that most people never bother learning them.
+
+## The Actual Recovery
+
+Cursor established that the file wasn't in any commit or reflog, then reached for `git fsck`. There were a lot of dangling blobs: old staged versions, amended commits, stash remnants. The approach was to walk every loose object, keep the blobs, and grep the first 30 lines for something distinctive from the draft:
+
+```bash
+for obj in $(find .git/objects -type f -not -path "*/pack/*" -not -path "*/info/*"); do
+  sha=$(echo "$obj" | sed 's|.git/objects/||;s|/||')
+  type=$(git cat-file -t "$sha" 2>/dev/null)
+  if [ "$type" = "blob" ]; then
+    if git cat-file -p "$sha" 2>/dev/null | head -30 | grep -qi "Agentic Execution"; then
+      size=$(git cat-file -s "$sha")
+      echo "MATCH: $sha ($size bytes)"
+    fi
+  fi
+done
+```
+
+That narrowed it down to one blob: 16 KB, first line `title: "GitHub's Agentic Execution Environment"`. Restoring it was one command:
+
+```bash
+git cat-file -p e58f347826f24d67dc95ed5318f60ffd57d97f34 > src/content/blog/github-agentic-execution-environment.mdx
+```
+
+Done. This is also the exact recipe in Pro Git's [Maintenance and Data Recovery chapter](https://git-scm.com/book/en/v2/Git-Internals-Maintenance-and-Data-Recovery), which I only discovered afterwards.
+
+Worth noting: the simpler approach would have been to just `ls .git/lost-found/other/` after running `git fsck --lost-found` and grep the files there directly, since the contents get written out. We ended up scripting against object SHAs instead, which works too, but the `lost-found` directory is the shortcut most people don't know about.
+
+## You Don't Have to Know the Commands Anymore
+
+I knew about `git reflog`. That's where my git recovery knowledge stopped. `git fsck` and `git cat-file` weren't things I'd ever reached for, and the shell loop up there is definitely not something I had sitting ready in my head.
+
+The point is: I didn't need to know them. Cursor tried `git log`, `git stash list`, and `git reflog` first, then went deeper when those came up empty. Git has a lot of commands I don't use on a weekly basis. I know they exist somewhere, but I'm not an expert in all of them, and I never had to be.
+
+The old situation was: you know the commands you've learned, and anything else means a detour through documentation or Stack Overflow before you can do anything. That detour added enough friction that most people just never went there. `git fsck` has always worked. I just had no reason to know about it. Now I don't need to. I can get the result without the prerequisite knowledge. Maybe you need to know a command exists to ask for it. Maybe not even that.
+
+I've written before about [how Cursor shifts from being a tool to something more like a thinking partner](/blog/cursor-from-tool-to-thinking-partner/). The depth of git I can actually reach just got wider, and I didn't have to study for it.
+
+## When This Won't Save You
+
+This rescue worked because I had staged the file at least once. That's the entire reason the blob existed. If any of the following apply, `git fsck --lost-found` will come up empty:
+
+- **You never ran `git add`.** If the file only ever lived in your working tree, git never hashed it. No blob was ever written. This is the most common real-world "git couldn't save me" situation.
+- **You edited a tracked file but didn't stage those edits.** `git restore`, `git checkout -- file`, or switching branches can overwrite your working-tree changes. If you hadn't staged them, they're just gone.
+- **`git gc` has already run and pruned the object.** The default window (`gc.pruneExpire`) is "2 weeks ago", after which unreachable objects get deleted. Run `git gc --prune=now` and anything unreferenced disappears immediately.
+- **The `.git` directory itself is gone.** `rm -rf .git`, a wiped disk, or real corruption takes the object store with it. fsck can't read what isn't there.
+- **The file is in `.gitignore`.** Ignored files are never candidates for `git add`; no blob, no recovery.
+- **You're using Git LFS.** LFS stores the large file payload outside git. fsck can only recover the small pointer file that git tracks, not the binary data it points to.
+- **Filenames are not recovered, only contents.** `git fsck --lost-found` gives you a pile of anonymous blobs. Fine when you're looking for one specific file and can grep for a distinctive phrase. Miserable if you're trying to reconstruct a whole directory of files after a bad reset: you'll get the content, but not which name belongs to which blob.
+- **Shallow or partial clones.** If the object was never fetched locally, it can't be recovered locally.
+
+All of the above depends on having run `git add` at least once. If you take one thing away from this: stage early, stage often, even on files you haven't committed yet. Once something is in the object store, losing it takes actual effort. Before that, git has no idea it exists.
+
+## Which Tool, When?
+
+In case it's useful to have this written out:
+
+<MermaidDiagram
+  id="git-recovery-decision-tree"
+  diagram={`
+flowchart TD
+    Start["Something is missing from git"]
+
+    WasAdded{"Ever ran git add\non this content?"}
+    GcRun{"git gc pruned it?\n(> 2 weeks unreachable)"}
+    WasCommitted{"Was it ever\ncommitted?"}
+    InReflog{"Still in\nreflog?\n(< 90 days)"}
+
+    ReflogReachable["git reflog\nrecovers the commit"]
+    FsckRecover["git fsck --lost-found\n+ git cat-file\nrecovers the blob"]
+    TrulyGone["Truly gone.\nNo recovery path."]
+    NeverInGit["Never in git.\nNo recovery path."]
+
+    Start --> WasAdded
+    WasAdded -->|"No"| NeverInGit
+    WasAdded -->|"Yes"| WasCommitted
+    WasCommitted -->|"Yes"| InReflog
+    InReflog -->|"Yes"| ReflogReachable
+    InReflog -->|"No (reset, rebase, force-push)"| GcRun
+    GcRun -->|"Yes"| TrulyGone
+    GcRun -->|"No"| FsckRecover
+    WasCommitted -->|"No (staged only)"| GcRun
+
+`}
+/>
+
+## How to Think About It
+
+[Git is a content-addressable filesystem](https://git-scm.com/book/en/v2/Git-Internals-Git-Objects): you hand it content, it hands you back a 40-character SHA-1 key, and you can always retrieve that content by key. `git add` is the moment you hand something over. After that, the object is in the store, and "unreferenced" is not the same as "deleted."
+
+[`git gc`](https://git-scm.com/docs/git-gc) is what eventually cleans up unreferenced objects, but it's lazy: the default prune window is two weeks. Two escape hatches to bookmark:
+
+- **`git reflog`**: recovers lost **commits** (bad resets, rebases). Retention is 90 days by default for reachable entries, 30 days for unreachable ones (`gc.reflogExpireUnreachable`). Worth knowing that second number exists, because it's lower than most people expect.
+- **`git fsck --lost-found` + `git cat-file`**: recovers lost **blobs and trees** (staged-but-never-committed content, like this case). Window is the standard two-week prune.
+
+The only genuinely unrecoverable state (short of disk failure) is running `git gc --prune=now` on something with no references. Everything else is a matter of finding the right SHA.
+
+---
+
+_Have you ever dug something out of git's object store the hard way? Or found a cleaner way to do it? I'd be curious to hear. This felt like discovering a trapdoor in the floor I'd been walking on for years._
