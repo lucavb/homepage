@@ -1,1 +1,2 @@
 .github/workflows/*.md
+.github/workflows/*.lock.yml
