@@ -57,7 +57,7 @@ jobs:
                   echo "Cache files: $(find .astro/cache -type f | wc -l)"
 
             - name: Upload artifact
-              uses: actions/upload-pages-artifact@v4
+              uses: actions/upload-pages-artifact@v5
               with:
                   path: ./dist
 
