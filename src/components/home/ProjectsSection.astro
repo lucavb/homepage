@@ -2,8 +2,9 @@
 import { info } from '@data';
 import SectionTitle from '@components/general/SectionTitle.astro';
 import ProjectCard from '@components/general/ProjectCard.astro';
+import type { IProject } from '@types';
 
-const featureProjects = info.projects.reduce((accumulator, project) => {
+const featureProjects = info.projects.reduce<IProject[]>((accumulator, project) => {
     if (accumulator.length < 6 && project.isFeatured) {
         accumulator.push(project);
     }

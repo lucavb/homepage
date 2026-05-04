@@ -135,12 +135,15 @@ import PageHero from '@components/general/PageHero.astro';
         // Phone number protection (keeping existing logic since it's unique)
         const phoneData = 'KzQ5IDE1MSA2MTg2NzQ5OA=='; // Base64 encoded phone
 
-        document.getElementById('phone-number').addEventListener('click', function () {
-            const decoded = atob(phoneData);
-            this.textContent = decoded;
-            this.style.cursor = 'default';
-            this.title = 'Phone number';
-        });
+        const phoneNumberEl = document.getElementById('phone-number');
+        if (phoneNumberEl) {
+            phoneNumberEl.addEventListener('click', function () {
+                const decoded = atob(phoneData);
+                this.textContent = decoded;
+                this.style.cursor = 'default';
+                this.title = 'Phone number';
+            });
+        }
 
         initEmailProtection([
             {
@@ -152,9 +155,9 @@ import PageHero from '@components/general/PageHero.astro';
         // Auto-reveal phone number after user interaction
         let hasInteracted = false;
         function revealOnInteraction() {
-            if (!hasInteracted) {
+            if (!hasInteracted && phoneNumberEl) {
                 hasInteracted = true;
-                document.getElementById('phone-number').click();
+                phoneNumberEl.click();
             }
         }
 

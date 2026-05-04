@@ -26,8 +26,8 @@ export interface IProject {
     title: string;
     isFeatured: boolean;
     thumbnail: string | ImageMetadata;
-    githubUrl: string;
-    liveUrl: string;
+    githubUrl?: string;
+    liveUrl?: string;
 }
 export interface IProjects {
     projects: IProject[];

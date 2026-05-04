@@ -14,7 +14,7 @@ const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
     return typeof src === 'object' && src !== null && 'src' in src;
 };
 
-const primaryUrl = liveUrl || githubUrl;
+const primaryUrl = liveUrl ?? githubUrl ?? '#';
 ---
 
 <article

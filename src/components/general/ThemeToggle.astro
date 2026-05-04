@@ -178,12 +178,15 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
         };
 
         function applyTheme(theme: string) {
+            const normalized: keyof typeof icons =
+                theme === 'light' || theme === 'dark' || theme === 'system' ? theme : 'system';
+
             const actualTheme =
-                theme === 'system'
+                normalized === 'system'
                     ? window.matchMedia('(prefers-color-scheme: dark)').matches
                         ? 'dark'
                         : 'light'
-                    : theme;
+                    : normalized;
 
             if (actualTheme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -198,13 +201,13 @@ const { id = 'theme-toggle', class: className = '', variant = 'dropdown' } = Ast
             // Update dropdown button icon
             const dropdownIcon = document.querySelector('[data-theme-icon]');
             if (dropdownIcon) {
-                dropdownIcon.outerHTML = icons[theme];
+                dropdownIcon.outerHTML = icons[normalized];
             }
 
             // Update toggle button states
             document.querySelectorAll('.theme-option').forEach((btn) => {
                 const btnTheme = btn.getAttribute('data-theme');
-                if (btnTheme === theme) {
+                if (btnTheme === normalized) {
                     btn.classList.add(
                         'bg-white',
                         'dark:bg-slate-700',
