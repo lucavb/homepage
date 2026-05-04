@@ -25,7 +25,8 @@ const featureProjects = info.projects.reduce((accumulator, project) => {
             <a
                 href="/projects"
                 class="btn-primary"
-                onclick="_paq && _paq.push(['trackEvent', 'Navigation', 'View All Projects', 'Homepage']);"
+                data-umami-event="Navigation"
+                data-umami-event-label="View All Projects"
             >
                 View All Projects
             </a>

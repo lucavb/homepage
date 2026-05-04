@@ -1,5 +1,3 @@
-// Matomo types are defined in src/types/matomo.ts and augment the global Window interface
-
 interface ScrollDepthTracked {
     [key: string]: boolean;
 }
@@ -24,7 +22,7 @@ function initScrollDepthTracking(): void {
         Object.keys(scrollDepthTracked).forEach((milestone) => {
             if (scrollPercent >= parseInt(milestone) && !scrollDepthTracked[milestone]) {
                 scrollDepthTracked[milestone] = true;
-                window._paq && window._paq.push(['trackEvent', 'Scroll Depth', milestone + '%', 'Homepage']);
+                window.umami?.track('Scroll Depth', { depth: milestone + '%' });
             }
         });
     }
@@ -42,7 +40,7 @@ function initSectionVisibilityTracking(): void {
             entries.forEach((entry) => {
                 if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
                     const sectionName = entry.target.id;
-                    window._paq && window._paq.push(['trackEvent', 'Section View', sectionName, 'Homepage']);
+                    window.umami?.track('Section View', { section: sectionName });
                     sectionObserver.unobserve(entry.target);
                 }
             });
@@ -76,19 +74,19 @@ function initTimeSpentTracking(): void {
 
         if (timeSpent >= 30 && !timeTracked['30s']) {
             timeTracked['30s'] = true;
-            window._paq && window._paq.push(['trackEvent', 'Engagement', 'Time Spent', '30 seconds']);
+            window.umami?.track('Time Spent', { duration: '30 seconds' });
         }
         if (timeSpent >= 60 && !timeTracked['60s']) {
             timeTracked['60s'] = true;
-            window._paq && window._paq.push(['trackEvent', 'Engagement', 'Time Spent', '1 minute']);
+            window.umami?.track('Time Spent', { duration: '1 minute' });
         }
         if (timeSpent >= 120 && !timeTracked['2m']) {
             timeTracked['2m'] = true;
-            window._paq && window._paq.push(['trackEvent', 'Engagement', 'Time Spent', '2 minutes']);
+            window.umami?.track('Time Spent', { duration: '2 minutes' });
         }
         if (timeSpent >= 300 && !timeTracked['5m']) {
             timeTracked['5m'] = true;
-            window._paq && window._paq.push(['trackEvent', 'Engagement', 'Time Spent', '5 minutes']);
+            window.umami?.track('Time Spent', { duration: '5 minutes' });
         }
     }
 
@@ -111,8 +109,6 @@ export function initHomepageAnalytics(): void {
     }
 }
 
-export function trackEvent(category: string, action: string, name?: string): void {
-    if (window._paq) {
-        window._paq.push(['trackEvent', category, action, name]);
-    }
+export function trackEvent(eventName: string, data?: Record<string, string | number | boolean>): void {
+    window.umami?.track(eventName, data);
 }

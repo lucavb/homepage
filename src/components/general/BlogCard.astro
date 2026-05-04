@@ -24,8 +24,8 @@ const formatDate = (date: Date) => {
     <a
         href={`/blog/${id}`}
         class="flex flex-col h-full p-5 hover:no-underline"
-        data-track-title={title}
-        onclick="_paq && _paq.push(['trackEvent', 'Blog', 'Post Click', this.dataset.trackTitle]);"
+        data-umami-event="Post Click"
+        data-umami-event-title={title}
     >
         <div class="aspect-[16/10] bg-slate-100 dark:bg-slate-700 rounded-lg mb-4 overflow-hidden">
             <BlogThumbnail thumbnail={thumbnail} heroImagePath={heroImagePath} title={title} />

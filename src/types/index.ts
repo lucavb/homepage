@@ -1,6 +1,6 @@
 import type { ImageMetadata } from 'astro';
 
-export * from './matomo';
+export * from './umami';
 
 export interface IMetaHead {
     title: string;

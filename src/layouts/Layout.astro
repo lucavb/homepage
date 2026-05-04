@@ -147,66 +147,34 @@ const structuredData = {
 
         <link rel="alternate" type="application/rss+xml" title="Luca Becker - Blog" href="/rss.xml" />
 
-        <!-- Matomo Analytics - GDPR Compliant, Cookieless -->
+        <!-- Umami Analytics - GDPR Compliant, Cookieless -->
+        <script
+            is:inline
+            async
+            src="https://t.sunbury.xyz/script.js"
+            data-website-id="e8dfbda3-dc5e-4cd9-ae4d-a221b4c504ea"
+            data-host-url="https://t.sunbury.xyz"
+            data-do-not-track="true"
+            data-domains="luca-becker.me"></script>
         <script is:inline>
-            var _paq = (window._paq = window._paq || []);
-
-            // Set tracker URL and site ID first
-            _paq.push(['setTrackerUrl', 'https://t.sunbury.xyz/matomo.php']);
-            _paq.push(['setSiteId', 1]);
-
-            // GDPR/Privacy configurations - NO COOKIES
-            _paq.push(['disableCookies']);
-            _paq.push(['setDoNotTrack', true]);
-
-            // Basic tracking
-            _paq.push(['trackPageView']);
-            _paq.push(['enableLinkTracking']);
-
-            // Enhanced outbound link tracking
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('a');
                 if (!link || !link.href) return;
-
                 var url = new URL(link.href, window.location.href);
                 var isExternal = url.hostname !== window.location.hostname;
                 var isDownload = /\.(pdf|zip|exe|dmg|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url.pathname);
-
-                if (isExternal && !isDownload) {
+                if (isDownload) {
+                    window.umami && window.umami.track('Download', { filename: url.pathname.split('/').pop() });
+                } else if (isExternal) {
                     var linkText = link.innerText || link.getAttribute('aria-label') || url.hostname;
-                    _paq.push(['trackEvent', 'Outbound Link', url.hostname, linkText.substring(0, 100)]);
-                } else if (isDownload) {
-                    var filename = url.pathname.split('/').pop();
-                    _paq.push(['trackEvent', 'Download', filename]);
+                    window.umami &&
+                        window.umami.track('Outbound Link', {
+                            hostname: url.hostname,
+                            text: linkText.substring(0, 50),
+                        });
                 }
             });
-
-            // Load tracker script
-            (function () {
-                var d = document,
-                    g = d.createElement('script'),
-                    s = d.getElementsByTagName('script')[0];
-                g.type = 'text/javascript';
-                g.async = true;
-                g.src = 'https://t.sunbury.xyz/matomo.js';
-
-                // Enable heartbeat timer after script loads
-                // Calling it from _paq queue doesn't work due to initialization timing,
-                // so we explicitly call it after the tracker is ready
-                g.onload = function () {
-                    if (window.Matomo && window.Matomo.getAsyncTracker) {
-                        var tracker = window.Matomo.getAsyncTracker();
-                        if (tracker && tracker.enableHeartBeatTimer) {
-                            tracker.enableHeartBeatTimer(15);
-                        }
-                    }
-                };
-
-                s.parentNode.insertBefore(g, s);
-            })();
         </script>
-
-        <!-- End Matomo Code -->
 
         <!-- Critical CSS - inline the most important styles -->
         <style>
