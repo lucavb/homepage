@@ -1,0 +1,179 @@
+---
+title: "Inspecting My Balcony Battery's Cloud Telemetry"
+description: 'A tcpdump capture led to a closer look at the Marstek B2500-D cloud endpoint: plain HTTP, AES-128-ECB, and a static key.'
+publishDate: 2026-05-10
+tags: ['solar', 'battery', 'security', 'reverse engineering', 'homelab', 'smart-home']
+heroImagePath: 'marstek-b2500-cloud-crypto-broken/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/marstek-b2500-cloud-crypto-broken/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Marstek B2500-D battery on a Munich balcony with translucent ciphertext streams and a cracked padlock overlay, illustrating broken cloud encryption"
+    loading="eager"
+/>
+
+I have a €310 Marstek B2500-D battery on my Munich balcony. Its WiFi kept dropping, so I ran `tcpdump` on my router to see what was happening on the wire. I was looking for a network problem. What I found was a cloud telemetry path worth documenting on its own.
+
+The battery sends telemetry to `eu.hamedata.com` over plain HTTP. The interesting request contains a URL-safe base64 blob that decrypts cleanly as AES-128-ECB with the static 16-byte key `hamedatahamedata` on my unit. The plaintext is a URL-encoded telemetry report with 51 fields, including state of charge, power flow, per-cell voltage extrema, and timestamps.
+
+The post really has two points:
+
+- Marstek's telemetry protection is effectively nonexistent.
+- AI has made the work needed to prove that much cheaper.
+
+In case you haven't read [the previous post](/blog/marstek-b2500-local-control-solar-battery/): I already run the battery entirely on local MQTT with two small Go services, one for metrics and one for control. No vendor cloud in the data path. This post is about what the battery still tried to send out anyway.
+
+## What tcpdump actually saw
+
+By the time I ran these captures the battery's MQTT was already pointing at my local Mosquitto broker (`10.1.1.5:1883`), so that traffic stayed on the LAN and wasn't interesting. What was still going out on the WAN side were two HTTP endpoints on `eu.hamedata.com`, both over **port 80**. That alone was enough to make me look closer.
+
+The first is a date-sync call that fires roughly every five minutes:
+
+```
+GET /app/neng/getDateInfoeu.php?uid=3601115030374d33300f1365&fcv=202310231502&aid=HMJ-2&sv=110&sbv=9&mv=105 HTTP/1.1
+Host: eu.hamedata.com
+```
+
+The second is the interesting one, and it doesn't appear nearly as often:
+
+```
+GET /prod/api/v1/setB2500Report?v=ss9sEnibFHEUtcXviQsKxcQ... HTTP/1.1
+Host: eu.hamedata.com
+```
+
+The `v=` parameter is URL-safe base64. The server replies with `{"code":1,"msg":"ok"}`. That's the entire conversation.
+
+## Looking at the payload
+
+Base64-decoding `v=` gives exactly **448 bytes**. Three things stood out immediately:
+
+- `448 / 16 = 28`: a perfect multiple of 16, which makes a block cipher plausible.
+- Shannon entropy is about 7.5 bits per byte in this sample, high enough to be consistent with either encryption or compression.
+- All 28 sixteen-byte blocks are distinct in this capture, so the ciphertext does not prove ECB on its own.
+
+None of that proves AES, let alone ECB. It did justify trying the obvious AES-shaped possibilities first: ECB, CBC, maybe CTR, with a short fixed key hidden somewhere in firmware.
+
+## Trying the obvious stuff first
+
+I started by giving Cursor the capture and seeing how far it could get with very little hand-holding. One of the first things it did was try the laziest plausible path: short device strings, product names, and obvious vendor words, repeated or padded into AES keys and thrown at the ciphertext. `b2500`, `HMJ-2`, pieces of the device UID, `hame`, `marstek`, `hamedata`, plus a few truncated digest variants. The generated harness tried AES-128 and AES-256 in ECB and CBC mode with a zero IV, because those are the usual low-effort mistakes.
+
+I scored each result with a very simple heuristic: valid PKCS#7 padding on the last block and enough printable ASCII near the front that it looked like telemetry rather than binary garbage. That is not a proof of anything. It was just a quick way to separate obvious nonsense from candidates worth staring at for another minute.
+
+That first pass did not produce anything convincing. A few outputs looked just plausible enough to waste time on, then fell apart after the first block. So the problem was probably not "try more hashes." It was that I was searching the wrong shape of key.
+
+## A clue from `hame-relay`
+
+The thing that nudged me out of that loop was [`tomquist/hame-relay`](https://github.com/tomquist/hame-relay), the same project that helped me understand the battery's MQTT protocol in the first place. Its `encryption.ts` is for a different Hame endpoint, but the interesting part was not the exact algorithm. It was the taste level: AES-128, short ASCII key material, and very little ceremony around it.
+
+That clue was enough for Cursor to keep pushing in the right area. It biased the candidate generator toward short ASCII strings, especially ones that look like branding or protocol labels and can be repeated cleanly to 16 bytes, then retried AES-128-ECB. `hamedatahamedata` was the first result that stopped looking accidental: valid padding, readable output, and a first block that started like this:
+
+```
+devid=3601115030374d33300f1365&s...
+```
+
+That is the start of a URL-encoded query string, which is the first point where this stopped feeling like a scoring artifact and started feeling real. I still did not trust it fully. A plausible decrypt is not the same thing as a verified interpretation of what the battery sends.
+
+For process clarity: I did not hand-write the cracking harness, and I did not have to supply much search direction either. Cursor did most of that work, and it did it quickly. What I mainly contributed was the packet capture, the ability to sanity-check whether the output matched reality, and the final verification against live device traffic. That is worth stating plainly because it is part of the story too: this was not a difficult reverse-engineering job once the tooling loop got cheap enough.
+
+## What the battery actually tells the cloud
+
+The full plaintext is a URL-encoded query string, 51 fields, 434 bytes after stripping PKCS#7 padding. A redacted sample, with the device serial replaced:
+
+```
+devid=<DEVICE_SERIAL>
+soc=44           # battery state of charge, %
+bi=0             # battery charge power, W
+bo=181           # battery discharge power, W
+pv=47            # total solar input, W
+iv=222           # inverter output, W
+pv1=24           # MPPT1 solar input, W
+pv2=23           # MPPT2 solar input, W
+pv1v=44107       # MPPT1 voltage, mV
+pv2v=44257       # MPPT2 voltage, mV
+out1v=33007      # output 1 voltage, mV
+out2v=27057      # output 2 voltage, mV
+bid=1399         # battery charged today, Wh
+bod=611          # battery discharged today, Wh
+pvd=3098         # solar generated today, Wh
+ivd=2136         # inverter output today, Wh
+b0max=3272       # highest cell voltage in pack 0, mV
+b0min=3270       # lowest cell voltage in pack 0, mV
+b0maxn=11        # index of highest-voltage cell
+b0minn=14        # index of lowest-voltage cell
+tn=105           # output power threshold, W
+wbs=3            # WiFi/BT status
+date=2026-4-20 12:00:00
+```
+
+The important observation is that this is a **strict superset** of the `cd=1` MQTT status payload that [Part 2's exporter](https://github.com/lucavb/prometheus-marstek-mqtt-exporter) scrapes. Per-cell voltage min and max with cell indices, per-MPPT voltages in millivolts, per-output voltages in millivolts: none of that is in the MQTT stream. The cloud endpoint has the richer data.
+
+## Why there's a cloud emulator in the exporter repo
+
+In [Part 2](/blog/marstek-b2500-local-control-solar-battery/) I mentioned that the exporter repo ships an optional cloud emulator. The short version is that I needed a way to answer the battery locally while I checked whether I was interpreting the decrypted fields correctly.
+
+Decrypting the blob was the easy part. The harder part was deciding whether fields like `pv1v`, `b0max`, or `tn` meant what I thought they meant and whether the battery would keep talking long enough for me to compare them against MQTT and observed behaviour. So I redirected the battery's outbound HTTP traffic on my local network to a small server that accepts `setB2500Report`, logs the payload, and replies with `{"code":1,"msg":"ok"}`. That meant a tiny HTTP server plus a DNS override on OPNsense pointing `eu.hamedata.com` at my homeserver. The [prometheus-marstek-mqtt-exporter](https://github.com/lucavb/prometheus-marstek-mqtt-exporter) ships that server as the cloud emulator.
+
+With the DNS override in place, nothing from the battery reaches Hame's infrastructure and I get a clean log of everything it tries to send. That was useful as a verification tool, not as a full model of the vendor backend. It told me that my decrypt matched live device traffic closely enough to trust the field mapping. It did **not** tell me much about whatever server-side validation Hame may or may not do, and it did **not** fix the WiFi problem that sent me down this path in the first place.
+
+## What I verified, and what I did not
+
+What I verified from my own captures and test setup:
+
+- The battery on my network talks to `eu.hamedata.com` over plain HTTP.
+- The `setB2500Report` request carries a URL-safe base64 blob that decrypts cleanly with AES-128-ECB and the key `hamedatahamedata`.
+- The resulting plaintext is a URL-encoded telemetry report whose overlapping fields line up with what I see locally over MQTT.
+- A local emulator that accepts the same request shape is enough to keep the battery talking while I log the decrypted payload.
+
+What I did **not** fully verify from this alone:
+
+- whether the same key is shared across every firmware revision or hardware variant
+- what server-side checks, if any, Hame applies beyond accepting a correctly shaped report
+- whether the same design is used identically outside the B2500-D line
+
+## Why this is a problem
+
+If you're running a B2500-D and you haven't redirected or blocked its WAN traffic (which is most people, because the default setup is just to let it talk to the cloud), here's what that means in practice:
+
+**Static client-side key.** On my unit, the telemetry decrypts with the fixed key `hamedatahamedata`. If that key is shared across the wider B2500-D firmware line, extracting it once would be enough to read other devices' reports too. The surrounding Hame ecosystem suggests that kind of design is not unusual here.
+
+**ECB mode.** [ECB](<https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Electronic_codebook_(ECB)>) leaks structure whenever plaintext blocks repeat. My sample happened not to contain duplicate blocks, so the usual penguin-picture demo does not show up here. The mode choice is still a bad one for structured telemetry.
+
+**No visible client-side integrity check.** The request is just a GET with a base64 parameter. From the client side, I do not see an HMAC, signature, nonce, or anything similar. That means an on-path attacker can read the ciphertext, and can likely modify or replay reports if the server accepts any correctly encrypted payload for that device identifier. I did not fully characterize the server's validation logic.
+
+**Plain HTTP.** Anyone on the network path gets the ciphertext for free. There is no TLS layer forcing an attacker to do anything more interesting than packet capture.
+
+**Sensitive telemetry.** `devid` is a unique device identifier. State of charge, solar input, per-cell voltages, and a wall-clock timestamp are enough to build a fairly detailed picture of household energy use. That was already more data than I wanted leaving the apartment. Plain HTTP plus a static client-side key makes the privacy story much worse.
+
+I am not claiming a sophisticated targeted attack here. The narrower claim is that the vendor's protection scheme is poor enough that anyone on the path can capture the reports, and that the client-side design appears to make report tampering plausible as well.
+
+## Disclosure
+
+The decryption key and payload format have been publicly visible in the [prometheus-marstek-mqtt-exporter](https://github.com/lucavb/prometheus-marstek-mqtt-exporter) repository for about two weeks before this post went up. I emailed Marstek on May 3rd, gave them a week to respond, and published this post on May 10th regardless. I had also emailed them previously about the WiFi drops that led me here and got no reply to that either.
+
+The Hame firmware crypto pattern is already effectively public: [`hame-relay`](https://github.com/tomquist/hame-relay), [`esphome-b2500`](https://github.com/tomquist/esphome-b2500), and [`hm2mqtt`](https://github.com/wired-mind/hm2mqtt) all document sibling keys for other Hame endpoints. Adding one more static key to that record doesn't meaningfully change what an attacker can do, and the practical mitigation (cut the cloud path and control the device locally) is exactly what [Part 2](/blog/marstek-b2500-local-control-solar-battery/) walks through in detail.
+
+If Marstek gets in touch, I'll update this post.
+
+## The battery has opinions about uptime
+
+While I was digging into all of this, I also found out what happens when the local MQTT broker becomes unreachable for more than about 20 seconds on my setup: the battery stops discharging and resets its WiFi credentials. You have to go back into the phone app to re-enter them.
+
+That matters here because the obvious mitigation is to stop sending cloud traffic at all and keep the device local. Doing that works, but it raises the operational cost of keeping the local path reliable.
+
+I have been making the broker progressively more resilient. It now runs behind a virtual IP, with a watchdog that monitors the primary instance and fails over to a backup broker if it goes unresponsive. Marstek support also sent me an unlocked `116` firmware to try, but that did not fix the problem either.
+
+For now the practical band-aid is a tiny ESP32 that nudges the battery back into service after it drops the connection on its own. Less elegant than fixing the root cause, but better than finding the battery offline again.
+
+It's a lot of infrastructure to protect a €310 device from its own firmware.
+
+## What started as a WiFi bug
+
+What started in [Part 1](/blog/balcony-solar-prometheus-ai-journey/) as panels on a balcony, and in [Part 2](/blog/marstek-b2500-local-control-solar-battery/) as two small Go services, ended here as a pcap, a scoring function, and the word `hamedata` written twice. The battery still does the practical job I bought it for. The cloud side is harder to defend.
+
+The interesting part is not that cheap hardware sometimes ships with bad security decisions. It is how little work it now takes to confirm that a vendor has built a telemetry scheme like this once you have a capture. In this case, Cursor was genuinely useful: I could hand it the traffic and get to a real answer without much friction. That changes the economics of auditing and breaking this class of thing in a way vendors should find uncomfortable.
+
+As for the original WiFi problem: not solved, at least not cleanly. The HTTP side turned out not to be the culprit, the cloud emulator did not fix it, and even the unlocked `116` firmware from Marstek support did not make it go away. What I understand better now is the failure mode: the battery is touchy about connectivity in general, and especially about MQTT availability. For the moment, a more resilient broker setup plus the small ESP32 recovery helper is enough to keep the system usable while I keep poking at the root cause.
