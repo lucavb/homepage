@@ -1,0 +1,103 @@
+---
+title: 'Not All UUIDs Are Created Equal'
+description: 'Five UUID-looking identifiers, one subtle bug, and a reminder that platform ids do not always mean what you think they mean.'
+publishDate: 2026-05-13
+tags: ['aws', 'debugging', 'typescript', 'security', 'zod']
+heroImagePath: 'not-all-uuids-created-equal/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import UuidGuidValidatorDemo from '../../components/general/UuidGuidValidatorDemo.astro';
+import heroImage from '../../assets/images/blog/not-all-uuids-created-equal/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="UUID-like identifiers on a dark screen with a magnifying glass highlighting an invalid variant nibble"
+    loading="eager"
+/>
+
+Look at these five identifiers for a second:
+
+- `123e4567-e89b-42d3-a456-426614174000`
+- `550e8400-e29b-41d4-a716-446655440000`
+- `018f62d0-5c9b-7c4a-8f21-9b37b6d4a102`
+- `a8098c1a-f86e-4b52-bf1f-4d2f5c8a7e91`
+- `c1a6f9b2-4d87-7a31-1c52-8e6f4b2d9a70`
+
+Can you name what they are? Do you spot anything unusual?
+
+My first answer would have been something like this: these are UUIDs, right? Quite evidently. Two are not UUID v4 because they do not have a `4` at the start of the third group, so they must be different versions, but still UUIDs.
+
+That is exactly the trap. I know / knew the rule for UUID v4: the first character in the third group is `4`. What I did not know was that there is another restriction with regards to the fourth group, and I definitely did not know that AWS Cognito uses the word "UUID" without promising strict [RFC 9562](https://www.rfc-editor.org/rfc/rfc9562.html) (the actual UUID standard) compliance.
+
+The odd one out is the last value. It still looks exactly like the kind of dashed hex string most of us would casually call a UUID. It even looks version-7-ish because the third group starts with `7`. But it is not a strict RFC UUID, because the first character in the fourth group is `1`, and strict validation expects `8`, `9`, `a`, or `b` there.
+
+Some online validators will happily call something like that "v7" because they mostly look at the version nibble in the third group. That is how you end up with two tools sounding contradictory while both are doing what they were designed to do.
+
+Try the values above in this checker:
+
+<UuidGuidValidatorDemo />
+
+## The Bug
+
+I ran into this while working on a post-signup communication preferences flow in a B2C web app. New users could immediately choose which messages they wanted to receive. For a while, that flow worked. Then it suddenly did not.
+
+The funny part is that the debugging itself was not dramatic. I fed the error into an agent, and within minutes it pointed at the actual mismatch: a Cognito user id was being treated as a strict RFC UUID even though Cognito never promised that.
+
+The backend needed to look up a user in a CRM through a query endpoint. That meant we had to interpolate the authenticated user's stable identity-provider id into a query string. To keep that safe, we put a Zod validator in front of it. The intent was sensible: only allow a tightly bounded identifier shape into that query.
+
+The code looked roughly like this:
+
+```ts
+// before
+z.uuid().parse(userId);
+
+// after
+z.guid().parse(userId);
+```
+
+The important detail is not really Zod itself. It is the assumption behind `z.uuid()`: if something looks like a UUID, then surely it should pass a UUID validator.
+
+## Why It Took A While
+
+What makes this bug interesting to me is how long it took to notice. We must have been getting lucky for quite some time.
+
+There are two timing factors here. First, [Zod 4 made `z.uuid()` stricter](https://v4.zod.dev/v4/changelog?id=stricter-uuid): it now enforces the RFC version and variant bits instead of accepting any dashed 8-4-4-4-12 hex shape. Second, Cognito does not issue ids that trip that stricter rule every single time. So the bug needed both things to line up: stricter validation, plus one legitimate id with the "wrong" variant nibble.
+
+That is why this kind of problem feels random at first. Nothing in the user flow changed. Nothing in the CRM changed. A real user just happened to arrive with an identifier that exposed a contract mismatch we had been carrying around for a while.
+
+## The Actual Mismatch
+
+The key distinction is simple:
+
+- `z.uuid()` means "this value is a strict RFC UUID"
+- `z.guid()` means "this value has the familiar UUID-like 8-4-4-4-12 hex layout"
+
+`UUID` is short for `Universally Unique Identifier`. `GUID` is `Globally Unique Identifier`. In day-to-day developer language, people often use them almost interchangeably or (like me) say UUID and kinda only mean GUI. In this case, though, the distinction is useful: `guid` is basically the "UUID-shaped identifier" bucket, while `uuid` is the stricter RFC one.
+
+That difference matters if your identifier comes from a platform that treats it as an opaque unique label rather than as a standards-pure UUID. Cognito does exactly that. In the AWS docs, the glossary says:
+
+> Amazon Cognito UUIDs are unique per user pool or identity pool, but don't conform to a specific UUID format.
+
+Source: [AWS Cognito glossary](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-terms.md#terms-uuid)
+
+Once I saw that sentence, the whole bug stopped being mysterious. We were validating against the contract we wished we had, not the one the platform actually documented.
+
+And for this specific query parameter, `z.guid()` still kept the security property we cared about. It only allows hexadecimal characters and hyphens in a fixed layout. There is no quote, whitespace, or SOQL syntax available there, so there is no room for that value to break out of the surrounding string literal. We still had a tight boundary. It was just the right boundary this time.
+
+## The Lesson
+
+The broader lesson has very little to do with Cognito specifically.
+
+Opaque platform ids should usually stay opaque. If an external system gives you a stable identifier, resist the urge to "improve" the contract by validating it more strictly than the issuer does. That often feels safer, but sometimes it just means you are inventing a failure mode the platform never had.
+
+This is also a good reminder that partial format knowledge can be misleading. I knew the v4 `4` in the third group. I did not know the fourth-group variant restriction. I suspect a lot of developers are in the same boat: enough UUID knowledge to feel confident, not enough to notice when a validator is making a stronger claim than the platform documentation.
+
+So the next time you see a UUID-looking string, it is worth asking one extra question before you validate it: is this actually an RFC UUID, or is it just UUID-shaped?
+
+That is a small distinction right up until it breaks a real user flow.
+
+---
+
+_Have you run into platform identifiers that looked standard until they weren't? I am curious what other "looks like X, must be X" bugs are hiding in the wild._

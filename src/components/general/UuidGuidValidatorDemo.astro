@@ -1,0 +1,203 @@
+---
+interface Props {
+    presets?: string[];
+}
+
+const defaultPresets = [
+    '123e4567-e89b-42d3-a456-426614174000',
+    '550e8400-e29b-41d4-a716-446655440000',
+    '018f62d0-5c9b-7c4a-8f21-9b37b6d4a102',
+    'a8098c1a-f86e-4b52-bf1f-4d2f5c8a7e91',
+    'c1a6f9b2-4d87-7a31-1c52-8e6f4b2d9a70',
+];
+
+const { presets = defaultPresets } = Astro.props;
+---
+
+<div
+    class="my-8 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+    data-uuid-guid-demo
+    data-presets={JSON.stringify(presets)}
+>
+    <div class="border-b border-gray-200 bg-gray-100 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Interactive Checker</span>
+    </div>
+
+    <div class="bg-white p-6 dark:bg-gray-900">
+        <div class="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
+            <div>
+                <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Preset IDs</h4>
+                <div class="space-y-2" data-preset-list>
+                    {
+                        presets.map((preset, index) => (
+                            <button
+                                type="button"
+                                class="block w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-left font-mono text-xs text-gray-700 transition-colors hover:border-blue-300 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:border-blue-500 dark:hover:bg-gray-800"
+                                data-preset-value={preset}
+                                data-preset-index={index}
+                            >
+                                {preset}
+                            </button>
+                        ))
+                    }
+                </div>
+
+                <label
+                    class="mt-5 block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                    for="uuid-guid-demo-input"
+                >
+                    Try your own
+                </label>
+                <input
+                    id="uuid-guid-demo-input"
+                    type="text"
+                    spellcheck="false"
+                    autocomplete="off"
+                    class="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                    data-uuid-input
+                    value={presets[presets.length - 1]}
+                />
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    The checker mirrors Zod 4's strict UUID shape and its looser GUID-style 8-4-4-4-12 shape.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">Result</h4>
+                <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+                    <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Current value</p>
+                    <p class="mt-2 break-all font-mono text-sm text-gray-900 dark:text-gray-100" data-current-value></p>
+
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                        >
+                            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">GUID-like</p>
+                            <p class="mt-2 text-sm font-semibold" data-guid-status></p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                Loose 8-4-4-4-12 hexadecimal layout
+                            </p>
+                        </div>
+                        <div
+                            class="rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                        >
+                            <p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">Strict UUID</p>
+                            <p class="mt-2 text-sm font-semibold" data-uuid-status></p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                RFC-style version and variant constraints
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3 dark:border-blue-900/60 dark:bg-blue-950/30"
+                    >
+                        <p class="text-sm text-blue-900 dark:text-blue-100" data-analysis></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const guidRegex = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$/;
+    const uuidRegex =
+        /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
+
+    function getStatusText(matches: boolean): string {
+        return matches ? 'Passes' : 'Fails';
+    }
+
+    function getStatusClasses(matches: boolean): string {
+        return matches ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400';
+    }
+
+    function explainValue(value: string, guidMatches: boolean, uuidMatches: boolean): string {
+        if (!value) {
+            return 'Paste a UUID-looking value above to compare the two checks.';
+        }
+
+        if (!guidMatches) {
+            return 'This does not even match the basic 8-4-4-4-12 hexadecimal layout, so both checks reject it.';
+        }
+
+        if (uuidMatches) {
+            return 'This one passes both checks. It is UUID-shaped and also satisfies the stricter RFC-style version and variant rules.';
+        }
+
+        const groups = value.split('-');
+        const versionNibble = groups[2]?.[0];
+        const variantNibble = groups[3]?.[0];
+
+        if (versionNibble && !/[1-8]/i.test(versionNibble)) {
+            return `It keeps the UUID-like shape, but the third group starts with "${versionNibble}". Strict UUID validation expects a version nibble between 1 and 8 there.`;
+        }
+
+        if (variantNibble && !/[89ab]/i.test(variantNibble)) {
+            return `It keeps the UUID-like shape, but the fourth group starts with "${variantNibble}". Strict UUID validation expects 8, 9, a, or b there for the RFC variant bits.`;
+        }
+
+        return 'It matches the loose GUID-like shape but still fails the stricter UUID regex.';
+    }
+
+    function updateDemo(root: Element, value: string): void {
+        const currentValue = root.querySelector<HTMLElement>('[data-current-value]');
+        const guidStatus = root.querySelector<HTMLElement>('[data-guid-status]');
+        const uuidStatus = root.querySelector<HTMLElement>('[data-uuid-status]');
+        const analysis = root.querySelector<HTMLElement>('[data-analysis]');
+        const presetButtons = root.querySelectorAll<HTMLButtonElement>('[data-preset-value]');
+        const normalizedValue = value.trim();
+        const guidMatches = guidRegex.test(normalizedValue);
+        const uuidMatches = uuidRegex.test(normalizedValue);
+
+        if (currentValue) currentValue.textContent = normalizedValue || 'No value entered';
+
+        if (guidStatus) {
+            guidStatus.textContent = getStatusText(guidMatches);
+            guidStatus.className = `mt-2 text-sm font-semibold ${getStatusClasses(guidMatches)}`;
+        }
+
+        if (uuidStatus) {
+            uuidStatus.textContent = getStatusText(uuidMatches);
+            uuidStatus.className = `mt-2 text-sm font-semibold ${getStatusClasses(uuidMatches)}`;
+        }
+
+        if (analysis) {
+            analysis.textContent = explainValue(normalizedValue, guidMatches, uuidMatches);
+        }
+
+        presetButtons.forEach((button) => {
+            const isActive = button.getAttribute('data-preset-value') === normalizedValue;
+            button.classList.toggle('border-blue-500', isActive);
+            button.classList.toggle('bg-blue-50', isActive);
+            button.classList.toggle('dark:bg-blue-950/30', isActive);
+        });
+    }
+
+    function initializeUuidGuidDemo(root: Element): void {
+        const input = root.querySelector<HTMLInputElement>('[data-uuid-input]');
+        const presetButtons = root.querySelectorAll<HTMLButtonElement>('[data-preset-value]');
+
+        if (!input) return;
+
+        updateDemo(root, input.value);
+
+        input.addEventListener('input', () => updateDemo(root, input.value));
+
+        presetButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const value = button.getAttribute('data-preset-value') || '';
+                input.value = value;
+                updateDemo(root, value);
+            });
+        });
+    }
+
+    function initializeAllUuidGuidDemos(): void {
+        document.querySelectorAll<HTMLElement>('[data-uuid-guid-demo]').forEach((root) => initializeUuidGuidDemo(root));
+    }
+
+    document.addEventListener('DOMContentLoaded', initializeAllUuidGuidDemos);
+    document.addEventListener('astro:after-swap', initializeAllUuidGuidDemos);
+</script>
