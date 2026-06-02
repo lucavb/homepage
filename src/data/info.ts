@@ -5,6 +5,7 @@ import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thum
 import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
 import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
 import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
+import portglassImage from '../assets/images/portglass-thumbnail.jpg';
 
 export const info = {
     baseUrl: 'https://luca-becker.me',
@@ -191,6 +192,13 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             liveUrl: 'https://ghcr.io/lucavb/hoymiles-wifi-exporter',
             thumbnail: hoymilesImage,
             title: 'Hoymiles WiFi Exporter',
+        },
+        {
+            githubUrl: 'https://github.com/lucavb/portglass',
+            isFeatured: false,
+            liveUrl: 'https://github.com/lucavb/portglass/releases',
+            thumbnail: portglassImage,
+            title: '✨ portglass',
         },
     ],
 };

@@ -12,6 +12,7 @@ import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thum
 import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
 import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
 import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
+import portglassImage from '../assets/images/portglass-thumbnail.jpg';
 import type { ImageMetadata } from 'astro';
 
 const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata =>
@@ -76,6 +77,25 @@ const enhancedProjects = [
         githubUrl: 'https://github.com/lucavb/ollama-exporter',
         liveUrl: 'https://hub.docker.com/r/lucabecker42/ollama-exporter',
         thumbnail: ollamaExporterImage,
+    },
+    {
+        title: '✨ portglass — USB-C Port Diagnostics',
+        description:
+            'macOS CLI that reads live USB-C port state, power delivery negotiation, and battery telemetry from the IOKit registry. Supports one-shot reports, live watch mode, a full-screen monitor dashboard, and JSON output for scripting. Built in a day with AI-assisted development.',
+        image: 'bg-gradient-to-br from-slate-700 to-slate-900',
+        type: 'Developer Tools / macOS ✨',
+        duration: '1 day',
+        team: '1 developer + AI',
+        achievements: [
+            'Live IOKit telemetry',
+            'PD/cable diagnostics',
+            'Watch and monitor modes',
+            '✨ AI-accelerated development',
+        ],
+        technologies: ['Swift', 'IOKit', 'macOS', 'CLI'],
+        githubUrl: 'https://github.com/lucavb/portglass',
+        liveUrl: 'https://github.com/lucavb/portglass/releases',
+        thumbnail: portglassImage,
     },
     {
         title: 'Homebridge HTTP Motion Sensor',
