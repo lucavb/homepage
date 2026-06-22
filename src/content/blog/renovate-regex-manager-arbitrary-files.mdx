@@ -1,0 +1,193 @@
+---
+title: 'Renovate Can Update Almost Anything If You Teach It Regex'
+description: 'I finally discovered Renovate can update version strings in arbitrary files with its regex manager, and immediately used it for both my homelab and client infra.'
+publishDate: 2026-06-18
+tags: ['automation', 'developer-tools', 'homelab', 'kubernetes', 'gitops']
+heroImagePath: 'renovate-regex-manager-arbitrary-files/hero.jpg'
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/renovate-regex-manager-arbitrary-files/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Illustration of Renovate regex manager extracting version pins from infrastructure files and opening automated dependency update pull requests"
+    loading="eager"
+/>
+
+Today I got to know a Renovate feature that is more than six years old. Which is also a mildly embarrassing sentence to write down publicly.
+
+But let me back up a little bit.
+
+Renovate is great. It is basically Dependabot, except much more flexible and not tied to GitHub. I run Forgejo in my homelab and use it to drive deployments for a lot of my home infrastructure. Yes, still overkill. Still fun.
+
+The problem was that some of my pinned version strings had just kind of been sitting there since February. Not because I had consciously decided they should stay frozen forever. More because they lived in places that are easy to ignore: a `--version` in a Makefile, an `appVersion` in a `Chart.yaml`, some image tags in values files, a version string in a script, that sort of thing.
+
+This was all behind an up-to-date OPNsense box, so it was not an immediate disaster. But stale versions are not only about missing security fixes. You also miss bugfixes, new features, and eventually the pleasant surprise of realizing you are now _several_ releases behind and should probably stop pretending that is fine.
+
+I already had a couple of helper scripts for some of this. They worked. They were also not really the grown-up answer.
+
+The grown-up answer, obviously, was Renovate.
+
+That in itself was not news to me. We had already rolled out Renovate in a client repository as well. What _was_ news to me was that Renovate can also handle what I had mentally filed under "arbitrary files". Which, in retrospect, was me underestimating Renovate more than anything else.
+
+And honestly, AI is part of why I finally noticed this. This had been bothering me for a while, but for some reason I was oddly reluctant to really challenge the assumption that these awkward version pins would just stay manual forever. One of the useful things about AI in day-to-day development is that it sometimes points at the solution you should probably have tried months ago. This was one of those cases.
+
+## The Part I Somehow Missed
+
+The feature is now documented as a custom manager with `customType: 'regex'`. Older posts and examples may still call it `regexManagers`, because that was the old name. Either way, the idea is the same: if Renovate does not have a built-in manager for the place where you pinned a version, you can teach it how to find that version with a regex.
+
+This is not even new. The feature shipped on 6 March 2020 in Renovate `v19.159.0`. So this was not some hidden beta thing I stumbled upon. This has just been sitting there for years while I apparently decided "well, I guess that one has to stay manual" often enough to start believing it.
+
+What the regex manager really does is connect three pieces of information:
+
+1. What dependency this is
+2. Where Renovate should look for newer versions
+3. What the current version string is
+
+In Renovate terms that usually means `depName`, `datasource`, and `currentValue`, with `versioning` often falling back to a sensible default.
+
+Once you see it that way, the whole thing becomes much less mystical. You are not asking Renovate to "understand any file". You are just giving it enough metadata to map some random-looking version string back to a real dependency.
+
+<MermaidDiagram
+    diagram={`
+flowchart LR
+    PinnedVersion["Pinned version plus renovate comment"]
+    RegexManager["Regex manager"]
+    DatasourceLookup["Datasource lookup"]
+    RenovatePR["Renovate PR"]
+
+    PinnedVersion -->|"extract depName, datasource, currentValue"| RegexManager
+    RegexManager -->|"check available releases"| DatasourceLookup
+    DatasourceLookup -->|"propose update"| RenovatePR
+
+`}
+/>
+
+## What This Looks Like In Practice
+
+One pattern I ended up liking a lot is putting the metadata directly above the version pin instead of hiding all the logic in `renovate.json5`.
+
+For example, if you install a Helm chart in a shell block inside a workflow, you can do this:
+
+```yaml
+# renovate: datasource=helm depName=kyverno registryUrl=https://kyverno.github.io/kyverno/
+--version 3.8.1 \
+```
+
+And then your Renovate config teaches the regex manager how to read that:
+
+```json5
+{
+    customManagers: [
+        {
+            customType: 'regex',
+            managerFilePatterns: ['/^\\.github\\/workflows\\/.*\\.ya?ml$/'],
+            matchStrings: [
+                '# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+) registryUrl=(?<registryUrl>\\S+)\\s+--version (?<currentValue>[\\d.]+)',
+            ],
+        },
+    ],
+}
+```
+
+That is basically the whole trick. The inline comment says what the dependency is. The regex extracts the fields. Renovate does the rest.
+
+There is a slightly different version of the same idea for local Helm charts where `appVersion` mirrors the image tag:
+
+```yaml
+# renovate: image=prom/pushgateway
+appVersion: 'v1.11.2'
+```
+
+Then you can hardcode the datasource in the manager itself:
+
+```json5
+{
+    customManagers: [
+        {
+            customType: 'regex',
+            datasourceTemplate: 'docker',
+            managerFilePatterns: ['/(^|/)Chart\\.yaml$/'],
+            matchStrings: ["# renovate: image=(?<depName>.*?)\\s+appVersion: '(?<currentValue>[\\w+.\\-]*)'"],
+        },
+    ],
+}
+```
+
+That second variant was especially useful in my homelab, because several of my charts use `.Chart.AppVersion` as the default image tag anyway. So if that field drifts away from the real image tag, you eventually get confusion for free.
+
+## Why This Turned Out To Be So Useful
+
+Once I started thinking about version pins this way, I noticed them all over the place.
+
+Not just the obvious ones in package manifests. I mean the annoying ones:
+
+- upstream Helm charts installed with `helm upgrade --install ... --version ...`
+- `Chart.yaml` `appVersion` fields that actually matter
+- image tags in Helm values
+- version strings in helper scripts
+
+That was the part I had mentally written off before. I had basically accepted that anything outside the usual package-manager-shaped files would either stay manual or would need one-off scripts forever.
+
+Turns out that was nonsense.
+
+In my homelab repo, I had already expanded Renovate quite a bit, but the regex manager was what made the weird pins feel manageable instead of second-class citizens. It let me keep the dependency metadata right next to the pinned value, which is honestly where it belongs anyway.
+
+That also made the repo easier to read later. If I see this:
+
+```yaml
+# renovate: image=ghcr.io/open-webui/open-webui
+appVersion: 'v0.6.32'
+```
+
+I do not need to go spelunking through Renovate config to understand what is meant to update it. The file documents itself.
+
+The funny part is that once I had done this at home, I immediately noticed the exact same blind spot in a client repository.
+
+We already used Renovate there as well. But there were still a few Kubernetes-related version pins that had just been silently accepted as manual: Helm chart versions in workflow shell blocks, chart versions in CDK `HelmChart` props, a Karpenter version in a script, and a couple of things around load balancer controller resources.
+
+None of those were impossible for Renovate to understand. They were just not in places a built-in manager scans by default.
+
+So the solution was the same:
+
+- put a `renovate:` comment directly above the pinned version
+- add a regex manager that extracts the metadata
+- let Renovate open PRs, but keep automerge off
+
+That last part matters. Regex managers are not magic, and infrastructure updates are not the kind of thing I want merged blindly just because a pattern matched. Renovate can tell me that a newer version exists. It cannot tell me whether that Karpenter bump also wants an IAM policy change, whether some CRD update has side effects, or whether the changelog contains one charming sentence that translates to "your Friday evening is gone now."
+
+Still, getting Renovate to at least _surface_ those updates is a massive improvement over forgetting they exist.
+
+## A Short Warning
+
+This is the part where I should probably save someone else a bit of confusion before somebody copy-pastes this and decides regex managers are magic.
+
+First, the regex manager works on file content, not on some magical semantic understanding of the file. It also matches per file, not per line. So if you change formatting too much without updating the regex, you can break detection.
+
+Second, the comment format needs to match what your regex expects. In one of my setups, the attribute order mattered. `depName` before `registryUrl` worked. Swapping them did not.
+
+Third, you still need to pick the right datasource. One nice example from the client setup was Karpenter: although it is conceptually a Helm chart install, the lookup needed the `docker` datasource because the chart was being pulled as an OCI artifact from public ECR. That is the sort of detail that makes total sense once you know it and is mildly annoying five minutes before you know it.
+
+So yes, regex managers are powerful. They are also a little bit fragile. But in a very normal, understandable way.
+
+## What I Took Away From This
+
+The main thing I took away from this was not "wow, regex can do anything." Regex cannot do anything. Regex can definitely also ruin your afternoon.
+
+The useful lesson is simpler: go audit your repository for version strings Renovate is currently not seeing.
+
+If you have ever said one of these sentences, this is probably for you:
+
+- "That one lives in a script, so Renovate cannot update it."
+- "That is in a workflow shell block."
+- "That chart version is interpolated into some other file."
+- "Yeah, we just bump that manually once in a while."
+
+Maybe you really do have a case where leaving it manual is the right call. But I suspect a lot of us, me included, have accepted manual update work mostly because the dependency was in an awkward place and we never came back to question that assumption.
+
+I should have known about this feature earlier. I did not. Fine.
+
+At least now a few more version strings in my repos, and in one client repo, no longer get to hide from Renovate just because they picked an unusual file to live in.
