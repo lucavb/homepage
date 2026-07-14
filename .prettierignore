@@ -1,2 +1,3 @@
 .github/workflows/*.md
 .github/workflows/*.lock.yml
+.github/workflows/agentics-maintenance.yml
