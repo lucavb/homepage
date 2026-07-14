@@ -35,7 +35,7 @@ safe-outputs:
       permissions:
         contents: read
         issues: write
-        pull-requests: read
+        pull-requests: write
       output: "Renovate dependency review comment created or updated."
       inputs:
         body:
