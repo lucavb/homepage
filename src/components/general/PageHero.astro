@@ -1,9 +1,8 @@
 ---
-import BackToHomeLink from './BackToHomeLink.astro';
-
-export interface Props {
+interface Props {
     title: string;
-    description: string;
+    description?: string;
+    eyebrow?: string;
     showBackLink?: boolean;
     backLinkText?: string;
     backLinkHref?: string;
@@ -14,79 +13,47 @@ export interface Props {
 const {
     title,
     description,
-    showBackLink = true,
-    backLinkText = 'Back to Home',
-    backLinkHref = '/',
+    eyebrow = 'Writing',
+    showBackLink = false,
+    backLinkText = 'Back to Writing',
+    backLinkHref = '/blog',
     publishDate,
-    tags,
+    tags = [],
 } = Astro.props;
 
-const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    }).format(date);
-};
+const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat('en-GB', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
 ---
 
-<section class="relative w-full overflow-hidden pt-36 pb-20 bg-slate-50 dark:bg-slate-950">
-    <div class="absolute inset-0 pointer-events-none">
-        <div
-            class="absolute left-1/2 top-[-32rem] h-[72rem] w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.24)_0%,rgba(59,130,246,0.12)_42%,rgba(248,250,252,0)_74%)] dark:bg-[radial-gradient(circle,rgba(139,92,246,0.2)_0%,rgba(59,130,246,0.1)_42%,rgba(2,6,23,0)_74%)]"
-        >
-        </div>
-        <div
-            class="absolute left-1/2 bottom-[-30rem] h-[68rem] w-[145vw] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.18)_0%,rgba(139,92,246,0.08)_40%,rgba(248,250,252,0)_72%)] dark:bg-[radial-gradient(circle,rgba(59,130,246,0.16)_0%,rgba(139,92,246,0.08)_40%,rgba(2,6,23,0)_72%)]"
-        >
-        </div>
-    </div>
-
-    {showBackLink && <BackToHomeLink text={backLinkText} href={backLinkHref} />}
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="mb-16">
-            <div class="text-center">
-                <h1 class="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-relaxed">
-                    {title}
-                </h1>
-                <div class="w-32 h-1 bg-gradient-to-r from-violet-500 to-blue-500 mx-auto mb-8"></div>
-                <p class="text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto mb-6">
-                    {description}
-                </p>
-                {
-                    publishDate && (
-                        <div class="flex items-center justify-center text-sm text-slate-500 dark:text-slate-400 mb-6">
-                            <svg
-                                class="w-4 h-4 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                />
-                            </svg>
-                            Published on {formatDate(publishDate)}
-                        </div>
-                    )
-                }
-                {
-                    tags && tags.length > 0 && (
-                        <div class="flex flex-wrap justify-center gap-2">
-                            {tags.map((tag) => (
-                                <span class="px-3 py-1 text-sm font-medium bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300 rounded-full">
-                                    {tag}
-                                </span>
-                            ))}
-                        </div>
-                    )
-                }
-            </div>
-        </div>
+<section class="site-shell py-8 sm:py-12">
+    <div class="bg-[var(--pale)] px-6 py-14 sm:px-12 sm:py-20 rounded-tr-[60px] sm:rounded-tr-[90px]">
+        {
+            showBackLink && (
+                <a href={backLinkHref} class="eyebrow mb-10 inline-block hover:underline">
+                    ← {backLinkText}
+                </a>
+            )
+        }
+        <p class="eyebrow mb-5">{eyebrow}</p>
+        <h1 class="max-w-5xl text-5xl font-bold leading-[0.86] tracking-[-0.07em] sm:text-7xl lg:text-8xl">{title}</h1>
+        {
+            description && (
+                <p class="mt-7 max-w-3xl text-lg leading-relaxed text-[var(--muted)] sm:text-xl">{description}</p>
+            )
+        }
+        {
+            (publishDate || tags.length > 0) && (
+                <div class="mt-8 flex flex-wrap gap-x-3 gap-y-2 text-xs font-extrabold uppercase tracking-[0.1em]">
+                    {publishDate && <time datetime={publishDate.toISOString()}>{formatDate(publishDate)}</time>}
+                    {publishDate && tags.length > 0 && <span aria-hidden="true">/</span>}
+                    {tags.map((tag, index) => (
+                        <>
+                            <span>{tag}</span>
+                            {index < tags.length - 1 && <span aria-hidden="true">/</span>}
+                        </>
+                    ))}
+                </div>
+            )
+        }
     </div>
 </section>

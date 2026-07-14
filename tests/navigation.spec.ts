@@ -1,70 +1,41 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation', () => {
-    test('should have working page navigation links', async ({ page }) => {
+    test('uses the Munich homepage anchors', async ({ page }) => {
         await page.goto('/');
-
-        await page.click('a[href="/blog"]');
-        await expect(page).toHaveURL(/\/blog/);
-
-        await page.goto('/');
-
-        await page.click('a[href="/projects"]');
-        await expect(page).toHaveURL(/\/projects/);
-    });
-
-    test('should navigate using anchor hash links in header', async ({ page }) => {
-        await page.goto('/');
-
         const navLinks = [
-            { name: 'About', hash: '#about' },
+            { name: 'Focus', hash: '#focus' },
             { name: 'Experience', hash: '#experience' },
-            { name: 'Projects', hash: '#projects' },
-            { name: 'Blog', hash: '#blog' },
+            { name: 'Work', hash: '#work' },
+            { name: 'Writing', hash: '#writing' },
             { name: 'Contact', hash: '#contact' },
         ];
 
         for (const { name, hash } of navLinks) {
-            await page.getByRole('navigation').getByRole('link', { name }).click();
+            await page.locator('header nav').getByRole('link', { name }).click();
             await expect(page).toHaveURL(new RegExp(`.*${hash}$`));
         }
     });
 
-    test('should navigate using "View All" links', async ({ page }) => {
+    test('links to projects and writing from the homepage', async ({ page }) => {
         await page.goto('/');
-
-        await page.getByRole('link', { name: /View All Projects/i }).click();
+        await page.getByRole('link', { name: 'All projects →' }).click();
         await expect(page).toHaveURL(/\/projects/);
 
         await page.goto('/');
-
-        await page.getByRole('link', { name: /View All Posts/i }).click();
+        await page.getByRole('link', { name: 'All writing →' }).click();
         await expect(page).toHaveURL(/\/blog/);
     });
 
-    test('should navigate using hero CTA buttons', async ({ page }) => {
+    test('takes the hero action to focus', async ({ page }) => {
         await page.goto('/');
-
-        await page.getByRole('link', { name: /View My Work/i }).click();
-        await expect(page).toHaveURL(/#projects/);
-
-        await page.goto('/');
-
-        await page.getByRole('link', { name: /Let's Connect/i }).click();
-        await expect(page).toHaveURL(/#contact/);
+        await page.getByRole('link', { name: /Get to know me/i }).click();
+        await expect(page).toHaveURL(/#focus$/);
     });
 
-    test('should navigate back to home from blog page using "Back to Home" button', async ({ page }) => {
-        await page.goto('/blog');
-
-        await page.getByRole('link', { name: 'Back to Home' }).click();
-        await expect(page).toHaveURL('/');
-    });
-
-    test('should navigate back to home from projects page using "Back to Home" button', async ({ page }) => {
+    test('uses contextual inner-page navigation', async ({ page }) => {
         await page.goto('/projects');
-
-        await page.getByRole('link', { name: 'Back to Home' }).click();
-        await expect(page).toHaveURL('/');
+        await page.locator('header nav').getByRole('link', { name: 'Writing' }).click();
+        await expect(page).toHaveURL(/\/blog/);
     });
 });

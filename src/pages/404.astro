@@ -1,0 +1,25 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/home/Header.astro';
+import Footer from '@components/home/Footer.astro';
+---
+
+<Layout title="Page not found" description="The page you requested does not exist." robots="noindex, nofollow">
+    <Header isHomePage={false} />
+    <main id="main-content" class="site-shell py-8 sm:py-12">
+        <section class="min-h-[65vh] rounded-tr-[90px] bg-[var(--yellow)] p-8 sm:p-16">
+            <p class="eyebrow">Error</p>
+            <h1 class="mt-8 text-[clamp(7rem,22vw,18rem)] font-bold leading-[0.7] tracking-[-0.1em]">404</h1>
+            <h2 class="mt-12 text-5xl font-bold leading-[0.9] tracking-[-0.07em] sm:text-7xl">Page not found.</h2>
+            <nav
+                class="mt-10 flex flex-wrap gap-x-6 gap-y-4 font-extrabold underline decoration-2 underline-offset-4"
+                aria-label="Not found navigation"
+            >
+                <a href="/">Home</a>
+                <a href="/projects">Projects</a>
+                <a href="/blog">Writing</a>
+            </nav>
+        </section>
+    </main>
+    <Footer />
+</Layout>

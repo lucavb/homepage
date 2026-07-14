@@ -2,7 +2,7 @@
 import Layout from '@layouts/Layout.astro';
 import Header from '@components/home/Header.astro';
 import HeroSection from '@components/home/HeroSection.astro';
-import AboutSection from '@components/home/AboutSection.astro';
+import FocusSection from '@components/home/FocusSection.astro';
 import ExperienceSection from '@components/home/ExperienceSection.astro';
 import ProjectsSection from '@components/home/ProjectsSection.astro';
 import BlogSection from '@components/home/BlogSection.astro';
@@ -11,11 +11,15 @@ import Footer from '@components/home/Footer.astro';
 import { info } from '@data';
 ---
 
-<Layout title="" description={info.metaDescription} ogImageUrl="/assets/images/og-image.jpg" class="light">
+<Layout
+    title="Luca Becker — Principal Consultant for AI-assisted development"
+    description={info.metaDescription}
+    ogImageUrl="/assets/images/og-image.png"
+>
     <Header />
     <main id="main-content">
         <HeroSection />
-        <AboutSection />
+        <FocusSection />
         <ExperienceSection />
         <ProjectsSection />
         <BlogSection />

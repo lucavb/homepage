@@ -12,7 +12,8 @@ test.describe('Social Links', () => {
         const linkedinLink = contact.getByRole('link', { name: /LinkedIn/i });
         await expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/in/lucabecker/');
 
-        const emailLink = contact.getByRole('link', { name: /Email/i });
+        await contact.getByText('[Click to reveal email]').click();
+        const emailLink = contact.getByRole('link', { name: /hello@luca-becker.me/i });
         await expect(emailLink).toHaveAttribute('href', 'mailto:hello@luca-becker.me');
     });
 

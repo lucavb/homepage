@@ -25,7 +25,10 @@ export interface IExperiences {
 export interface IProject {
     title: string;
     isFeatured: boolean;
-    thumbnail: string | ImageMetadata;
+    thumbnail: ImageMetadata;
+    category: string;
+    summary: string;
+    technologies: string[];
     githubUrl?: string;
     liveUrl?: string;
 }

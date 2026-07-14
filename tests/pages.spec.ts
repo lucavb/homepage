@@ -19,11 +19,11 @@ test.describe('Homepage', () => {
 
         await expect(page).toHaveTitle(/Luca Becker/);
 
-        await expect(page.getByRole('heading', { name: /About Me/i, exact: true })).toBeVisible();
-        await expect(page.getByRole('heading', { name: /Professional Experience/i })).toBeVisible();
-        await expect(page.getByRole('heading', { name: /Featured Projects/i })).toBeVisible();
-        await expect(page.getByRole('heading', { name: /Latest Blog Posts/i })).toBeVisible();
-        await expect(page.getByRole('heading', { name: /Let's Work Together/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /What I work on/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /^Experience$/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Selected projects/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Recent writing/i })).toBeVisible();
+        await expect(page.getByRole('heading', { name: /Let’s talk/i })).toBeVisible();
 
         expect(errors, `Console errors detected: ${errors.join(', ')}`).toHaveLength(0);
     });
@@ -35,8 +35,8 @@ test.describe('Blog', () => {
 
         await page.goto('/blog/');
 
-        await expect(page).toHaveTitle(/Blog/);
-        await expect(page.getByRole('heading', { name: /^Blog$/i, exact: true })).toBeVisible();
+        await expect(page).toHaveTitle(/Writing/);
+        await expect(page.getByRole('heading', { name: /^Writing$/i, exact: true })).toBeVisible();
 
         const blogPosts = page.locator('article, .blog-post-card, a[href^="/blog/"]');
         await expect(blogPosts.first()).toBeVisible();

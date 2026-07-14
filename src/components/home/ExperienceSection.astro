@@ -1,44 +1,52 @@
 ---
-import { info } from '@data';
-import SectionTitle from '@components/general/SectionTitle.astro';
+const chapters = [
+    {
+        period: '2023—now',
+        title: 'TNG / Client platform',
+        description: 'I lead five engineers, build backend services, and manage CI/CD and AWS infrastructure.',
+    },
+    {
+        period: '2019—now',
+        title: 'TNG / Consulting',
+        description:
+            'I build client software, teach AI-assisted coding, conduct technical interviews, and support technical due diligence.',
+    },
+    {
+        period: '2016—2019',
+        title: 'FZI / Research',
+        description: 'I built IT-security prototypes for consumer hardware and an Android app for sensor telemetry.',
+    },
+];
 ---
 
-<!-- Experience Section -->
-<section id="experience" class="py-20 bg-slate-50 dark:bg-slate-900/50 relative overflow-hidden">
-    <div
-        class="absolute -top-20 -right-20 w-96 h-96 bg-violet-500/5 dark:bg-violet-400/5 rounded-full blur-3xl pointer-events-none"
-    >
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle title="Professional Experience" />
-        <div class="space-y-6">
+<section id="experience" class="bg-[var(--ink)] py-20 text-[var(--paper)] sm:py-24">
+    <div class="site-shell">
+        <div class="mb-12 grid gap-6 sm:grid-cols-[72px_1fr] sm:items-start">
+            <span class="index-circle bg-[var(--sky)] text-[var(--ink)]">02</span>
+            <h2 class="max-w-4xl text-5xl font-bold leading-[0.88] tracking-[-0.07em] text-[var(--paper)] sm:text-7xl">
+                Experience
+            </h2>
+        </div>
+        <div class="grid border-t border-[color-mix(in_srgb,var(--paper)_35%,transparent)] md:grid-cols-3">
             {
-                info.experience.map((exp, index) => (
-                    <div
-                        class="bg-white dark:bg-slate-800/80 rounded-2xl border-l-4 border-l-violet-500 border border-slate-200/60 dark:border-slate-700/50 p-6 hover:shadow-lg transition-shadow duration-300"
+                chapters.map((chapter, index) => (
+                    <article
+                        class:list={[
+                            'py-7 md:px-7 md:py-8',
+                            index > 0 &&
+                                'border-t border-[color-mix(in_srgb,var(--paper)_35%,transparent)] md:border-l md:border-t-0',
+                            index === 0 && 'md:pr-7',
+                        ]}
                         data-animate
-                        style={`transition-delay: ${index * 100}ms`}
                     >
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">{exp.name}</h3>
-                            <span class="text-sm font-mono text-slate-500 dark:text-slate-400">
-                                {exp.startDate} — {exp.endDate}
-                            </span>
-                        </div>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">{exp.location}</p>
-                        <div class="text-slate-600 dark:text-slate-300 mb-4 space-y-1.5">
-                            {exp.description.map((desc) => desc.trim() && <p class="text-sm">{desc}</p>)}
-                        </div>
-                        {exp.skills && exp.skills.length > 0 && (
-                            <div class="flex flex-wrap gap-2">
-                                {exp.skills.map((skill) => (
-                                    <span class="px-2.5 py-0.5 text-xs font-mono border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-400 rounded-md">
-                                        {skill}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                        <time class="eyebrow text-[var(--yellow)]">{chapter.period}</time>
+                        <h3 class="mt-5 text-3xl font-bold leading-[1.02] tracking-[-0.05em] text-[var(--paper)]">
+                            {chapter.title}
+                        </h3>
+                        <p class="mt-5 leading-relaxed text-[color-mix(in_srgb,var(--paper)_75%,transparent)]">
+                            {chapter.description}
+                        </p>
+                    </article>
                 ))
             }
         </div>

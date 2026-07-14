@@ -51,7 +51,7 @@ function initSectionVisibilityTracking(): void {
         },
     );
 
-    const sectionsToTrack = ['about', 'experience', 'projects', 'blog', 'contact'];
+    const sectionsToTrack = ['focus', 'experience', 'work', 'writing', 'contact'];
     sectionsToTrack.forEach((sectionId) => {
         const section = document.getElementById(sectionId);
         if (section) {

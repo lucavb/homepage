@@ -22,7 +22,7 @@ export const setupEmailProtection = (
     if (isDisplayElement) {
         element.addEventListener('click', function () {
             const decoded = atob(emailData);
-            this.innerHTML = `<a href="mailto:${decoded}" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline">${decoded}</a>`;
+            this.innerHTML = `<a href="mailto:${decoded}" class="font-extrabold underline decoration-2 underline-offset-4">${decoded}</a>`;
             this.style.cursor = 'default';
             this.title = 'Email address';
         });

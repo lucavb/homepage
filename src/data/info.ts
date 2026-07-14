@@ -1,19 +1,12 @@
-import aicommitsImage from '../assets/images/aicommits.png';
-import wollwerkImage from '../assets/images/wollwerk-thumbnail.jpg';
-import lunchSlackBotImage from '../assets/images/lunch-slack-bot-thumbnail.jpg';
-import homebridgeImage from '../assets/images/homebridge-http-motion-sensor-thumbnail.png';
-import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumbnail.png';
-import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
-import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
-import portglassImage from '../assets/images/portglass-thumbnail.jpg';
+import { projects } from './projects';
 
 export const info = {
     baseUrl: 'https://luca-becker.me',
     name: 'Luca Becker',
-    jobDescription: 'Principal Consultant & AI-Coding Specialist',
-    heroDescription: `Infrastructure, team leadership, and helping developers work effectively with AI tools.`,
-    metaDescription: `Principal Consultant at TNG Technology Consulting. Full-stack engineer specializing in AI-assisted development, team leadership, and cloud infrastructure.`,
-    aboutHeading: `Passionate about transforming businesses through technology`,
+    jobDescription: 'Principal Consultant for AI-assisted development',
+    heroDescription: `My main focus is using AI coding tools effectively in day-to-day software development.`,
+    metaDescription: `Principal Consultant at TNG focused on AI-assisted development, software engineering, team leadership, and AWS infrastructure.`,
+    aboutHeading: `I write code, run infrastructure, and lead engineering teams.`,
     about: `At my current client, I'm responsible for infrastructure and dev-enablement, leading a team while still writing code - mostly AI-assisted these days. At TNG Technology Consulting, I'm driving initiatives around AI-assisted coding: how to use it effectively, how to teach it, and where it's taking professional software development.
 
 My technical background spans TypeScript, React, Angular, Java, Spring Boot, and cloud technologies like AWS and Kubernetes. I studied Computer Science at KIT with a focus on IT Security and Cryptography.`,
@@ -144,61 +137,5 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
     ],
 
     cvSummary: `Principal Consultant at TNG Technology Consulting. At my current client, I'm responsible for infrastructure and dev-enablement, leading a team while still writing code - mostly AI-assisted these days. At TNG, I'm driving initiatives around AI-assisted coding: how to use it effectively, how to teach it, and where it's taking professional software development. I write about AI-assisted development workflows on my blog. Full-stack background in TypeScript, Java, Spring Boot, AWS, Kubernetes.`,
-
-    projects: [
-        {
-            githubUrl: 'https://github.com/lucavb/aicommits',
-            isFeatured: true,
-            liveUrl: 'https://www.npmjs.com/package/@lucavb/aicommits',
-            thumbnail: aicommitsImage,
-            title: '@lucavb/aicommits',
-        },
-        {
-            isFeatured: true,
-            liveUrl: 'https://www.wollwerk.org/',
-            thumbnail: wollwerkImage,
-            title: 'Wollwerk',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/lunch-slack-bot',
-            isFeatured: true,
-            thumbnail: lunchSlackBotImage,
-            title: 'Weather-Aware Lunch Slack Bot',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/homebridge-http-motion-sensor',
-            isFeatured: false,
-            liveUrl: 'https://www.npmjs.com/package/homebridge-http-motion-sensor',
-            thumbnail: homebridgeImage,
-            title: 'Homebridge HTTP Motion Sensor',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/stylelint-checkstyle-reporter',
-            isFeatured: false,
-            liveUrl: 'https://www.npmjs.com/package/stylelint-checkstyle-reporter',
-            thumbnail: stylelintImage,
-            title: 'stylelint-checkstyle-reporter',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/conventional-changelog-conventionalcommits-jira',
-            isFeatured: false,
-            liveUrl: 'https://www.npmjs.com/package/conventional-changelog-conventionalcommits-jira',
-            thumbnail: conventionalChangelogImage,
-            title: 'conventional-changelog-conventionalcommits-jira',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/hoymiles-wifi-exporter',
-            isFeatured: false,
-            liveUrl: 'https://ghcr.io/lucavb/hoymiles-wifi-exporter',
-            thumbnail: hoymilesImage,
-            title: 'Hoymiles WiFi Exporter',
-        },
-        {
-            githubUrl: 'https://github.com/lucavb/portglass',
-            isFeatured: false,
-            liveUrl: 'https://github.com/lucavb/portglass/releases',
-            thumbnail: portglassImage,
-            title: '✨ portglass',
-        },
-    ],
+    projects,
 };

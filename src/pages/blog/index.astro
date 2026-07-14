@@ -3,115 +3,79 @@ import { getCollection } from 'astro:content';
 import Layout from '@layouts/Layout.astro';
 import Header from '@components/home/Header.astro';
 import Footer from '@components/home/Footer.astro';
-import BlogCard from '@components/general/BlogCard.astro';
 import PageHero from '@components/general/PageHero.astro';
 
-// Get all blog posts and sort by date (most recent first)
-const allBlogPosts = await getCollection('blog', ({ data }) => {
-    return !data.draft;
-});
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime(),
+);
 
-const blogPosts = allBlogPosts
-    .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
-    .map((post) => ({
-        id: post.id,
-        title: post.data.title,
-        description: post.data.description,
-        publishDate: post.data.publishDate,
-        tags: post.data.tags,
-        draft: post.data.draft,
-        thumbnail: post.data.thumbnail,
-        heroImagePath: post.data.heroImagePath,
-    }));
+const groupedPosts = Object.entries(
+    posts.reduce<Record<string, typeof posts>>((groups, post) => {
+        const year = String(post.data.publishDate.getFullYear());
+        groups[year] ??= [];
+        groups[year].push(post);
+        return groups;
+    }, {}),
+).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
+
+const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 ---
 
 <Layout
-    title="Blog"
-    description="Practical insights on AI-assisted development, developer tools, and building real projects with emerging technologies."
-    ogImageUrl="/assets/images/og-image.jpg"
+    title="Writing"
+    description="Notes on AI-assisted development, infrastructure, and software engineering."
+    ogImageUrl="/assets/images/og-image.png"
 >
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
-        <Header isHomePage={false} />
-
-        <main id="main-content">
-            <div class="relative">
-                <PageHero
-                    title="Blog"
-                    description="Practical insights on AI-assisted development, developer tools, and building real projects with emerging technologies."
-                />
-
-                <!-- Floating RSS Badge -->
-                <div
-                    class="absolute top-24 left-0 right-0 z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none"
-                >
-                    <div class="flex justify-end">
-                        <a
-                            href="/rss.xml"
-                            class="flex items-center gap-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-full px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 pointer-events-auto"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <div
-                                class="w-6 h-6 bg-gradient-to-br from-violet-600 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0"
-                            >
-                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path
-                                        d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.755-23.954-24-24v4.812z"
-                                    ></path>
-                                </svg>
-                            </div>
-                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap"
-                                >RSS feed</span
-                            >
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Blog Posts -->
-            <section class="py-20 bg-white dark:bg-slate-950">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    {
-                        blogPosts.length > 0 ? (
-                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {blogPosts.map((post) => (
-                                    <BlogCard blogPost={post} />
+    <Header isHomePage={false} />
+    <main id="main-content">
+        <PageHero
+            eyebrow="Archive"
+            title="Writing"
+            description="Notes on AI-assisted development, infrastructure, and software engineering."
+        />
+        <section class="site-shell pb-20 pt-8 sm:pb-28">
+            <a href="/rss.xml" class="eyebrow inline-block hover:underline">RSS feed →</a>
+            <div class="mt-12 space-y-16">
+                {
+                    groupedPosts.map(([year, yearPosts]) => (
+                        <section aria-labelledby={`year-${year}`}>
+                            <h2 id={`year-${year}`} class="mb-5 text-5xl font-bold leading-none tracking-[-0.06em]">
+                                {year}
+                            </h2>
+                            <div class="border-t border-[var(--line)]">
+                                {yearPosts.map((post) => (
+                                    <article
+                                        class="grid gap-4 border-b border-[var(--line)] py-6 md:grid-cols-[150px_1fr_auto] md:items-start"
+                                        data-animate
+                                    >
+                                        <time
+                                            class="eyebrow text-[var(--muted)]"
+                                            datetime={post.data.publishDate.toISOString()}
+                                        >
+                                            {formatDate(post.data.publishDate)}
+                                        </time>
+                                        <div>
+                                            <h3 class="text-2xl font-bold leading-tight tracking-[-0.04em]">
+                                                <a href={`/blog/${post.id}`} class="hover:underline">
+                                                    {post.data.title}
+                                                </a>
+                                            </h3>
+                                            <p class="mt-2 max-w-2xl leading-relaxed text-[var(--muted)]">
+                                                {post.data.description}
+                                            </p>
+                                        </div>
+                                        <p class="text-xs font-extrabold uppercase tracking-[0.08em] text-[var(--muted)] md:max-w-48 md:text-right">
+                                            {post.data.tags?.join(' / ')}
+                                        </p>
+                                    </article>
                                 ))}
                             </div>
-                        ) : (
-                            <div class="text-center py-16">
-                                <div class="text-slate-500 dark:text-slate-400 mb-6">
-                                    <svg
-                                        class="w-32 h-32 mx-auto"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                        aria-hidden="true"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                                        />
-                                    </svg>
-                                </div>
-                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                                    No blog posts yet
-                                </h2>
-                                <p class="text-lg text-slate-600 dark:text-slate-300 mb-8">
-                                    Stay tuned for upcoming insights and tutorials!
-                                </p>
-                                <a href="/" class="btn-primary inline-block">
-                                    Back to Home
-                                </a>
-                            </div>
-                        )
-                    }
-                </div>
-            </section>
-        </main>
-
-        <Footer />
-    </div>
+                        </section>
+                    ))
+                }
+            </div>
+        </section>
+    </main>
+    <Footer />
 </Layout>

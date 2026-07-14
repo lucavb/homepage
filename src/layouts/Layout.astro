@@ -17,7 +17,7 @@ export interface Props {
 const {
     title = '',
     description = '',
-    ogImageUrl = '/assets/images/og-image.jpg',
+    ogImageUrl = '/assets/images/og-image.png',
     class: _className = 'light',
     publishDate,
     tags = [],
@@ -30,7 +30,7 @@ const siteUrl = info.baseUrl;
 const currentUrl = new URL(Astro.url.pathname, siteUrl).toString();
 const absoluteImageUrl = ogImageUrl.startsWith('http') ? ogImageUrl : new URL(ogImageUrl, siteUrl).toString();
 
-const pageTitle = title ? `${title} | ${info.name}` : info.name;
+const pageTitle = title ? (title.startsWith(info.name) ? title : `${title} | ${info.name}`) : info.name;
 const structuredData = {
     '@context': 'https://schema.org',
     '@type': isArticle ? 'Article' : 'WebPage',
@@ -77,9 +77,9 @@ const structuredData = {
             })();
         </script>
         <meta charset="utf-8" />
-        <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#FFFFFF" />
+        <meta name="theme-color" content="#f8f8f2" />
         <meta name="generator" content={Astro.generator} />
 
         <link
@@ -145,7 +145,7 @@ const structuredData = {
 
         <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
 
-        <link rel="alternate" type="application/rss+xml" title="Luca Becker - Blog" href="/rss.xml" />
+        <link rel="alternate" type="application/rss+xml" title="Luca Becker — Writing" href="/rss.xml" />
 
         <!-- Umami Analytics - GDPR Compliant, Cookieless -->
         <script
@@ -201,10 +201,10 @@ const structuredData = {
         </noscript>
     </head>
 
-    <body class:list={['bg-slate-50 dark:bg-slate-950', isArticle ? 'blog-page' : '']}>
+    <body class:list={[isArticle ? 'blog-page' : '']}>
         <a
             href="#main-content"
-            class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-violet-600 focus:text-white focus:rounded-lg focus:shadow-lg"
+            class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[var(--orange)] focus:px-4 focus:py-2 focus:text-[var(--paper)]"
             >Skip to content</a
         >
         <slot />

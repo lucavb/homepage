@@ -1,77 +1,44 @@
 ---
 import { getCollection } from 'astro:content';
-import BlogCard from '@components/general/BlogCard.astro';
-import SectionTitle from '@components/general/SectionTitle.astro';
 
-// Get all blog posts and sort by date (most recent first)
-const allBlogPosts = await getCollection('blog', ({ data }) => {
-    return !data.draft;
-});
-
-const recentBlogPosts = allBlogPosts
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
     .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
-    .slice(0, 3)
-    .map((post) => ({
-        id: post.id,
-        title: post.data.title,
-        description: post.data.description,
-        publishDate: post.data.publishDate,
-        tags: post.data.tags,
-        draft: post.data.draft,
-        thumbnail: post.data.thumbnail,
-        heroImagePath: post.data.heroImagePath,
-    }));
+    .slice(0, 3);
+
+const formatDate = (date: Date) =>
+    new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+
+const rules = ['border-[var(--sky)]', 'border-[var(--green)]', 'border-[var(--orange)]'];
 ---
 
-<!-- Blog Section -->
-<section id="blog" class="py-20 bg-slate-50 dark:bg-slate-900/50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionTitle title="Latest Blog Posts" />
-
+<section id="writing" class="site-shell py-20 sm:py-24">
+    <div class="mb-12 grid gap-6 sm:grid-cols-[72px_1fr] sm:items-start">
+        <span class="index-circle">04</span>
+        <h2 class="max-w-4xl text-5xl font-bold leading-[0.88] tracking-[-0.07em] sm:text-7xl">Recent writing</h2>
+    </div>
+    <div class="grid gap-8 md:grid-cols-3">
         {
-            recentBlogPosts.length > 0 ? (
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {recentBlogPosts.map((post) => (
-                        <BlogCard blogPost={post} />
-                    ))}
-                </div>
-            ) : (
-                <div class="text-center py-12">
-                    <div class="text-slate-500 dark:text-slate-400 mb-4">
-                        <svg
-                            class="w-24 h-24 mx-auto"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                            />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-2">No blog posts yet</h3>
-                    <p class="text-slate-600 dark:text-slate-300">Stay tuned for upcoming insights and tutorials!</p>
-                </div>
-            )
-        }
-
-        {
-            recentBlogPosts.length > 0 && (
-                <div class="text-center mt-12">
-                    <a
-                        href="/blog"
-                        class="btn-primary"
-                        data-umami-event="Navigation"
-                        data-umami-event-label="View All Posts"
-                    >
-                        View All Posts
-                    </a>
-                </div>
-            )
+            posts.map((post, index) => (
+                <a
+                    href={`/blog/${post.id}`}
+                    class={`group border-t-[10px] pt-5 ${rules[index]} hover:no-underline`}
+                    data-umami-event="Post Click"
+                    data-umami-event-title={post.data.title}
+                    data-animate
+                >
+                    <time class="eyebrow text-[var(--muted)]" datetime={post.data.publishDate.toISOString()}>
+                        {formatDate(post.data.publishDate)}
+                    </time>
+                    <h3 class="mt-4 text-2xl font-bold leading-[1.08] tracking-[-0.04em] group-hover:underline">
+                        {post.data.title}
+                    </h3>
+                    <span class="mt-6 inline-block font-extrabold group-hover:translate-x-1 transition-transform">
+                        Read article →
+                    </span>
+                </a>
+            ))
         }
     </div>
+    <a href="/blog" class="mt-10 inline-block font-extrabold underline decoration-2 underline-offset-4">All writing →</a
+    >
 </section>

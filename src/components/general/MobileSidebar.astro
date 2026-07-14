@@ -11,43 +11,34 @@ const { isHomePage = true } = Astro.props;
 ---
 
 <div
-    id="mobile-sidebar-overlay"
-    class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"
->
-</div>
-
-<div
     id="mobile-sidebar"
-    class="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    class="fixed inset-0 z-50 flex translate-y-[-100%] flex-col bg-[var(--ink)] px-5 py-6 text-[var(--paper)] opacity-0 pointer-events-none transition-[transform,opacity] duration-200 md:hidden"
     role="dialog"
     aria-modal="true"
     aria-labelledby="mobile-menu-title"
     aria-hidden="true"
 >
-    <div class="flex flex-col h-full">
-        <div class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-800">
-            <span id="mobile-menu-title" class="text-xl font-bold text-slate-900 dark:text-white">Menu</span>
-            <button
-                id="mobile-menu-close"
-                class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-slate-500 dark:text-slate-400"
-                aria-label="Close menu"
-            >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                </svg>
-            </button>
-        </div>
+    <div class="flex items-center justify-between">
+        <span id="mobile-menu-title" class="eyebrow">Navigation</span>
+        <button
+            id="mobile-menu-close"
+            class="grid size-11 place-items-center border border-[var(--paper)] text-[var(--paper)] hover:bg-[var(--paper)] hover:text-[var(--ink)]"
+            aria-label="Close menu"
+        >
+            <svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
 
-        <NavigationLinks isHomePage={isHomePage} variant="mobile" />
+    <NavigationLinks isHomePage={isHomePage} variant="mobile" class="py-10" />
 
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-sm font-medium text-slate-900 dark:text-white">Theme</span>
-                <ThemeToggle id="mobile-theme-toggle" variant="toggle" />
-            </div>
-            <SocialLinks size="lg" emailId="mobile-email-link" class="justify-center space-x-6" />
+    <div class="border-t border-white/30 pt-5">
+        <div class="mb-5 flex items-center justify-between">
+            <span class="eyebrow">Theme</span>
+            <ThemeToggle id="mobile-theme-toggle" variant="toggle" />
         </div>
+        <SocialLinks size="lg" emailId="mobile-email-link" class="justify-between text-[var(--paper)]" />
     </div>
 </div>
 
@@ -55,79 +46,55 @@ const { isHomePage = true } = Astro.props;
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenuClose = document.getElementById('mobile-menu-close');
     const mobileSidebar = document.getElementById('mobile-sidebar');
-    const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
     const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
 
-    const openMobileMenu = () => {
-        mobileSidebar?.classList.remove('translate-x-full');
-        mobileSidebarOverlay?.classList.remove('opacity-0', 'pointer-events-none');
-        document.body.style.overflow = 'hidden';
+    const isOpen = () => mobileSidebar?.getAttribute('aria-hidden') === 'false';
 
+    const openMobileMenu = () => {
+        mobileSidebar?.classList.remove('translate-y-[-100%]', 'opacity-0', 'pointer-events-none');
+        document.body.style.overflow = 'hidden';
         mobileMenuButton?.setAttribute('aria-expanded', 'true');
         mobileMenuButton?.setAttribute('aria-label', 'Close menu');
         mobileSidebar?.setAttribute('aria-hidden', 'false');
-
         document.querySelector('main')?.setAttribute('inert', '');
         document.querySelector('header')?.setAttribute('inert', '');
-
-        setTimeout(() => {
-            mobileMenuClose?.focus();
-        }, 100);
+        window.setTimeout(() => mobileMenuClose?.focus(), 100);
     };
 
     const closeMobileMenu = () => {
-        mobileSidebar?.classList.add('translate-x-full');
-        mobileSidebarOverlay?.classList.add('opacity-0', 'pointer-events-none');
+        mobileSidebar?.classList.add('translate-y-[-100%]', 'opacity-0', 'pointer-events-none');
         document.body.style.overflow = '';
-
         mobileMenuButton?.setAttribute('aria-expanded', 'false');
         mobileMenuButton?.setAttribute('aria-label', 'Open menu');
         mobileSidebar?.setAttribute('aria-hidden', 'true');
-
         document.querySelector('main')?.removeAttribute('inert');
         document.querySelector('header')?.removeAttribute('inert');
-
         mobileMenuButton?.focus();
     };
 
     mobileMenuButton?.addEventListener('click', openMobileMenu);
     mobileMenuClose?.addEventListener('click', closeMobileMenu);
-    mobileSidebarOverlay?.addEventListener('click', closeMobileMenu);
-
-    mobileNavLinks.forEach((link) => {
-        link.addEventListener('click', () => {
-            setTimeout(closeMobileMenu, 100);
-        });
-    });
+    mobileNavLinks.forEach((link) => link.addEventListener('click', () => window.setTimeout(closeMobileMenu, 100)));
 
     window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768) {
-            closeMobileMenu();
-        }
+        if (window.innerWidth >= 768 && isOpen()) closeMobileMenu();
     });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            closeMobileMenu();
-        }
-
-        if (!mobileSidebar?.classList.contains('translate-x-full') && e.key === 'Tab') {
-            const focusableElements = mobileSidebar?.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-            );
-
-            if (focusableElements && focusableElements.length > 0) {
-                const firstElement = focusableElements[0] as HTMLElement;
-                const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-                if (e.shiftKey && document.activeElement === firstElement) {
-                    e.preventDefault();
-                    lastElement.focus();
-                } else if (!e.shiftKey && document.activeElement === lastElement) {
-                    e.preventDefault();
-                    firstElement.focus();
-                }
-            }
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && isOpen()) closeMobileMenu();
+        if (!isOpen() || event.key !== 'Tab') return;
+        const focusable = mobileSidebar?.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
         }
     });
 </script>

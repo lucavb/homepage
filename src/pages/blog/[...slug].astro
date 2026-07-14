@@ -21,7 +21,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-let ogImageUrl = entry.data.thumbnail || '/assets/images/og-image.jpg';
+let ogImageUrl = entry.data.thumbnail || '/assets/images/og-image.png';
 
 if (!entry.data.thumbnail && entry.data.heroImagePath) {
     try {
@@ -60,25 +60,26 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     robots={entry.data.draft ? 'noindex, nofollow' : 'index, follow'}
 >
     <ReadingProgress />
-    <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div class="min-h-screen">
         <Header isHomePage={false} />
 
         <main id="main-content">
             <PageHero
                 title={entry.data.title}
                 description={entry.data.description}
-                backLinkText="Back to Blog"
+                eyebrow="Writing"
+                showBackLink={true}
+                backLinkText="Back to Writing"
                 backLinkHref="/blog"
                 publishDate={entry.data.publishDate}
                 tags={entry.data.tags}
             />
 
-            <!-- Blog Content -->
-            <section class="py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-950">
-                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section class="py-16 sm:py-24">
+                <div class="mx-auto w-[min(760px,calc(100%-36px))]">
                     {
                         entry.data.draft && (
-                            <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6 mb-8">
+                            <div class="mb-8 border-l-4 border-[var(--orange)] bg-[var(--yellow)] p-6">
                                 <div class="flex">
                                     <div class="flex-shrink-0">
                                         <svg
@@ -94,10 +95,8 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
                                         </svg>
                                     </div>
                                     <div class="ml-3">
-                                        <h3 class="text-sm font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
-                                            Draft Preview
-                                        </h3>
-                                        <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                        <h3 class="mb-1 text-sm font-semibold">Draft Preview</h3>
+                                        <p class="text-sm">
                                             This post is currently in draft mode and not visible on the blog listing or
                                             homepage. Share this URL with reviewers for feedback before publishing.
                                         </p>
@@ -106,7 +105,7 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
                             </div>
                         )
                     }
-                    <div class="prose prose-lg dark:prose-invert prose-violet max-w-none">
+                    <div class="prose prose-lg max-w-none">
                         <Content />
                     </div>
 
@@ -128,7 +127,7 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
 
     /* Custom prose styles for better readability */
     .prose {
-        @apply text-slate-900 dark:text-slate-100;
+        color: var(--ink);
     }
 
     .prose h1,
@@ -137,23 +136,32 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     .prose h4,
     .prose h5,
     .prose h6 {
-        @apply text-slate-900 dark:text-white font-bold;
+        color: var(--ink);
+        font-weight: 700;
     }
 
     .prose h2 {
-        @apply text-2xl mt-8 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 0.5rem;
     }
 
     .prose h3 {
-        @apply text-xl mt-6 mb-3;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
     }
 
     .prose p {
-        @apply mb-4 leading-relaxed;
+        margin-bottom: 1rem;
+        line-height: 1.7;
     }
 
     .prose a {
-        @apply text-violet-600 dark:text-violet-400 hover:text-violet-700 dark:hover:text-violet-300 no-underline hover:underline;
+        color: var(--ink);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.18em;
     }
 
     .prose ul,
@@ -166,11 +174,15 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     }
 
     .prose blockquote {
-        @apply border-l-4 border-violet-600 dark:border-violet-400 pl-4 italic text-slate-700 dark:text-slate-300;
+        border-left: 4px solid var(--orange);
+        padding-left: 1rem;
+        color: var(--muted);
     }
 
     .prose pre {
-        @apply bg-slate-100 dark:bg-slate-800 p-4 rounded-lg overflow-x-auto;
+        overflow-x: auto;
+        background: var(--ink);
+        padding: 1rem;
     }
 
     .prose pre code {
@@ -216,11 +228,6 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
     .prose :global(.heading-anchor:focus) {
         opacity: 1;
         outline: none;
-        box-shadow: 0 0 0 2px rgb(124 58 237 / 0.7);
-        border-radius: 0.25rem;
-    }
-
-    :global(.dark) .prose :global(.heading-anchor:focus) {
-        box-shadow: 0 0 0 2px rgb(167 139 250 / 0.7);
+        box-shadow: 0 0 0 2px var(--orange);
     }
 </style>
