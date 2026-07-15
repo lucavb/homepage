@@ -21,4 +21,16 @@ test.describe('Munich Modern routes', () => {
         await expect(page.getByText('[Click to reveal email]')).toBeVisible();
         await expect(page.getByText('[Click to reveal]')).toBeVisible();
     });
+
+    test('publishes the color-ring icon set and a versioned social preview', async ({ page }) => {
+        await page.goto('/');
+
+        await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg');
+        await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute('href', '/apple-touch-icon.png');
+        await expect(page.locator('link[rel="manifest"]')).toHaveAttribute('href', '/site.webmanifest');
+        await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
+            'content',
+            /\/assets\/images\/og-image\.png\?v=20260715$/,
+        );
+    });
 });

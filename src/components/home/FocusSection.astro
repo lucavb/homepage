@@ -23,7 +23,7 @@ const focusAreas = [
         corner: 'rounded-none sm:rounded-bl-[44px]',
     },
     {
-        symbol: '5',
+        symbol: 'team',
         title: 'Team leadership',
         description: 'I lead engineers, teach new tools, and improve how the team works.',
         color: 'bg-[var(--green)]',
@@ -44,8 +44,21 @@ const focusAreas = [
                     class={`flex min-h-72 flex-col justify-between p-6 sm:p-8 ${area.color} ${area.corner}`}
                     data-animate
                 >
-                    <span class="grid size-16 place-items-center rounded-full border-2 border-current font-outfit text-xl font-bold">
-                        {area.symbol}
+                    <span
+                        class="grid size-16 place-items-center rounded-full border-2 border-current font-outfit text-xl font-bold"
+                        aria-label={area.symbol === 'team' ? 'Team of five engineers' : undefined}
+                    >
+                        {area.symbol === 'team' ? (
+                            <span class="grid grid-cols-3 gap-1.5" aria-hidden="true">
+                                <span class="size-2.5 rounded-full bg-current" />
+                                <span class="size-2.5 rounded-full bg-current" />
+                                <span class="size-2.5 rounded-full bg-current" />
+                                <span class="col-start-1 size-2.5 rounded-full bg-current" />
+                                <span class="col-start-3 size-2.5 rounded-full bg-current" />
+                            </span>
+                        ) : (
+                            area.symbol
+                        )}
                     </span>
                     <div>
                         <h3 class="max-w-md text-3xl font-bold leading-none tracking-[-0.05em]">{area.title}</h3>

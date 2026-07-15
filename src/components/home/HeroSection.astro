@@ -18,7 +18,7 @@ import { info } from '@data';
                     I help teams get the most out of coding agents.
                 </h1>
             </div>
-            <div class="relative z-10 mt-auto max-w-xl">
+            <div class="relative z-10 mt-12 max-w-xl lg:mt-auto">
                 <p class="text-lg leading-relaxed sm:text-xl">{info.heroDescription}</p>
                 <a
                     href="#focus"
@@ -33,7 +33,7 @@ import { info } from '@data';
 
         <aside class="grid gap-7 sm:grid-cols-[0.9fr_1.1fr] lg:grid-cols-1 lg:grid-rows-[1.2fr_0.8fr]">
             <div
-                class="min-h-[390px] overflow-hidden rounded-t-full bg-[var(--green)] p-7 pb-0 sm:h-full sm:min-h-0 lg:min-h-[390px]"
+                class="min-h-[390px] overflow-hidden rounded-tr-[100px] rounded-bl-[100px] sm:h-full sm:min-h-0 lg:min-h-[390px]"
             >
                 <picture>
                     <source
@@ -48,7 +48,7 @@ import { info } from '@data';
                         src="/assets/images/hero/400.jpg"
                         srcset="/assets/images/hero/400.jpg 1x, /assets/images/hero/800.jpg 2x"
                         alt={info.name}
-                        class="h-full w-full rounded-t-full object-cover object-top saturate-75"
+                        class="h-full w-full object-cover object-top saturate-75"
                         width="400"
                         height="560"
                         loading="eager"

@@ -14,10 +14,13 @@ export interface Props {
     robots?: string;
 }
 
+const defaultOgImageUrl = '/assets/images/og-image.png';
+const socialPreviewVersion = '20260715';
+
 const {
     title = '',
     description = '',
-    ogImageUrl = '/assets/images/og-image.png',
+    ogImageUrl = defaultOgImageUrl,
     class: _className = 'light',
     publishDate,
     tags = [],
@@ -28,7 +31,10 @@ const {
 
 const siteUrl = info.baseUrl;
 const currentUrl = new URL(Astro.url.pathname, siteUrl).toString();
-const absoluteImageUrl = ogImageUrl.startsWith('http') ? ogImageUrl : new URL(ogImageUrl, siteUrl).toString();
+const resolvedOgImageUrl = ogImageUrl === defaultOgImageUrl ? `${ogImageUrl}?v=${socialPreviewVersion}` : ogImageUrl;
+const absoluteImageUrl = resolvedOgImageUrl.startsWith('http')
+    ? resolvedOgImageUrl
+    : new URL(resolvedOgImageUrl, siteUrl).toString();
 
 const pageTitle = title ? (title.startsWith(info.name) ? title : `${title} | ${info.name}`) : info.name;
 const structuredData = {
@@ -78,6 +84,10 @@ const structuredData = {
         </script>
         <meta charset="utf-8" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/site.webmanifest" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#f8f8f2" />
         <meta name="generator" content={Astro.generator} />
