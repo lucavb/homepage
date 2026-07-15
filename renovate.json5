@@ -4,4 +4,5 @@
     semanticCommits: 'enabled',
     semanticCommitType: 'chore',
     semanticCommitScope: 'deps',
+    ignorePaths: ['**/*.lock.yml', '.github/workflows/agentics-maintenance.yml', '.github/aw/actions-lock.json'],
 }
