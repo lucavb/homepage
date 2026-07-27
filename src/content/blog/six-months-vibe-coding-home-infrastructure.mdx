@@ -1,0 +1,198 @@
+---
+title: 'Six Months of Vibe Coding My Home Infrastructure'
+description: 'How AI turned a manual homelab into a multi-site GitOps setup, what broke along the way, and why businesses still need guardrails.'
+publishDate: 2026-07-27
+tags: ['homelab', 'ai-coding', 'gitops', 'kubernetes', 'automation', 'security']
+heroImagePath: 'six-months-vibe-coding-home-infrastructure/hero.jpg'
+relatedPosts:
+    [
+        'biggest-homelab-overhaul-yet',
+        'renovate-regex-manager-arbitrary-files',
+        'cursor-from-tool-to-thinking-partner',
+        'cursor-sandboxing-leaks-secrets',
+    ]
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import heroImage from '../../assets/images/blog/six-months-vibe-coding-home-infrastructure/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="AI agent coordinating Kubernetes-based home infrastructure from a homelab workspace"
+    loading="eager"
+/>
+
+I have been homelabbing since roughly 2011. My first server was an old desktop PC that I had stopped using as a desktop and, in the time-honoured tradition, decided was now a Linux server.
+
+Since then, the setup has always kind of worked. Over the years I added services, containers, reverse proxies, monitoring, and a lot of things deployed manually through Portainer or SSH. None of it was especially elegant. All of it was connected enough that I really did not want to touch it.
+
+Then, while sitting at Heraklion airport in Crete, I finally pulled the trigger.
+
+I had wanted to rebuild the whole thing for a while. At work, I see what infrastructure as code can do when it is done properly. I wanted the same basic idea at home: infrastructure that is described in git, changes that can be reviewed and rolled back, and a setup that does not depend on me remembering what I changed on some random Tuesday evening.
+
+The difference was that I no longer had to learn and write every piece of it alone. I had coding agents.
+
+Six months later, my home infrastructure has four k3s cluster configurations, around 53 deployed charts and services, and one repository managing it all. The stack uses OpenTofu for infrastructure, Ansible for host configuration, Helm for app deployments, Forgejo Actions for automation, SOPS for encrypted secrets, and more YAML than I would like to admit.
+
+Without AI, this system would not exist.
+
+Not in its current form, anyway. Not with the amount of debugging, ideas, writing, and fairly specialised knowledge it required. I would probably still have a perfectly usable, slightly mysterious collection of containers. Which is fine! But I would not have built this.
+
+## The Homelab Worked Before. It Works Better Now.
+
+This is important, because I did not rebuild a burning platform.
+
+The old setup worked. Services were up. I could access them. I had monitoring. I even wrote about the [first GitOps overhaul](/blog/biggest-homelab-overhaul-yet/) while it was still in progress.
+
+But “it works” and “I can operate this calmly” are not the same thing.
+
+I now have much more reliable Prometheus monitoring, dashboards for things I did not even know I wanted to track six months ago, and proper off-site backups. Finally. I was one of those people who knew backups were important, knew his backup story was not really good enough, and somehow always found the setup too annoying to finish.
+
+Now the backup system exists. It is configured in code. It runs automatically. It is not perfect, because nothing is, but it is a much better place to be than “I should really set that up at some point.”
+
+The same applies to new services. A deployment is no longer a small adventure in remembering Docker flags, volumes, proxy configuration, DNS, and where I put the last configuration file. It is usually a question of fitting the service into an existing pattern.
+
+That pattern is k3s and Helm for apps, OpenTofu for infrastructure such as DNS and networking, Ansible for hosts, and CI to tie the pieces together. It is definitely overkill for one person. It is also useful overkill.
+
+### Six Months by the Numbers
+
+From the GitOps reset on 10 February through 27 July, the repository collected:
+
+- **850 commits**
+- **322 commits starting with `feat`**
+- **238 commits starting with `fix`**
+- **145 commits authored by `renovate-bot`**
+
+Those are commit-message categories, not 322 distinct user-facing features. The 238 fixes are, unsurprisingly, corrections to things I or an agent got wrong before.
+
+But they show the pace. AI did not make me spend less time on the homelab in a simple, measurable way. It made vastly more infrastructure manageable in the time I had available. And, quite frankly, I also spend more time on it because I enjoy it.
+
+I like learning how production-grade software behaves. I like discovering that NFS performs horribly for SQLite workloads, then moving a workload to iSCSI and discovering that “better” is still not automatically “good.” I like watching dashboards. I like building systems that keep doing their thing while I sleep.
+
+## The Agent Sometimes Knows Things I Do Not
+
+The biggest benefit is not that an agent writes YAML faster than I do. YAML was never the bottleneck.
+
+The important part is being able to talk to something that knows about far more infrastructure tools than I do and can apply that knowledge to the repository in front of it.
+
+A good example is [Renovate’s regex manager](/blog/renovate-regex-manager-arbitrary-files/). I was already using Renovate, but I did not know it could update version pins in arbitrary files when you teach it how to find them with a regex. The agent suggested it almost casually: yes, Renovate does not understand this file by default, but why not configure a custom manager for it?
+
+That was one of those moments where I just stared at the screen for a second.
+
+It solved a very real problem. I had version strings in Helm charts, scripts, workflow files, and other places that were easy to forget. Keeping them fresh manually is exactly the kind of job that sounds manageable until you have not looked at a dependency for four months.
+
+I ended up using the same idea in a client repository as well. This is the part of AI-assisted work that I find most useful: it does not just implement the thing I already know I want. Sometimes it points at the tool or practice I should have known about in the first place.
+
+## A Discussion Partner During an Outage
+
+The other role I have come to value is AI as a discussion partner.
+
+While I was on holiday in Italy, my home DSL connection went down. OPNsense failed over as it was supposed to, which meant the network at home could still reach the internet. Great. Except I could no longer reach anything from the outside through my usual WireGuard route.
+
+At the time, I did not fully understand what had happened. I was away, I did not have physical access, and the situation was exactly the kind of networking problem where you can spend a long time wondering which assumption you forgot to make.
+
+AI could not fix the outage remotely. But it was very good at helping me reason about the architecture, identify the missing resilience path, and turn the incident into a plan.
+
+The result is a Cloudflare Tunnel break-glass route to the OPNsense UI behind Cloudflare Access and a security key, plus additional monitoring and recovery work. The point is not that a tunnel makes a home network magically safe. It does not. The point is that I could start with a half-formed “I need another way in when this happens again” and work towards a concrete design that fit the infrastructure I actually have.
+
+That is a very different experience from opening ten browser tabs and hoping one of them contains the exact answer.
+
+## Model Vibe Check, With a Disclaimer
+
+This is not a benchmark. I have not run systematic evaluations. It is just what has worked for me while this repository has grown.
+
+[Composer 2.5](https://cursor.com/blog/composer-2-5) changed the economics of working this way. At the time of writing in July 2026, its standard tier is priced at $0.50 per million input tokens and $2.50 per million output tokens; the faster default variant costs more. Compared with the amount I had been spending on Sonnet 4.6 and GPT-5.4, that price-to-performance ratio made it much easier to use agents for everyday infrastructure work.
+
+For a while, it felt almost absurdly good for the price.
+
+Recently, Composer has felt a bit worse to me. That is a subjective impression, not a claim that Cursor intentionally changed the model to push [Grok 4.5](https://cursor.com/blog/grok-4-5), the newer model Cursor released with SpaceXAI. Model behaviour changes, task types vary, and my own expectations change as well. I am not going to pretend I can infer product strategy from a few frustrating sessions.
+
+But I do switch models more now.
+
+GPT-5.6 Sol deserves a particular shout-out for the difficult work. Give it a difficult debugging problem or a broad repository refactor and it stays laser-focused. It keeps digging until it has an answer. For some tasks, that is exactly what I want.
+
+Composer is the practical model I can afford to use liberally. Sol is the one I reach for when I want something to keep worrying at a problem until it has a real answer. That is obviously a simplification, but it is a useful one in my day-to-day workflow.
+
+## The Evening I Had to Rotate My VPN Keys
+
+This would be a very one-sided blog post if I stopped there.
+
+The agents have also caused incidents.
+
+I use SOPS-encrypted files for API keys, deployment secrets, and WireGuard configuration. Those files exist so the infrastructure can deploy safely. They are not meant to be read into an agent context.
+
+On a new laptop, I installed Cursor and started working the way I normally would. I did not notice that its approval configuration was different from what I had used before. The agent got far enough into the secret-handling workflow to expose WireGuard private keys in its context.
+
+I treated the affected keys as compromised and spent the rest of the evening rotating them.
+
+That was not fun. It was also a useful reminder that “the agent is probably trying to help” is not a security model. The agent had no malicious intent. It simply treated reading those files as a reasonable debugging step.
+
+I still use manual approvals because of this. It is annoying, and it is a mitigation rather than an isolation boundary.
+
+I do not think Cursor is going to solve this with its current approach. Its Auto-review mode combines allow-lists, sandboxing where possible, and a classifier that decides whether a command looks safe enough to run. Cursor [explicitly says](https://cursor.com/docs/agent/security/run-modes) that this classifier is not a security boundary, and I agree. Prompt injection exists. Agents can also try a different route when the obvious one is blocked. Asking an agent to judge whether its own next action is safe is useful friction, but it is not containment.
+
+My bigger gripe is with the message around it. Cursor's product framing can easily leave users with the impression that they can turn on sandboxing and be fine. I think that is dangerous. It should communicate much more aggressively that this is best-effort protection, not a guarantee that an agent cannot reach secrets or escape the boundaries you thought you had set. I raised this with Cursor, and I did not come away convinced that they see the distinction as urgently as they should.
+
+I would rather run agents in a more serious boundary, such as a Docker container or virtual machine, with only a disposable workspace, limited network access, and no real secrets. That will be good enough for most developers and is materially better than trusting command classification, even if it is not perfect. The recent [GPT-5.6 Sol sandbox-escape incident](https://openai.com/index/hugging-face-model-evaluation-security-incident/) is a good reminder that capable agents will look for unexpected exits.
+
+I wrote previously about [why sandboxing can still leak secrets](/blog/cursor-sandboxing-leaks-secrets/). The short version remains the same: either you properly isolate the agent, or you have to review its actions carefully. Right now, I am doing the latter.
+
+## I Do Not Understand Every File. That Is Both Fine and Not Fine.
+
+I understand Kubernetes reasonably well. I understand what WireGuard does. I can look at a Helm chart or a network rule and have a useful opinion about it.
+
+I do not understand every OpenTofu file in this repository. I have rudimentary knowledge of the Terraform language. I know what the infrastructure should do at a high level, but I could not confidently explain every implementation choice in every Ansible role.
+
+That sounds alarming when written down, and maybe it should.
+
+Recently, I used GPT-5.6 Sol to review the Ansible parts of the repository against the documentation and patterns used by larger organisations. It made substantial refactorings. I could review the goal and the outcome, but I was relying heavily on the model for the details.
+
+For this homelab, I think that is acceptable. I own the risk. I observe the system. I can tolerate downtime. When I have broken Traefik configuration, probably four times in these six months, the main person affected was me.
+
+That does not make generated infrastructure inherently safe. It means I have a generous failure budget.
+
+And the funny part is that the setup has become much more robust despite those incidents. I would have broken things manually as well. The difference is that each failure now tends to leave behind a runbook, a monitoring check, a better backup, a stricter rule, or a more reproducible configuration.
+
+## Why This Does Not Translate Directly to Work
+
+I do think businesses should use AI for infrastructure work. I think it can make teams faster, help them discover better tools, reduce boring work, and give people access to knowledge they did not previously have.
+
+But “let the agents run wild” is not the lesson here.
+
+Businesses need staging environments, tests, review, isolation, observability, backups, and recovery procedures because their failures affect more than one person temporarily losing access to their reverse proxy. Those guardrails are not bureaucracy. They are how you make AI work to your benefit instead of becoming a very efficient way to create new incidents.
+
+I also do not think dark factories are around the corner, at least not for the kind of ambiguous work most teams actually do.
+
+The difficult problem is not only model intelligence. Humans carry a huge number of implicit assumptions about what they want, how something should behave, which edge cases matter, and what trade-offs are acceptable. The bigger the requested feature or infrastructure change gets, the more of those assumptions need to be stated explicitly.
+
+We are not particularly good at doing that. We communicate in directions, examples, half-sentences, and “you know what I mean.” Other humans can often recover the missing context because they share experience, ask follow-up questions, or notice the awkward pause in the room. Autonomous systems can only reliably execute the intent they can actually observe.
+
+More agents and stronger models will help with implementation and review. They will not automatically know the things nobody wrote down.
+
+## What I Would and Would Not Recommend
+
+If you want to try AI-assisted homelabbing, here is my short version:
+
+| Do                                                                                                                                                                                                      | Do not                                                                                                         |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Start with a system you can afford to break.                                                                                                                                                            | Copy this entire setup just because it looks cool.                                                             |
+| Put the desired state in git before adding more complexity.                                                                                                                                             | Assume a clean plan means you have specified every important detail.                                           |
+| Build monitoring, backups, and a tested recovery path earlier than you think you need them.                                                                                                             | Apply a personal-homelab failure budget to production systems.                                                 |
+| Use AI to surface tools and practices you do not know yet, not only to generate configuration.                                                                                                          | Treat generated code as understood code.                                                                       |
+| Keep humans at the secret and command boundaries.                                                                                                                                                       | Give an agent unrestricted access to your machine or secrets.                                                  |
+| Use security audits as another source of cheap confidence. [Cloudflare’s security-audit skill](https://github.com/cloudflare/security-audit-skill) is one useful example of an additional review layer. | Treat an audit as proof that everything is safe, or as a replacement for expert review or penetration testing. |
+
+## Would I Do It Again?
+
+Absolutely.
+
+I would choose broadly the same architecture again. I would set up observability, off-site backups, and break-glass recovery much earlier. I would be more careful about agent boundaries from day one. I would probably still break Traefik at least once, because apparently that is part of the hobby.
+
+But the difference between the old desktop server and the system I have now is huge.
+
+The homelab worked before. Now it is observable, reproducible, backed up off-site, and able to grow without every new service becoming a manual maintenance task. More importantly, I can focus on the bigger picture: what I want the system to do, what I want to learn next, and which problems are worth solving.
+
+For me, that is what vibe coding infrastructure has made possible. Not a fully autonomous datacentre. Not a replacement for understanding or responsibility.
+
+Just a far more capable way to build, operate, and enjoy a homelab.
