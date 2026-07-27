@@ -10,6 +10,8 @@ interface Props {
 
 const { currentPostId, relatedPostIds, tags } = Astro.props;
 
+const MAX_RELATED_POSTS = 3;
+
 const allPosts = await getCollection('blog', ({ data }) => {
     return data.draft !== true;
 });
@@ -27,6 +29,7 @@ let relatedPosts: IBlogPost[] = [];
 if (relatedPostIds && relatedPostIds.length > 0) {
     relatedPosts = allPosts
         .filter((post) => relatedPostIds.includes(post.id))
+        .slice(0, MAX_RELATED_POSTS)
         .map((post) => ({
             id: post.id,
             title: post.data.title,
@@ -39,7 +42,7 @@ if (relatedPostIds && relatedPostIds.length > 0) {
         }));
 }
 
-if (relatedPosts.length < 3 && tags && tags.length > 0) {
+if (relatedPosts.length < MAX_RELATED_POSTS && tags && tags.length > 0) {
     const tagBasedPosts = allPosts
         .filter((post) => post.id !== currentPostId)
         .filter((post) => !relatedPostIds?.includes(post.id))
@@ -54,7 +57,7 @@ if (relatedPosts.length < 3 && tags && tags.length > 0) {
             }
             return b.post.data.publishDate.getTime() - a.post.data.publishDate.getTime();
         })
-        .slice(0, 3 - relatedPosts.length)
+        .slice(0, MAX_RELATED_POSTS - relatedPosts.length)
         .map(({ post }) => ({
             id: post.id,
             title: post.data.title,
@@ -69,12 +72,12 @@ if (relatedPosts.length < 3 && tags && tags.length > 0) {
     relatedPosts = [...relatedPosts, ...tagBasedPosts];
 }
 
-if (relatedPosts.length < 3) {
+if (relatedPosts.length < MAX_RELATED_POSTS) {
     const recentPosts = allPosts
         .filter((post) => post.id !== currentPostId)
         .filter((post) => !relatedPosts.some((rp) => rp.id === post.id))
         .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
-        .slice(0, 3 - relatedPosts.length)
+        .slice(0, MAX_RELATED_POSTS - relatedPosts.length)
         .map((post) => ({
             id: post.id,
             title: post.data.title,
