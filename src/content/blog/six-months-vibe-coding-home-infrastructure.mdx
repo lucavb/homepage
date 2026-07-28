@@ -22,11 +22,11 @@ I have been homelabbing since roughly 2011. My first server was an old desktop P
 
 Since then, the setup has always kind of worked. Over the years I added services, containers, reverse proxies, monitoring, and a lot of things deployed manually through Portainer or SSH. None of it was especially elegant. All of it was connected enough that I really did not want to touch it.
 
-Then, while sitting at Heraklion airport in Crete, I finally pulled the trigger.
+Then, while sitting at an airport in February, I finally pulled the trigger.
 
 I had wanted to rebuild the whole thing for a while. At work, I see what infrastructure as code can do when it is done properly. I wanted the same basic idea at home: infrastructure that is described in git, changes that can be reviewed and rolled back, and a setup that does not depend on me remembering what I changed on some random Tuesday evening.
 
-The difference was that I no longer had to learn and write every piece of it alone. I had coding agents.
+The difference was that I no longer had to learn and write every piece of it alone. We now have coding agents.
 
 Six months later, my home infrastructure has four k3s cluster configurations, around 53 deployed charts and services, and one repository managing it all. The stack uses OpenTofu for infrastructure, Ansible for host configuration, Helm for app deployments, Forgejo Actions for automation, SOPS for encrypted secrets, and more YAML than I would like to admit.
 

@@ -125,67 +125,68 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
 <style>
     @reference "tailwindcss";
 
-    /* Custom prose styles for better readability */
+    /* Custom prose styles for better readability.
+       MDX content is not scoped, so :global() is required for rendered elements. */
     .prose {
         color: var(--ink);
     }
 
-    .prose h1,
-    .prose h2,
-    .prose h3,
-    .prose h4,
-    .prose h5,
-    .prose h6 {
+    .prose :global(h1),
+    .prose :global(h2),
+    .prose :global(h3),
+    .prose :global(h4),
+    .prose :global(h5),
+    .prose :global(h6) {
         color: var(--ink);
         font-weight: 700;
     }
 
-    .prose h2 {
+    .prose :global(h2) {
         margin-top: 2rem;
         margin-bottom: 1rem;
         border-bottom: 1px solid var(--line);
         padding-bottom: 0.5rem;
     }
 
-    .prose h3 {
+    .prose :global(h3) {
         margin-top: 1.5rem;
         margin-bottom: 0.75rem;
     }
 
-    .prose p {
+    .prose :global(p) {
         margin-bottom: 1rem;
         line-height: 1.7;
     }
 
-    .prose a {
+    .prose :global(a) {
         color: var(--ink);
         text-decoration: underline;
         text-decoration-thickness: 1px;
         text-underline-offset: 0.18em;
     }
 
-    .prose ul,
-    .prose ol {
+    .prose :global(ul),
+    .prose :global(ol) {
         @apply mb-4;
     }
 
-    .prose li {
+    .prose :global(li) {
         @apply mb-2;
     }
 
-    .prose blockquote {
+    .prose :global(blockquote) {
         border-left: 4px solid var(--orange);
         padding-left: 1rem;
         color: var(--muted);
     }
 
-    .prose pre {
+    .prose :global(pre) {
         overflow-x: auto;
         background: var(--ink);
         padding: 1rem;
     }
 
-    .prose pre code {
+    .prose :global(pre code) {
         @apply bg-transparent p-0;
     }
 

@@ -120,6 +120,23 @@
     }
 }
 
+.prose {
+    --tw-prose-body: var(--ink);
+    --tw-prose-headings: var(--ink);
+    --tw-prose-lead: var(--muted);
+    --tw-prose-links: var(--ink);
+    --tw-prose-bold: var(--ink);
+    --tw-prose-counters: var(--muted);
+    --tw-prose-bullets: var(--muted);
+    --tw-prose-hr: var(--line);
+    --tw-prose-quotes: var(--muted);
+    --tw-prose-quote-borders: var(--line);
+    --tw-prose-captions: var(--muted);
+    --tw-prose-code: var(--ink);
+    --tw-prose-th-borders: var(--line);
+    --tw-prose-td-borders: var(--line);
+}
+
 .prose code::before,
 .prose code::after {
     content: '';
