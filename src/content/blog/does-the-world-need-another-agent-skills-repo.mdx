@@ -1,0 +1,144 @@
+---
+title: 'Does the World Need Another Agent Skills Repo?'
+description: 'Why I published the opinionated agent workflows I use for Jira, planning, code review, and reasoning-rich commit messages.'
+publishDate: 2026-08-05
+tags: ['cursor', 'ai-coding', 'developer-tools', 'automation', 'workflow', 'open-source']
+heroImagePath: 'does-the-world-need-another-agent-skills-repo/hero.jpg'
+relatedPosts:
+    [
+        'agent-skills-teaching-ai-coding-assistant',
+        'cursor-from-tool-to-thinking-partner',
+        'ai-code-reviews-diy-vs-copilot',
+    ]
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/does-the-world-need-another-agent-skills-repo/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="AI agent coordinating a structured software engineering workflow from planning through review"
+    loading="eager"
+/>
+
+## Does the World Need Another Agent Skills Repo?
+
+Probably not.
+
+There are already a lot of excellent skills out there. [Matt Pocock's collection](https://github.com/mattpocock/skills) is the obvious example. I use it heavily, and `grill-me` is genuinely great: it makes an agent ask the questions that uncover the fuzzy edges of an idea before anyone starts building. That is a much better way to start than saying "make a thing" and hoping both sides had the same thing in mind.
+
+So I have been wondering for a while what I could possibly add. The answer is not a universal replacement for anyone else's workflows. It is a collection of the specific places where I kept running into the same problem and eventually got tired of solving it from scratch.
+
+That is why I published [my agent skills repository](https://github.com/lucavb/skills). It is a small, MIT-licensed collection for [Cursor](https://cursor.com/), Claude Code, OpenCode, and other agents that understand the format. You can browse or install the available skills with:
+
+```bash
+npx skills add lucavb/skills --list
+```
+
+If agent skills are new to you, I wrote more about the basic idea in [Agent Skills: Teaching Your AI How to Actually Work](/blog/agent-skills-teaching-ai-coding-assistant/). The short version is that a skill captures the _how_: the investigation, guardrails, tools, and completion criteria behind a task. That turns out to matter more than another clever prompt when a workflow has several steps and a few ways to go wrong.
+
+The collection is deliberately opinionated. It reflects how I work in consulting projects and on my own code, after replacing a few manual rituals with workflows that agents can follow. Some of those rituals will be useful to other people. Others will be far too specific. Both outcomes are fine.
+
+I have even removed a skill from the repository for exactly this reason. I had an `agent-handover` skill, then realised Matt's [`handoff`](https://github.com/mattpocock/skills/blob/main/skills/productivity/handoff/SKILL.md) already covered the problem better. Keeping a worse duplicate just so the repository looked more complete would have been silly.
+
+## A Plan Should Not Begin With More Planning
+
+The first skill is probably the most opinionated: `discover-before-planning`.
+
+I have seen Cursor plans do this a lot, particularly in sessions with Composer 2.5: the plan looks neat at first glance, but its first implementation step is effectively "go and find out how this works." Sometimes that is unavoidable. Often it is not. The repository is right there. The agent can read it before presenting the plan.
+
+I do not know whether this is a Composer behaviour, a Cursor system prompt, or just the interaction between the task and the model. I have less evidence for Claude Code's planning behaviour, so I am not trying to make a general benchmark claim here. I just kept seeing the same shape of plan:
+
+1. inspect the relevant code
+2. determine the existing conventions
+3. decide how the feature should fit
+4. then actually make a plan
+
+That is not really a plan. It is an outline for starting the planning process later.
+
+Of course, implementation can uncover something surprising. A dependency may be missing, an assumption may be wrong, or a code path may behave differently than expected. That is normal. But if the answer is available from a quick, read-only look through the codebase, I want the agent to find it before asking me to approve a course of action.
+
+`discover-before-planning` makes that expectation explicit: resolve what can be resolved now, then present a finite plan that describes the work the agent believes it is about to do. It sounds obvious. It has still made a noticeable difference.
+
+## Jira Should Not Eat the Bullet Points
+
+Some problems are much less philosophical.
+
+Editing a Jira ticket with an agent can be surprisingly painful when the description contains tables, especially tables whose cells contain bullet lists. A normal Markdown-style edit can flatten the formatting or turn a carefully structured requirements table into a confusing blob. I have spent enough time trying to explain "no, the bullets need to stay _inside that cell_" that I finally encoded the workaround.
+
+The `atlassian-jira-adf-formatting` skill uses an Atlassian Document Format round-trip instead of treating the ticket as plain Markdown. It fetches the full document, makes the structural edit in a file, validates it, and only then sends it back. There are even small Node scripts for pre-flight validation because a truncated payload is a very bad way to discover that an agent did not receive the full description.
+
+That skill is paired naturally with `refining-jira-tickets`. Before an agent implements a ticket, it can trace the relevant code, identify ambiguous acceptance criteria, and draft a useful refinement comment instead of silently working around missing information. This grew out of real project work, but the post and repository keep client details anonymous. The underlying frustration should be familiar to anyone who has opened a ticket that was technically complete enough to start and somehow still left all the important questions unanswered.
+
+It is a pain in the arse to solve manually every time. It is a reasonable thing to teach an agent once.
+
+## Making Review Less Ad Hoc
+
+I also do not particularly enjoy reviewing other people's code.
+
+That does not mean reviews matter less. It means I wanted a process that makes them easier to approach consistently, especially when a pull request is larger than I would like or arrives at the end of a busy day. "Read the diff carefully" is good advice and not much of a procedure.
+
+The review skills use a deliberately slightly over-engineered sequence:
+
+- independent, blind critics inspect the ticket and diff without being persuaded by the implementer's explanation;
+- a tribunal decides whether each finding holds up, should be rejected, or needs more evidence;
+- a second pass tries to disprove the findings that survived.
+
+The last part is important. A review that only looks for problems can generate a lot of plausible-sounding noise. Having another agent try to downgrade or refute a finding before it becomes a comment makes the result more useful and less theatrical. The workflow also explicitly asks whether there is a simpler alternative, not just whether the existing code has a bug.
+
+This is not an excuse to rubber-stamp code. I still need to understand the change, judge the trade-offs, and decide what gets merged. But it gives me a repeatable starting point and an audit trail rather than a vague feeling that I should probably look more closely.
+
+I am also looking at a friend's approach to grouping changes into review batches. That could become another useful skill later, once I have tried it rather than merely admired the idea.
+
+## From One Ticket to a Pull Request
+
+The part I find most exciting is composing those smaller pieces into one workflow.
+
+I first got the idea from [Cloudflare's security-audit skill](https://github.com/cloudflare/security-audit-skill). It showed me that an agent can follow a substantial, multi-step process reasonably well when the steps, boundaries, and completion criteria are written down. That was the moment I stopped thinking of skills as little prompt snippets and started thinking about them as workflow infrastructure.
+
+The `ticket-to-pr-pipeline` skill aims to connect much of the routine mechanics of work that used to fill my day: understand a ticket, improve it if necessary, investigate the codebase, agree on a plan, make the change, review it, and prepare the pull request. It does not eliminate responsibility. I still own the requirements, the decisions, the final review, and the release. But it can make the hand-offs between those steps much less improvised.
+
+<MermaidDiagram
+    id="ticket-to-pr-pipeline"
+    diagram={`
+flowchart LR
+    Ticket[Jira ticket]
+    Discovery[Discover codebase context]
+    Plan[Approve finite plan]
+    Build[Implement change]
+    Review["Blind review, tribunal, validation"]
+    Ship["Reasoning-rich commit and PR"]
+
+    Ticket --> Discovery
+    Discovery --> Plan
+    Plan --> Build
+    Build --> Review
+    Review --> Ship
+
+`}
+/>
+
+Installation is intentionally boring:
+
+```bash
+npx skills add lucavb/skills --skill review-core -g -y
+npx skills add lucavb/skills --skill ticket-to-pr-pipeline -g -y
+```
+
+The review and pipeline skills need an agent that can spawn subagents. The Jira-related parts need Atlassian MCP configured, and creating or reviewing pull requests needs the GitHub CLI. Those are real constraints, not hidden magic.
+
+One small side effect has already been worth it: commit messages get better when the agent has been present for the reasoning. An older AI commit-message tool could inspect the diff, but it did not know why I rejected an alternative or which ticket detail shaped the implementation. A colleague messaged me about a recent change today and noted that the commit message already revealed quite a lot. It did not answer every question, which is fair. But "quite a lot" is a significant improvement over a generic summary of changed files.
+
+## Opinionated on Purpose
+
+I have used these skills with Cursor, Claude Code, and OpenCode. That does not make them a compatibility guarantee, and it definitely does not make them best practices for every team. They are readable instructions, not a product with a support contract.
+
+They are also snapshots. I expect them to change as the agents change and as I discover better ways to structure a review, a Jira edit, or a planning session. The useful part is not that everyone should adopt my exact sequence. The useful part is that the frustrations were specific enough to encode, share, inspect, and improve.
+
+That is my answer to the opening question: yes, the world can use another agent skills repository when it captures workflow gaps that are actually hard-won. Not because it is the one true collection, but because someone else might have the same annoying Jira table, the same incomplete plan, or the same desire for commit messages that preserve the reasoning.
+
+If you have solved a recurring agent problem, publish it. It does not need to be a giant framework. A small, sharp skill that saves someone else an afternoon is enough.
+
+And if you have an idea, a complaint, or a better way to do one of these workflows, please [open an issue or pull request](https://github.com/lucavb/skills). I would rather the repository become useful through real conversations than quietly grow another duplicate skill nobody needs.
