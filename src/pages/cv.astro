@@ -10,6 +10,7 @@ const allSkills = info.experience.flatMap((exp) => exp.skills || []);
 const uniqueSkills = [...new Set(allSkills)];
 
 const skillCategories = {
+    'AI & Agentic Development': ['AI-Assisted Development', 'Cursor', 'GitHub Copilot', 'Claude Code'],
     Frontend: ['TypeScript', 'Angular', 'React', 'Cypress'],
     Backend: ['Java', 'Spring Boot', 'NestJS', 'Kotlin', 'PostgreSQL', 'OpenSearch', 'Redis'],
     'Cloud & DevOps': ['AWS', 'Kubernetes', 'GitHub Actions', 'Renovate'],

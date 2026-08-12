@@ -8,10 +8,11 @@ import EmailIcon from '@components/icons/EmailIcon.astro';
 interface Props {
     size?: 'sm' | 'md' | 'lg';
     emailId?: string;
+    variant?: 'default' | 'on-ink';
     class?: string;
 }
 
-const { size = 'md', emailId = 'social-email-link', class: className = '' } = Astro.props;
+const { size = 'md', emailId = 'social-email-link', variant = 'default', class: className = '' } = Astro.props;
 
 const sizeClasses = {
     sm: 'w-4 h-4',
@@ -20,42 +21,29 @@ const sizeClasses = {
 };
 
 const iconSize = sizeClasses[size];
+const linkClasses =
+    variant === 'on-ink'
+        ? 'p-2 text-[var(--paper)] hover:text-[var(--ink)] transition-colors'
+        : 'p-2 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors';
 ---
 
 <div class={`flex items-center space-x-4 ${className}`}>
-    <a
-        href={info.socialMedia.github}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="p-2 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-        aria-label="GitHub"
-    >
+    <a href={info.socialMedia.github} target="_blank" rel="noopener noreferrer" class={linkClasses} aria-label="GitHub">
         <GitHubIcon class={iconSize} />
     </a>
     <a
         href={info.socialMedia.linkedin}
         target="_blank"
         rel="noopener noreferrer"
-        class="p-2 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
+        class={linkClasses}
         aria-label="LinkedIn"
     >
         <LinkedInIcon class={iconSize} />
     </a>
-    <a
-        href={info.socialMedia.matrix}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="p-2 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-        aria-label="Matrix"
-    >
+    <a href={info.socialMedia.matrix} target="_blank" rel="noopener noreferrer" class={linkClasses} aria-label="Matrix">
         <MatrixIcon class={iconSize} />
     </a>
-    <a
-        id={emailId}
-        href="#"
-        class="p-2 text-slate-600 dark:text-slate-300 hover:text-violet-600 dark:hover:text-violet-400 transition-colors"
-        aria-label="Email"
-    >
+    <a id={emailId} href="#" class={linkClasses} aria-label="Email">
         <EmailIcon class={iconSize} />
     </a>
 </div>

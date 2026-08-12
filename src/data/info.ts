@@ -20,7 +20,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             description: [
                 '• Built the entire CI/CD pipeline from scratch using GitHub Actions, automating deployments and reducing manual release overhead',
                 '• Introduced AI-powered code reviews using GitHub Copilot and Claude Haiku, catching issues earlier and speeding up review cycles',
-                '• Leading GitHub Copilot adoption across the team, teaching developers how to work effectively with AI coding assistants',
+                '• Leading GitHub Copilot and Claude Code adoption across the team, teaching developers how to work effectively with AI coding assistants',
                 '• Leading a Scrum team of 5 engineers, balancing technical delivery with long-term architectural decisions',
                 '• Building backend services with NestJS, PostgreSQL, OpenSearch, and Redis to support a high-traffic consumer application',
                 '• Managing AWS infrastructure across multiple environments, keeping costs in check while maintaining performance',
@@ -28,6 +28,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             skills: [
                 'AI-Assisted Development',
                 'GitHub Copilot',
+                'Claude Code',
                 'Team Leadership',
                 'Scrum',
                 'TypeScript',
@@ -71,7 +72,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             startDate: 'Dec 2019',
             endDate: 'Present',
             description: [
-                '• Driving internal AI adoption by teaching colleagues how to use Cursor and GitHub Copilot in their daily work',
+                '• Driving internal AI adoption by teaching colleagues how to use Cursor, Claude Code, and GitHub Copilot in their daily work',
                 '• Running workshops and giving talks on AI coding workflows, helping the team adapt to new development practices',
                 '• Conducting technical interviews to evaluate engineering candidates across different seniority levels',
                 '• Leading technical due diligence for venture capital investments, assessing codebases and engineering teams',
@@ -80,6 +81,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             skills: [
                 'AI-Assisted Development',
                 'Cursor',
+                'Claude Code',
                 'GitHub Copilot',
                 'Technical Interviews',
                 'Due Diligence',
@@ -96,7 +98,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
             endDate: 'Oct 2019',
             description: [
                 '• Student Research Assistant',
-                '• Developing prototypes to show case IT security issues in consumer hardware',
+                '• Developing prototypes to showcase IT security issues in consumer hardware',
                 '• Developing an Android application to track sensor data',
             ],
             skills: ['Android Development', 'Java', 'IT Security', 'Research', 'Prototyping'],
@@ -105,7 +107,7 @@ My technical background spans TypeScript, React, Angular, Java, Spring Boot, and
 
     education: [
         {
-            name: 'Karlsruher Institute for Technology (KIT)',
+            name: 'Karlsruhe Institute of Technology (KIT)',
             location: 'Karlsruhe, Germany',
             startDate: '2013',
             endDate: '2019',

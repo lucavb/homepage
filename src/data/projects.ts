@@ -7,6 +7,7 @@ import stylelintImage from '../assets/images/stylelint-checkstyle-reporter-thumb
 import conventionalChangelogImage from '../assets/images/conventional-changelog-conventionalcommits-jira-thumbnail.png';
 import hoymilesImage from '../assets/images/hoymiles-wifi-exporter-thumbnail.jpg';
 import portglassImage from '../assets/images/portglass-thumbnail.jpg';
+import skillsImage from '../assets/images/skills-thumbnail.jpg';
 import type { IProject } from '@types';
 
 export const projects: IProject[] = [
@@ -36,6 +37,15 @@ export const projects: IProject[] = [
         technologies: ['TypeScript', 'AWS Lambda', 'OpenTofu', 'Slack API'],
         githubUrl: 'https://github.com/lucavb/lunch-slack-bot',
         thumbnail: lunchSlackBotImage,
+        isFeatured: false,
+    },
+    {
+        title: 'Agent Skills',
+        category: 'Open source / developer tooling',
+        summary: 'Cross-agent skills for Cursor, Claude Code, and other coding agents.',
+        technologies: ['Agent Skills', 'Cursor', 'Claude Code', 'Open source'],
+        githubUrl: 'https://github.com/lucavb/skills',
+        thumbnail: skillsImage,
         isFeatured: true,
     },
     {

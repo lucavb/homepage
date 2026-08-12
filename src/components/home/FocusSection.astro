@@ -46,6 +46,7 @@ const focusAreas = [
                 >
                     <span
                         class="grid size-16 place-items-center rounded-full border-2 border-current font-outfit text-xl font-bold"
+                        role={area.symbol === 'team' ? 'img' : undefined}
                         aria-label={area.symbol === 'team' ? 'Team of five engineers' : undefined}
                     >
                         {area.symbol === 'team' ? (
