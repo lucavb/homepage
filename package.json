@@ -48,7 +48,7 @@
         "@tailwindcss/vite": "4.3.3",
         "astro": "7.2.0",
         "astro-robots-txt": "1.0.0",
-        "mermaid": "11.16.1",
+        "mermaid": "11.17.2",
         "tailwindcss": "4.3.3",
         "typescript": "6.0.3"
     },
