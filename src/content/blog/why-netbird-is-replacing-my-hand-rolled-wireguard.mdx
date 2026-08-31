@@ -1,0 +1,176 @@
+---
+title: 'Why NetBird Is Replacing My Hand-Rolled WireGuard'
+description: 'Why I am replacing hand-managed WireGuard remote access with self-hosted NetBird for SSO, OPNsense routing, and selectable multi-site exit nodes.'
+publishDate: 2026-08-30
+tags: ['homelab', 'self-hosted', 'wireguard', 'security', 'sso', 'networking']
+heroImagePath: 'why-netbird-is-replacing-my-hand-rolled-wireguard/hero.jpg'
+relatedPosts:
+    ['six-months-vibe-coding-home-infrastructure', 'biggest-homelab-overhaul-yet', 'mcp-oauth-gateway-authelia']
+draft: false
+---
+
+import AutoOptimizedImage from '../../components/general/AutoOptimizedImage.astro';
+import MermaidDiagram from '../../components/general/MermaidDiagram.astro';
+import heroImage from '../../assets/images/blog/why-netbird-is-replacing-my-hand-rolled-wireguard/hero.jpg';
+
+<AutoOptimizedImage
+    src={heroImage}
+    alt="Stylized orange NetBird bird connecting a home router, self-hosted server, and two remote homes"
+    loading="eager"
+/>
+
+A couple of weeks ago, I was looking through the NetBird documentation and noticed that [there is an official OPNsense package](https://docs.netbird.io/get-started/install/opnsense).
+
+And that was basically it.
+
+“Oh shit, they even have an OPNsense package.”
+
+Up to that point, NetBird had been an interesting experiment in my homelab. After that, I knew it was probably going to replace my hand-rolled WireGuard remote access.
+
+Let me put one thing out there first: WireGuard itself was never the problem. WireGuard is amazing. My old setup worked flawlessly, the native macOS client connected pretty much instantly, and the fixed tunnels between my sites did exactly what they were supposed to do.
+
+The annoying part was everything around it. I had to manage devices, keys, routes, and access myself.
+
+## How I ended up with NetBird
+
+I didn't randomly find NetBird while browsing GitHub. TNG started using it, I used it there, and I liked it. We had also looked at Tailscale, but NetBird's pricing was much easier to justify for what we wanted to do.
+
+I had heard good things about Tailscale for years. The thing that always bothered me was that [Tailscale hosts the official control plane](https://tailscale.com/docs/features/tailnet-lock). There is [Headscale](https://github.com/juanfont/headscale), which is an open-source reimplementation of that control server, but it is an independent project. I never tried it, so I am not going to pretend this is a proper NetBird-versus-Headscale comparison.
+
+What I liked about NetBird was that the same people building the product also provide the [open-source control plane](https://netbird.io/). I can run the whole thing myself and connect it to my own identity provider. NetBird Cloud is there if you don't want to operate any of this, but for my setup, running it myself is the interesting part.
+
+I also found out that the company is [based in Berlin](https://www.netbird.io/press). That didn't affect the decision, but it was a nice little surprise.
+
+I deployed my first home proof of concept on 29 July. On 17 August, I added the off-site exit nodes. One day later, OPNsense was part of the network. Things got serious rather quickly.
+
+## The problem with my old setup
+
+My old setup was simple. Every device had a static WireGuard configuration, and those devices could reach rather large parts of my home networks.
+
+Then I let an agent run [Cloudflare's security-audit skill](https://github.com/cloudflare/security-audit-skill) against the setup. This was not a formal penetration test or anything like that, but it pointed out something fairly obvious: if somebody got hold of one of those devices, the WireGuard key on it would continue to work until I noticed and removed it from the configuration.
+
+To be clear, NetBird still stores a WireGuard private key on every peer. A stolen and unlocked laptop is still a stolen and unlocked laptop. NetBird doesn't magically make that safe.
+
+What it gives me is a much nicer way to deal with it. I can remove a peer centrally. My user devices log in through my self-hosted Zitadel instance with a hardware security key, and NetBird can require them to authenticate again periodically. I can also put peers into groups and decide which networks those groups can reach.
+
+I haven't finished that last part yet. My own devices still have broad owner access, and I want to tighten that once the migration has settled. Even so, centrally revoking one peer is already much better than finding every place where I once pasted a public key.
+
+## My slightly overkill setup
+
+The NetBird control plane runs on the k3s cluster on my VPS using the upstream multi-container Helm chart. Zitadel handles OIDC and U2F. I already had the VPS, Kubernetes, monitoring, backups, and the rest of the machinery, so this fits rather nicely.
+
+Please do not build a Kubernetes cluster just to run NetBird. That would be ridiculous.
+
+At home, OPNsense is a NetBird peer and routes traffic into my VLANs. At my father's place, a Debian LXC container on Proxmox runs another peer. At my girlfriend's place, it runs in a systemd-nspawn container on the bare-metal k3s machine.
+
+Roughly speaking, it looks like this:
+
+<MermaidDiagram
+    id="netbird-homelab-architecture"
+    diagram={`
+flowchart TB
+    Devices[UserDevices]
+
+    subgraph vpsSite [VPS]
+        Control[NetBirdControlPlane]
+        Identity[ZitadelWithU2F]
+        Identity -->|"OIDC authentication"| Control
+    end
+
+    subgraph homeSite [Home]
+        OPNsense[OPNsensePeer]
+        VLANs[HomeVLANs]
+        OPNsense -->|"Routes selected networks"| VLANs
+    end
+
+    subgraph fatherSite [FathersHome]
+        Proxmox[ProxmoxHost]
+        DebianPeer[DebianLXCPeer]
+        Proxmox --> DebianPeer
+    end
+
+    subgraph girlfriendSite [GirlfriendsHome]
+        K3sHost[BareMetalK3sHost]
+        IsolatedPeer[SystemdNspawnPeer]
+        K3sHost -->|"Separate network namespace"| IsolatedPeer
+    end
+
+    Devices -.->|"Login and network map"| Control
+    Control -.->|"Policies and peer coordination"| OPNsense
+    Control -.->|"Policies and peer coordination"| DebianPeer
+    Control -.->|"Policies and peer coordination"| IsolatedPeer
+
+    Devices <-->|"Direct WireGuard"| OPNsense
+    Devices <-->|"Selectable exit"| DebianPeer
+    Devices <-->|"Selectable exit"| IsolatedPeer
+
+`}
+/>
+
+The control plane handles authentication, policies, and telling the peers how to find each other. The traffic itself still uses WireGuard and, whenever possible, goes directly between the peers.
+
+## The exit nodes are what sold me
+
+This is probably my favourite part of the whole setup.
+
+I can use my home connection, my father's connection, or my girlfriend's connection as the exit for my internet traffic. I have tested all three, and I can just pick the one I want on the client.
+
+That is exactly what I wanted for public Wi-Fi, hotels, and Airbnbs. Instead of trusting whatever network I happen to be connected to, I send the traffic through one of my own locations.
+
+Obviously, this doesn't make the traffic invisible. The local Wi-Fi sees an encrypted tunnel, but the ISP at the selected exit still sees traffic leaving that site. The services I connect to still see the exit's public IP. I am moving the place I trust, not somehow removing trust from the equation.
+
+My three exits are currently separate routes with automatic application disabled. I choose one manually. NetBird also supports [automatic failover](https://docs.netbird.io/manage/network-routes/use-cases/exit-nodes), but that is a different configuration where multiple routing peers belong to the same route. Equal metrics prefer the peer with lower latency; different metrics give you a primary and a standby.
+
+I don't have that set up. I have three buttons, effectively, and I pick the location I want. That is already incredibly useful to me.
+
+## It still feels like WireGuard
+
+Before I used native WireGuard, I had OpenVPN on macOS. Tunnelblick was painfully slow for me. OpenVPN Connect made it much better, but native WireGuard connecting directly to OPNsense was on another level. It was basically instant.
+
+NetBird feels much closer to that. It still uses WireGuard underneath, I click connect, and the routes are there. I haven't done a proper throughput benchmark, and a relayed connection will obviously behave differently from a direct one, but in daily use it feels super snappy.
+
+That matters. If connecting to my own network is annoying, I will eventually stop doing it. NetBird has been fast enough that I simply leave it on.
+
+## It is not all magic
+
+Now, I have spent a lot of this post being enthusiastic, but there is overhead.
+
+The software I use at home is free and open source. The infrastructure and my time are not. If you self-host this, you have to run the control plane, identity, DNS, updates, monitoring, backups, and all the other things that come with running software.
+
+My control plane is a single installation. That is fine for my homelab, but it is still a new thing that can break. NetBird also keeps some features, including active-active control-plane high availability, in its [commercial self-hosted edition](https://docs.netbird.io/selfhosted/enterprise).
+
+And I did manage to break things.
+
+At my girlfriend's place, I initially installed NetBird directly on the bare-metal k3s host. NetBird created nftables expressions that the version of `iptables-nft` bundled with k3s could not parse. Kube-router and Flannel started crashing with errors such as `cmp sreg undef`.
+
+That was fun.
+
+I ended up moving NetBird into a systemd-nspawn container with its own network namespace and a restricted virtual Ethernet connection to the uplink. It works now, but this was definitely not a case of installing one package and calling it a day.
+
+NetBird also made me clean up my DNS. I had accumulated names such as `casalta.svc` and `opnsense.sunbury` over the years. They worked fine on my own resolvers, but NetBird couldn't distribute a bare split-DNS match domain such as `.svc`.
+
+So I finally moved things to proper private FQDNs below my real domain. The old aliases still exist while I migrate the remaining consumers, but the new names are much less weird. NetBird forced me to fix something I should probably have fixed anyway.
+
+## Of course AI was involved
+
+I can run a setup like this because most of my infrastructure is now declarative. The Kubernetes deployment, Zitadel integration, NetBird resources, OPNsense rules, and remote peers all live in infrastructure as code.
+
+Nowadays, I can more or less prompt a change, review what the agent wants to do, and let the existing deployment setup handle the rest. That has lowered the barrier quite a lot. I probably would not have built this exact setup manually.
+
+There is a funny part to this, though. The agent never told me that I should look at exit nodes. I noticed that TNG was using them and thought, “Hey, wait, I want this at home as well.”
+
+It also never suggested checking whether OPNsense had a native NetBird package. That one occurred to me a little later, I looked it up myself, and suddenly the whole migration made much more sense.
+
+AI was very good at helping me build the thing I asked for. It did not come up with the two ideas that made me really want the thing.
+
+## What happens to the old WireGuard setup
+
+I have only used NetBird at home for a few weeks, and the old remote-access profiles are not fully gone yet. I want to run this for a while longer before deleting my last fallback.
+
+The fixed site-to-site WireGuard tunnels are staying. They are simple, they are reliable, and they do not need user identities or dynamically selected exit nodes. Replacing them would solve nothing.
+
+For laptops, phones, and traffic from random Wi-Fi networks, I am moving to NetBird. If you have a homelab and want centrally managed peers, your own SSO, routed networks, and selectable exits, you should at least have a look at it.
+
+Just be aware that self-hosting it means running more infrastructure. In my case, that is part of the fun anyway.
+
+For now, both setups are running. If NetBird keeps working as well as it has so far, I will delete the old remote-access profiles. The site-to-site tunnels can stay exactly as they are.
