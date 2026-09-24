@@ -17,69 +17,67 @@ const corners = [
         <h2 class="max-w-4xl text-5xl font-bold leading-[0.88] tracking-[-0.07em] sm:text-7xl">Selected projects</h2>
     </div>
     <div class="grid gap-4 lg:grid-cols-[1.5fr_1fr] lg:grid-rows-2">
-        {
-            featuredProjects.map((project, index) => {
-                const primaryUrl = project.liveUrl ?? project.githubUrl ?? '/projects';
-                return (
-                    <article
-                        class:list={[
-                            'group relative isolate flex min-h-80 overflow-hidden p-7 sm:p-8',
-                            colors[index],
-                            corners[index],
-                            index === 0 && 'lg:row-span-2 lg:min-h-[680px]',
-                        ]}
-                        data-animate
-                    >
-                        <Picture
-                            src={project.thumbnail}
-                            alt=""
-                            formats={['avif', 'webp']}
-                            widths={[600, 900]}
-                            width={900}
-                            height={700}
-                            class="pointer-events-none absolute inset-0 -z-10 size-full object-cover opacity-15 grayscale transition-opacity duration-200 group-hover:opacity-30 group-focus-within:opacity-30"
-                            loading="lazy"
-                        />
-                        <div class="flex w-full flex-col justify-between">
-                            <span class="eyebrow">{project.category}</span>
-                            <div>
-                                <h3
-                                    class:list={[
-                                        'max-w-2xl break-words font-bold leading-[0.88] tracking-[-0.07em]',
-                                        index === 0 ? 'text-5xl sm:text-7xl' : 'text-4xl sm:text-5xl',
-                                    ]}
+        {featuredProjects.map((project, index) => {
+            const primaryUrl = project.liveUrl ?? project.githubUrl ?? '/projects';
+            return (
+                <article
+                    class:list={[
+                        'group relative isolate flex min-h-80 overflow-hidden p-7 sm:p-8',
+                        colors[index],
+                        corners[index],
+                        index === 0 && 'lg:row-span-2 lg:min-h-[680px]',
+                    ]}
+                    data-animate
+                >
+                    <Picture
+                        src={project.thumbnail}
+                        alt=""
+                        formats={['avif', 'webp']}
+                        widths={[600, 900]}
+                        width={900}
+                        height={700}
+                        class="pointer-events-none absolute inset-0 -z-10 size-full object-cover opacity-15 grayscale transition-opacity duration-200 group-hover:opacity-30 group-focus-within:opacity-30"
+                        loading="lazy"
+                    />
+                    <div class="flex w-full flex-col justify-between">
+                        <span class="eyebrow">{project.category}</span>
+                        <div>
+                            <h3
+                                class:list={[
+                                    'max-w-2xl break-words font-bold leading-[0.88] tracking-[-0.07em]',
+                                    index === 0 ? 'text-5xl sm:text-7xl' : 'text-4xl sm:text-5xl',
+                                ]}
+                            >
+                                <a
+                                    href={primaryUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="after:absolute after:inset-0 after:z-0 hover:underline"
                                 >
-                                    <a
-                                        href={primaryUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="after:absolute after:inset-0 after:z-0 hover:underline"
-                                    >
-                                        {project.title}
-                                    </a>
-                                </h3>
-                                <p class="relative z-10 mt-5 max-w-xl text-base leading-relaxed">{project.summary}</p>
-                                {project.githubUrl && project.githubUrl !== primaryUrl && (
-                                    <a
-                                        href={project.githubUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="relative z-10 mt-4 inline-block text-sm font-extrabold underline decoration-2 underline-offset-4"
-                                    >
-                                        GitHub →
-                                    </a>
-                                )}
-                            </div>
-                            <span class="relative z-10 self-end text-7xl leading-none opacity-35 transition-transform duration-200 group-hover:translate-x-1 group-focus-within:translate-x-1">
-                                ↗
-                            </span>
+                                    {project.title}
+                                </a>
+                            </h3>
+                            <p class="relative z-10 mt-5 max-w-xl text-base leading-relaxed">{project.summary}</p>
+                            {project.githubUrl && project.githubUrl !== primaryUrl && (
+                                <a
+                                    href={project.githubUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="relative z-10 mt-4 inline-block text-sm font-extrabold underline decoration-2 underline-offset-4"
+                                >
+                                    GitHub →
+                                </a>
+                            )}
                         </div>
-                    </article>
-                );
-            })
-        }
+                        <span class="relative z-10 self-end text-7xl leading-none opacity-35 transition-transform duration-200 group-hover:translate-x-1 group-focus-within:translate-x-1">
+                            ↗
+                        </span>
+                    </div>
+                </article>
+            );
+        })}
     </div>
-    <a href="/projects" class="mt-8 inline-block font-extrabold underline decoration-2 underline-offset-4"
-        >All projects →</a
-    >
+    <a href="/projects" class="mt-8 inline-block font-extrabold underline decoration-2 underline-offset-4">
+        All projects →
+    </a>
 </section>

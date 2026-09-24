@@ -45,62 +45,60 @@ const cornerClasses = [
         />
         <section class="site-shell py-16 sm:py-24">
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {
-                    projects.map((project, index) => {
-                        const primaryUrl = project.liveUrl ?? project.githubUrl ?? '#';
-                        return (
-                            <article
-                                class={`group relative isolate flex min-h-[360px] overflow-hidden p-7 ${colors[index]} ${cornerClasses[index]}`}
-                                data-animate
-                            >
-                                <Picture
-                                    src={project.thumbnail}
-                                    alt=""
-                                    formats={['avif', 'webp']}
-                                    widths={[500, 700]}
-                                    width={700}
-                                    height={500}
-                                    loading="lazy"
-                                    class="pointer-events-none absolute inset-0 -z-10 size-full object-cover opacity-15 grayscale transition-opacity duration-200 group-hover:opacity-30 group-focus-within:opacity-30"
-                                />
-                                <div class="flex w-full flex-col justify-between">
-                                    <div>
-                                        <span class="eyebrow">{project.category}</span>
-                                        <h2 class="mt-8 break-words text-4xl font-bold leading-[0.9] tracking-[-0.06em]">
-                                            <a
-                                                href={primaryUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                class="after:absolute after:inset-0 after:z-0 hover:underline"
-                                            >
-                                                {project.title}
-                                            </a>
-                                        </h2>
-                                        <p class="relative z-10 mt-5 leading-relaxed">{project.summary}</p>
-                                    </div>
-                                    <div class="relative z-10 mt-8 flex items-end justify-between gap-4">
-                                        <span class="max-w-[80%] text-xs font-extrabold uppercase tracking-[0.08em]">
-                                            {project.technologies.join(' / ')}
-                                        </span>
-                                        <span class="shrink-0 text-5xl transition-transform duration-200 group-hover:translate-x-1 group-focus-within:translate-x-1">
-                                            ↗
-                                        </span>
-                                    </div>
-                                    {project.githubUrl && project.githubUrl !== primaryUrl && (
+                {projects.map((project, index) => {
+                    const primaryUrl = project.liveUrl ?? project.githubUrl ?? '#';
+                    return (
+                        <article
+                            class={`group relative isolate flex min-h-[360px] overflow-hidden p-7 ${colors[index]} ${cornerClasses[index]}`}
+                            data-animate
+                        >
+                            <Picture
+                                src={project.thumbnail}
+                                alt=""
+                                formats={['avif', 'webp']}
+                                widths={[500, 700]}
+                                width={700}
+                                height={500}
+                                loading="lazy"
+                                class="pointer-events-none absolute inset-0 -z-10 size-full object-cover opacity-15 grayscale transition-opacity duration-200 group-hover:opacity-30 group-focus-within:opacity-30"
+                            />
+                            <div class="flex w-full flex-col justify-between">
+                                <div>
+                                    <span class="eyebrow">{project.category}</span>
+                                    <h2 class="mt-8 break-words text-4xl font-bold leading-[0.9] tracking-[-0.06em]">
                                         <a
-                                            href={project.githubUrl}
+                                            href={primaryUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            class="relative z-10 mt-5 w-max text-sm font-extrabold underline decoration-2 underline-offset-4"
+                                            class="after:absolute after:inset-0 after:z-0 hover:underline"
                                         >
-                                            GitHub →
+                                            {project.title}
                                         </a>
-                                    )}
+                                    </h2>
+                                    <p class="relative z-10 mt-5 leading-relaxed">{project.summary}</p>
                                 </div>
-                            </article>
-                        );
-                    })
-                }
+                                <div class="relative z-10 mt-8 flex items-end justify-between gap-4">
+                                    <span class="max-w-[80%] text-xs font-extrabold uppercase tracking-[0.08em]">
+                                        {project.technologies.join(' / ')}
+                                    </span>
+                                    <span class="shrink-0 text-5xl transition-transform duration-200 group-hover:translate-x-1 group-focus-within:translate-x-1">
+                                        ↗
+                                    </span>
+                                </div>
+                                {project.githubUrl && project.githubUrl !== primaryUrl && (
+                                    <a
+                                        href={project.githubUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="relative z-10 mt-5 w-max text-sm font-extrabold underline decoration-2 underline-offset-4"
+                                    >
+                                        GitHub →
+                                    </a>
+                                )}
+                            </div>
+                        </article>
+                    );
+                })}
             </div>
         </section>
     </main>

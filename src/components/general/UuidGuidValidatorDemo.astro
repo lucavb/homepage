@@ -28,21 +28,22 @@ const { presets = defaultPresets } = Astro.props;
             <div>
                 <h4 class="eyebrow mt-0 mb-3 text-[var(--ink)]">Preset IDs</h4>
                 <div class="space-y-2" data-preset-list>
-                    {
-                        presets.map((preset, index) => (
-                            <button
-                                type="button"
-                                class="block w-full border border-[var(--line)] bg-[var(--pale)] px-3 py-3 text-left font-mono text-xs text-[var(--ink)] transition-colors hover:border-[var(--orange)] hover:bg-[var(--yellow)] focus:outline-none focus:ring-4 focus:ring-[var(--orange)]/40"
-                                data-preset-value={preset}
-                                data-preset-index={index}
-                            >
-                                {preset}
-                            </button>
-                        ))
-                    }
+                    {presets.map((preset, index) => (
+                        <button
+                            type="button"
+                            class="block w-full border border-[var(--line)] bg-[var(--pale)] px-3 py-3 text-left font-mono text-xs text-[var(--ink)] transition-colors hover:border-[var(--orange)] hover:bg-[var(--yellow)] focus:outline-none focus:ring-4 focus:ring-[var(--orange)]/40"
+                            data-preset-value={preset}
+                            data-preset-index={index}
+                        >
+                            {preset}
+                        </button>
+                    ))}
                 </div>
 
-                <label class="eyebrow mt-5 block" for="uuid-guid-demo-input"> Try your own </label>
+                <label class="eyebrow mt-5 block" for="uuid-guid-demo-input">
+                    {' '}
+                    Try your own{' '}
+                </label>
                 <input
                     id="uuid-guid-demo-input"
                     type="text"

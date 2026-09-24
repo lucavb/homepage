@@ -35,45 +35,45 @@ const formatDate = (date: Date) =>
             description="Notes on AI-assisted development, infrastructure, and software engineering."
         />
         <section class="site-shell pb-20 pt-8 sm:pb-28">
-            <a href="/rss.xml" class="eyebrow inline-block hover:underline">RSS feed →</a>
+            <a href="/rss.xml" class="eyebrow inline-block hover:underline">
+                RSS feed →
+            </a>
             <div class="mt-12 space-y-16">
-                {
-                    groupedPosts.map(([year, yearPosts]) => (
-                        <section aria-labelledby={`year-${year}`}>
-                            <h2 id={`year-${year}`} class="mb-5 text-5xl font-bold leading-none tracking-[-0.06em]">
-                                {year}
-                            </h2>
-                            <div class="border-t border-[var(--line)]">
-                                {yearPosts.map((post) => (
-                                    <article
-                                        class="grid gap-4 border-b border-[var(--line)] py-6 md:grid-cols-[150px_1fr_auto] md:items-start"
-                                        data-animate
+                {groupedPosts.map(([year, yearPosts]) => (
+                    <section aria-labelledby={`year-${year}`}>
+                        <h2 id={`year-${year}`} class="mb-5 text-5xl font-bold leading-none tracking-[-0.06em]">
+                            {year}
+                        </h2>
+                        <div class="border-t border-[var(--line)]">
+                            {yearPosts.map((post) => (
+                                <article
+                                    class="grid gap-4 border-b border-[var(--line)] py-6 md:grid-cols-[150px_1fr_auto] md:items-start"
+                                    data-animate
+                                >
+                                    <time
+                                        class="eyebrow text-[var(--muted)]"
+                                        datetime={post.data.publishDate.toISOString()}
                                     >
-                                        <time
-                                            class="eyebrow text-[var(--muted)]"
-                                            datetime={post.data.publishDate.toISOString()}
-                                        >
-                                            {formatDate(post.data.publishDate)}
-                                        </time>
-                                        <div>
-                                            <h3 class="text-2xl font-bold leading-tight tracking-[-0.04em]">
-                                                <a href={`/blog/${post.id}`} class="hover:underline">
-                                                    {post.data.title}
-                                                </a>
-                                            </h3>
-                                            <p class="mt-2 max-w-2xl leading-relaxed text-[var(--muted)]">
-                                                {post.data.description}
-                                            </p>
-                                        </div>
-                                        <p class="text-xs font-extrabold uppercase tracking-[0.08em] text-[var(--muted)] md:max-w-48 md:text-right">
-                                            {post.data.tags?.join(' / ')}
+                                        {formatDate(post.data.publishDate)}
+                                    </time>
+                                    <div>
+                                        <h3 class="text-2xl font-bold leading-tight tracking-[-0.04em]">
+                                            <a href={`/blog/${post.id}`} class="hover:underline">
+                                                {post.data.title}
+                                            </a>
+                                        </h3>
+                                        <p class="mt-2 max-w-2xl leading-relaxed text-[var(--muted)]">
+                                            {post.data.description}
                                         </p>
-                                    </article>
-                                ))}
-                            </div>
-                        </section>
-                    ))
-                }
+                                    </div>
+                                    <p class="text-xs font-extrabold uppercase tracking-[0.08em] text-[var(--muted)] md:max-w-48 md:text-right">
+                                        {post.data.tags?.join(' / ')}
+                                    </p>
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                ))}
             </div>
         </section>
     </main>

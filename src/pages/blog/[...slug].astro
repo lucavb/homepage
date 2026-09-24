@@ -77,34 +77,32 @@ if (!entry.data.thumbnail && entry.data.heroImagePath) {
 
             <section class="py-16 sm:py-24">
                 <div class="mx-auto w-[min(760px,calc(100%-36px))]">
-                    {
-                        entry.data.draft && (
-                            <div class="mb-8 border-l-4 border-[var(--orange)] bg-[var(--yellow)] p-6">
-                                <div class="flex">
-                                    <div class="flex-shrink-0">
-                                        <svg
-                                            class="h-5 w-5 text-yellow-600 dark:text-yellow-400"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                    </div>
-                                    <div class="ml-3">
-                                        <h3 class="mb-1 text-sm font-semibold">Draft Preview</h3>
-                                        <p class="text-sm">
-                                            This post is currently in draft mode and not visible on the blog listing or
-                                            homepage. Share this URL with reviewers for feedback before publishing.
-                                        </p>
-                                    </div>
+                    {entry.data.draft && (
+                        <div class="mb-8 border-l-4 border-[var(--orange)] bg-[var(--yellow)] p-6">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <svg
+                                        class="h-5 w-5 text-yellow-600 dark:text-yellow-400"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd"
+                                        />
+                                    </svg>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="mb-1 text-sm font-semibold">Draft Preview</h3>
+                                    <p class="text-sm">
+                                        This post is currently in draft mode and not visible on the blog listing or
+                                        homepage. Share this URL with reviewers for feedback before publishing.
+                                    </p>
                                 </div>
                             </div>
-                        )
-                    }
+                        </div>
+                    )}
                     <div class="prose prose-lg max-w-none">
                         <Content />
                     </div>

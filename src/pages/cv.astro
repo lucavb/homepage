@@ -147,34 +147,32 @@ const filteredCategories = Object.entries(skillCategories).reduce(
             <section class="cv-section">
                 <h2>Experience</h2>
                 <div class="entries">
-                    {
-                        info.experience.map((exp) => (
-                            <article class="entry">
-                                <div class="entry-header">
-                                    <div class="entry-title">
-                                        <h3>{exp.name}</h3>
-                                        <span class="entry-location">{exp.location}</span>
-                                    </div>
-                                    <time class="entry-date">
-                                        {exp.startDate} — {exp.endDate}
-                                    </time>
+                    {info.experience.map((exp) => (
+                        <article class="entry">
+                            <div class="entry-header">
+                                <div class="entry-title">
+                                    <h3>{exp.name}</h3>
+                                    <span class="entry-location">{exp.location}</span>
                                 </div>
-                                <ul class="entry-details">
-                                    {exp.description.map((desc) => {
-                                        const cleanDesc = desc.replace(/^•\s*/, '');
-                                        return cleanDesc.trim() && <li>{cleanDesc}</li>;
-                                    })}
-                                </ul>
-                                {exp.skills && exp.skills.length > 0 && (
-                                    <div class="entry-tags">
-                                        {exp.skills.map((skill) => (
-                                            <span class="tag">{skill}</span>
-                                        ))}
-                                    </div>
-                                )}
-                            </article>
-                        ))
-                    }
+                                <time class="entry-date">
+                                    {exp.startDate} — {exp.endDate}
+                                </time>
+                            </div>
+                            <ul class="entry-details">
+                                {exp.description.map((desc) => {
+                                    const cleanDesc = desc.replace(/^•\s*/, '');
+                                    return cleanDesc.trim() && <li>{cleanDesc}</li>;
+                                })}
+                            </ul>
+                            {exp.skills && exp.skills.length > 0 && (
+                                <div class="entry-tags">
+                                    {exp.skills.map((skill) => (
+                                        <span class="tag">{skill}</span>
+                                    ))}
+                                </div>
+                            )}
+                        </article>
+                    ))}
                 </div>
             </section>
 
@@ -182,27 +180,25 @@ const filteredCategories = Object.entries(skillCategories).reduce(
             <section class="cv-section education-section">
                 <h2>Education</h2>
                 <div class="entries">
-                    {
-                        info.education.map((edu) => (
-                            <article class="entry">
-                                <div class="entry-header">
-                                    <div class="entry-title">
-                                        <h3>{edu.name}</h3>
-                                        <span class="entry-location">{edu.location}</span>
-                                    </div>
-                                    <time class="entry-date">
-                                        {edu.startDate} — {edu.endDate}
-                                    </time>
+                    {info.education.map((edu) => (
+                        <article class="entry">
+                            <div class="entry-header">
+                                <div class="entry-title">
+                                    <h3>{edu.name}</h3>
+                                    <span class="entry-location">{edu.location}</span>
                                 </div>
-                                <ul class="entry-details">
-                                    {edu.description.map((desc) => {
-                                        const cleanDesc = desc.replace(/^•\s*/, '');
-                                        return cleanDesc.trim() && <li>{cleanDesc}</li>;
-                                    })}
-                                </ul>
-                            </article>
-                        ))
-                    }
+                                <time class="entry-date">
+                                    {edu.startDate} — {edu.endDate}
+                                </time>
+                            </div>
+                            <ul class="entry-details">
+                                {edu.description.map((desc) => {
+                                    const cleanDesc = desc.replace(/^•\s*/, '');
+                                    return cleanDesc.trim() && <li>{cleanDesc}</li>;
+                                })}
+                            </ul>
+                        </article>
+                    ))}
                 </div>
             </section>
 
@@ -211,32 +207,28 @@ const filteredCategories = Object.entries(skillCategories).reduce(
                 <section class="cv-section skills-section">
                     <h2>Skills</h2>
                     <div class="skills-grid">
-                        {
-                            Object.entries(filteredCategories).map(([category, skills]) => (
-                                <div class="skill-group">
-                                    <h3>{category}</h3>
-                                    <div class="skill-tags">
-                                        {skills.map((skill) => (
-                                            <span class="tag">{skill}</span>
-                                        ))}
-                                    </div>
+                        {Object.entries(filteredCategories).map(([category, skills]) => (
+                            <div class="skill-group">
+                                <h3>{category}</h3>
+                                <div class="skill-tags">
+                                    {skills.map((skill) => (
+                                        <span class="tag">{skill}</span>
+                                    ))}
                                 </div>
-                            ))
-                        }
+                            </div>
+                        ))}
                     </div>
                 </section>
 
                 <section class="cv-section languages-section">
                     <h2>Languages</h2>
                     <div class="languages">
-                        {
-                            info.languages.map((lang) => (
-                                <div class="language-item">
-                                    <span class="language-name">{lang.name}</span>
-                                    <span class="language-level">{lang.level}</span>
-                                </div>
-                            ))
-                        }
+                        {info.languages.map((lang) => (
+                            <div class="language-item">
+                                <span class="language-name">{lang.name}</span>
+                                <span class="language-level">{lang.level}</span>
+                            </div>
+                        ))}
                     </div>
                 </section>
             </div>

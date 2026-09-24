@@ -17,28 +17,27 @@ const rules = ['border-[var(--sky)]', 'border-[var(--green)]', 'border-[var(--or
         <h2 class="max-w-4xl text-5xl font-bold leading-[0.88] tracking-[-0.07em] sm:text-7xl">Recent writing</h2>
     </div>
     <div class="grid gap-8 md:grid-cols-3">
-        {
-            posts.map((post, index) => (
-                <a
-                    href={`/blog/${post.id}`}
-                    class={`group border-t-[10px] pt-5 ${rules[index]} hover:no-underline`}
-                    data-umami-event="Post Click"
-                    data-umami-event-title={post.data.title}
-                    data-animate
-                >
-                    <time class="eyebrow text-[var(--muted)]" datetime={post.data.publishDate.toISOString()}>
-                        {formatDate(post.data.publishDate)}
-                    </time>
-                    <h3 class="mt-4 text-2xl font-bold leading-[1.08] tracking-[-0.04em] group-hover:underline">
-                        {post.data.title}
-                    </h3>
-                    <span class="mt-6 inline-block font-extrabold group-hover:translate-x-1 transition-transform">
-                        Read article →
-                    </span>
-                </a>
-            ))
-        }
+        {posts.map((post, index) => (
+            <a
+                href={`/blog/${post.id}`}
+                class={`group border-t-[10px] pt-5 ${rules[index]} hover:no-underline`}
+                data-umami-event="Post Click"
+                data-umami-event-title={post.data.title}
+                data-animate
+            >
+                <time class="eyebrow text-[var(--muted)]" datetime={post.data.publishDate.toISOString()}>
+                    {formatDate(post.data.publishDate)}
+                </time>
+                <h3 class="mt-4 text-2xl font-bold leading-[1.08] tracking-[-0.04em] group-hover:underline">
+                    {post.data.title}
+                </h3>
+                <span class="mt-6 inline-block font-extrabold group-hover:translate-x-1 transition-transform">
+                    Read article →
+                </span>
+            </a>
+        ))}
     </div>
-    <a href="/blog" class="mt-10 inline-block font-extrabold underline decoration-2 underline-offset-4">All writing →</a
-    >
+    <a href="/blog" class="mt-10 inline-block font-extrabold underline decoration-2 underline-offset-4">
+        All writing →
+    </a>
 </section>

@@ -17,33 +17,29 @@ const isImageMetadata = (src: string | ImageMetadata): src is ImageMetadata => {
 const primaryUrl = liveUrl ?? githubUrl ?? '#';
 ---
 
-<article
-    class="bg-white dark:bg-slate-800/80 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg dark:hover:shadow-black/20 overflow-hidden border border-slate-200/60 dark:border-slate-700/50 group hover:-translate-y-0.5 relative"
->
+<article class="bg-white dark:bg-slate-800/80 rounded-2xl cursor-pointer transition-all duration-300 hover:shadow-lg dark:hover:shadow-black/20 overflow-hidden border border-slate-200/60 dark:border-slate-700/50 group hover:-translate-y-0.5 relative">
     <div class="h-48 bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-        {
-            isImageMetadata(thumbnail) ? (
-                <Picture
-                    src={thumbnail}
-                    alt={`${title} project screenshot`}
-                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                    formats={['avif', 'webp', 'jpg']}
-                    loading="lazy"
-                    width={400}
-                    height={192}
-                    widths={[300, 400, 600]}
-                />
-            ) : (
-                <img
-                    src={thumbnail}
-                    alt={`${title} project screenshot`}
-                    class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-                    loading="lazy"
-                    width="400"
-                    height="192"
-                />
-            )
-        }
+        {isImageMetadata(thumbnail) ? (
+            <Picture
+                src={thumbnail}
+                alt={`${title} project screenshot`}
+                class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                formats={['avif', 'webp', 'jpg']}
+                loading="lazy"
+                width={400}
+                height={192}
+                widths={[300, 400, 600]}
+            />
+        ) : (
+            <img
+                src={thumbnail}
+                alt={`${title} project screenshot`}
+                class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+                loading="lazy"
+                width="400"
+                height="192"
+            />
+        )}
     </div>
     <div class="p-6">
         <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
@@ -58,19 +54,17 @@ const primaryUrl = liveUrl ?? githubUrl ?? '#';
         </h3>
         <div class="flex gap-4">
             {liveUrl && <span class="text-violet-600 dark:text-violet-400 font-semibold">View Live →</span>}
-            {
-                githubUrl && liveUrl && (
-                    <a
-                        href={githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="relative z-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-semibold"
-                        aria-label={`View ${title} on GitHub`}
-                    >
-                        GitHub →
-                    </a>
-                )
-            }
+            {githubUrl && liveUrl && (
+                <a
+                    href={githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="relative z-10 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 font-semibold"
+                    aria-label={`View ${title} on GitHub`}
+                >
+                    GitHub →
+                </a>
+            )}
             {githubUrl && !liveUrl && <span class="text-slate-500 dark:text-slate-400 font-semibold">GitHub →</span>}
         </div>
     </div>

@@ -18,74 +18,72 @@ const containerClasses =
         : `flex-1 flex flex-col justify-center gap-5 ${className}`;
 ---
 
-{
-    variant === 'desktop' ? (
-        <nav class={containerClasses} aria-label="Main navigation">
-            {isHomePage ? (
-                <>
-                    <a href="#focus" class={baseClasses}>
-                        Focus
-                    </a>
-                    <a href="#experience" class={baseClasses}>
-                        Experience
-                    </a>
-                    <a href="#work" class={baseClasses}>
-                        Work
-                    </a>
-                    <a href="#writing" class={baseClasses}>
-                        Writing
-                    </a>
-                    <a href="#contact" class={baseClasses}>
-                        Contact
-                    </a>
-                </>
-            ) : (
-                <>
-                    <a href="/" class={baseClasses}>
-                        Home
-                    </a>
-                    <a href="/projects" class={baseClasses}>
-                        Projects
-                    </a>
-                    <a href="/blog" class={baseClasses}>
-                        Writing
-                    </a>
-                </>
-            )}
-        </nav>
-    ) : (
-        <nav class={containerClasses} aria-label="Main navigation">
-            {isHomePage ? (
-                <>
-                    <a href="#focus" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">01</span> Focus
-                    </a>
-                    <a href="#experience" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">02</span> Experience
-                    </a>
-                    <a href="#work" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">03</span> Work
-                    </a>
-                    <a href="#writing" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">04</span> Writing
-                    </a>
-                    <a href="#contact" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">05</span> Contact
-                    </a>
-                </>
-            ) : (
-                <>
-                    <a href="/" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">01</span> Home
-                    </a>
-                    <a href="/projects" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">02</span> Projects
-                    </a>
-                    <a href="/blog" class={baseClasses}>
-                        <span class="eyebrow text-[var(--yellow)]">03</span> Writing
-                    </a>
-                </>
-            )}
-        </nav>
-    )
-}
+{variant === 'desktop' ? (
+    <nav class={containerClasses} aria-label="Main navigation">
+        {isHomePage ? (
+            <>
+                <a href="#focus" class={baseClasses}>
+                    Focus
+                </a>
+                <a href="#experience" class={baseClasses}>
+                    Experience
+                </a>
+                <a href="#work" class={baseClasses}>
+                    Work
+                </a>
+                <a href="#writing" class={baseClasses}>
+                    Writing
+                </a>
+                <a href="#contact" class={baseClasses}>
+                    Contact
+                </a>
+            </>
+        ) : (
+            <>
+                <a href="/" class={baseClasses}>
+                    Home
+                </a>
+                <a href="/projects" class={baseClasses}>
+                    Projects
+                </a>
+                <a href="/blog" class={baseClasses}>
+                    Writing
+                </a>
+            </>
+        )}
+    </nav>
+) : (
+    <nav class={containerClasses} aria-label="Main navigation">
+        {isHomePage ? (
+            <>
+                <a href="#focus" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">01</span> Focus
+                </a>
+                <a href="#experience" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">02</span> Experience
+                </a>
+                <a href="#work" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">03</span> Work
+                </a>
+                <a href="#writing" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">04</span> Writing
+                </a>
+                <a href="#contact" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">05</span> Contact
+                </a>
+            </>
+        ) : (
+            <>
+                <a href="/" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">01</span> Home
+                </a>
+                <a href="/projects" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">02</span> Projects
+                </a>
+                <a href="/blog" class={baseClasses}>
+                    <span class="eyebrow text-[var(--yellow)]">03</span> Writing
+                </a>
+            </>
+        )}
+    </nav>
+)}

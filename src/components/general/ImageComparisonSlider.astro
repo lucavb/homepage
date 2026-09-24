@@ -37,13 +37,11 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
         />
     </div>
 
-    {
-        rightLabel && (
-            <div class="absolute top-4 right-4 bg-blue-600 dark:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
-                {rightLabel}
-            </div>
-        )
-    }
+    {rightLabel && (
+        <div class="absolute top-4 right-4 bg-blue-600 dark:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
+            {rightLabel}
+        </div>
+    )}
 
     <div
         class="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
@@ -63,13 +61,11 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
         />
     </div>
 
-    {
-        leftLabel && (
-            <div class="absolute top-4 left-4 bg-indigo-600 dark:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
-                {leftLabel}
-            </div>
-        )
-    }
+    {leftLabel && (
+        <div class="absolute top-4 left-4 bg-indigo-600 dark:bg-indigo-700 text-white px-3 py-1.5 rounded-md text-sm font-semibold shadow-lg z-10 pointer-events-none">
+            {leftLabel}
+        </div>
+    )}
 
     <div
         class="absolute top-0 bottom-0 w-1 bg-white dark:bg-gray-200 cursor-ew-resize group"
@@ -83,26 +79,20 @@ const sliderId = `comparison-slider-${Math.random().toString(36).substring(2, 11
         aria-valuetext="50% comparison"
         tabindex="0"
     >
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white dark:bg-gray-200 rounded-full shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-        >
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white dark:bg-gray-200 rounded-full shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <div class="flex gap-1">
                 <div class="w-0.5 h-4 bg-gray-700 dark:bg-gray-800 rounded-full"></div>
                 <div class="w-0.5 h-4 bg-gray-700 dark:bg-gray-800 rounded-full"></div>
             </div>
         </div>
 
-        <div
-            class="absolute top-1/2 -translate-y-1/2 -left-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
+        <div class="absolute top-1/2 -translate-y-1/2 -left-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <svg fill="currentColor" viewBox="0 0 24 24" class="drop-shadow-lg">
                 <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
             </svg>
         </div>
 
-        <div
-            class="absolute top-1/2 -translate-y-1/2 -right-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
+        <div class="absolute top-1/2 -translate-y-1/2 -right-8 w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <svg fill="currentColor" viewBox="0 0 24 24" class="drop-shadow-lg">
                 <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"></path>
             </svg>

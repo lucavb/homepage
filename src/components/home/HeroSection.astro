@@ -11,31 +11,20 @@ const stats = [
 
 <section class="site-shell py-8 sm:py-12">
     <div class="flex flex-col gap-0 sm:gap-7">
-        <div
-            class="hero-band__shell max-sm:relative max-sm:overflow-hidden max-sm:rounded-tr-[52px] max-sm:bg-[var(--sky)] max-sm:px-[1.15rem] max-sm:pt-5 max-sm:pb-6"
-        >
-            <div
-                class="hero-band__grid max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_6.25rem] max-sm:items-start max-sm:gap-x-3 max-sm:gap-y-2.5 sm:flex sm:flex-row sm:items-stretch sm:gap-7 sm:max-[899px]:gap-[1.15rem]"
-            >
-                <div
-                    class="hero-band__sky max-sm:contents relative flex flex-[1.15] min-w-0 flex-col overflow-hidden rounded-tr-[60px] bg-[var(--sky)] p-7 sm:rounded-tr-[90px] sm:p-12 sm:max-[899px]:flex-[1.25] sm:max-[899px]:p-6"
-                >
+        <div class="hero-band__shell max-sm:relative max-sm:overflow-hidden max-sm:rounded-tr-[52px] max-sm:bg-[var(--sky)] max-sm:px-[1.15rem] max-sm:pt-5 max-sm:pb-6">
+            <div class="hero-band__grid max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_6.25rem] max-sm:items-start max-sm:gap-x-3 max-sm:gap-y-2.5 sm:flex sm:flex-row sm:items-stretch sm:gap-7 sm:max-[899px]:gap-[1.15rem]">
+                <div class="hero-band__sky max-sm:contents relative flex flex-[1.15] min-w-0 flex-col overflow-hidden rounded-tr-[60px] bg-[var(--sky)] p-7 sm:rounded-tr-[90px] sm:p-12 sm:max-[899px]:flex-[1.25] sm:max-[899px]:p-6">
                     <div
                         class="hero-band__orb pointer-events-none absolute -right-14 -bottom-20 size-72 rounded-full border-[42px] border-white/25 max-sm:right-[-3.5rem] max-sm:bottom-[-4.5rem] max-sm:size-44 max-sm:border-[26px] max-sm:opacity-85"
                         aria-hidden="true"
-                    >
-                    </div>
+                    ></div>
                     <p class="eyebrow relative z-10 max-sm:col-start-1 max-sm:row-start-1 max-sm:pr-1">
                         {info.jobDescription}
                     </p>
-                    <h1
-                        class="relative z-10 max-w-none text-[clamp(2.35rem,5.2vw,5rem)] font-bold leading-[0.88] tracking-[-0.04em] max-sm:col-span-2 max-sm:row-start-2 max-sm:mt-1.5 sm:mt-6 sm:max-[899px]:text-[clamp(1.85rem,4.8vw,2.75rem)]"
-                    >
+                    <h1 class="relative z-10 max-w-none text-[clamp(2.35rem,5.2vw,5rem)] font-bold leading-[0.88] tracking-[-0.04em] max-sm:col-span-2 max-sm:row-start-2 max-sm:mt-1.5 sm:mt-6 sm:max-[899px]:text-[clamp(1.85rem,4.8vw,2.75rem)]">
                         I help teams get the most out of coding agents.
                     </h1>
-                    <div
-                        class="hero-band__footer relative z-10 max-w-xl max-sm:col-span-2 max-sm:row-start-3 max-sm:mt-0 sm:mt-7"
-                    >
+                    <div class="hero-band__footer relative z-10 max-w-xl max-sm:col-span-2 max-sm:row-start-3 max-sm:mt-0 sm:mt-7">
                         <p class="text-lg leading-relaxed sm:text-xl">{info.heroDescription}</p>
                         <a
                             href="#focus"
@@ -48,9 +37,7 @@ const stats = [
                     </div>
                 </div>
 
-                <div
-                    class="hero-band__photo relative max-sm:col-start-2 max-sm:row-start-1 max-sm:h-32 max-sm:w-[6.25rem] max-sm:overflow-hidden max-sm:rounded-[0_36px_0_36px] max-sm:shadow-[0_8px_22px_rgb(0_0_0_/_16%)] sm:flex-[0.85] sm:min-h-0 sm:min-w-0 sm:overflow-hidden sm:rounded-tr-[100px] sm:rounded-bl-[100px] sm:max-[899px]:max-w-[13.5rem] sm:max-[899px]:flex-[0.7] sm:max-[899px]:rounded-tr-[72px] sm:max-[899px]:rounded-bl-[72px]"
-                >
+                <div class="hero-band__photo relative max-sm:col-start-2 max-sm:row-start-1 max-sm:h-32 max-sm:w-[6.25rem] max-sm:overflow-hidden max-sm:rounded-[0_36px_0_36px] max-sm:shadow-[0_8px_22px_rgb(0_0_0_/_16%)] sm:flex-[0.85] sm:min-h-0 sm:min-w-0 sm:overflow-hidden sm:rounded-tr-[100px] sm:rounded-bl-[100px] sm:max-[899px]:max-w-[13.5rem] sm:max-[899px]:flex-[0.7] sm:max-[899px]:rounded-tr-[72px] sm:max-[899px]:rounded-bl-[72px]">
                     <picture class="hero-band__picture block h-full w-full">
                         <source
                             srcset="/assets/images/hero/400.avif 1x, /assets/images/hero/800.avif 2x"
@@ -75,17 +62,13 @@ const stats = [
             </div>
         </div>
 
-        <div
-            class="grid grid-cols-2 divide-x divide-y divide-black/20 bg-[var(--yellow)] max-sm:border-t max-sm:border-[color-mix(in_srgb,var(--ink)_12%,transparent)] md:grid-cols-4 md:divide-y-0"
-        >
-            {
-                stats.map((stat) => (
-                    <div class="flex flex-col gap-1.5 p-4 sm:p-5">
-                        <span class="eyebrow">{stat.label}</span>
-                        <strong class="text-lg sm:text-xl">{stat.value}</strong>
-                    </div>
-                ))
-            }
+        <div class="grid grid-cols-2 divide-x divide-y divide-black/20 bg-[var(--yellow)] max-sm:border-t max-sm:border-[color-mix(in_srgb,var(--ink)_12%,transparent)] md:grid-cols-4 md:divide-y-0">
+            {stats.map((stat) => (
+                <div class="flex flex-col gap-1.5 p-4 sm:p-5">
+                    <span class="eyebrow">{stat.label}</span>
+                    <strong class="text-lg sm:text-xl">{stat.value}</strong>
+                </div>
+            ))}
         </div>
     </div>
 </section>

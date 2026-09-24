@@ -28,27 +28,25 @@ const chapters = [
             </h2>
         </div>
         <div class="grid border-t border-[color-mix(in_srgb,var(--paper)_35%,transparent)] md:grid-cols-3">
-            {
-                chapters.map((chapter, index) => (
-                    <article
-                        class:list={[
-                            'py-7 md:px-7 md:py-8',
-                            index > 0 &&
-                                'border-t border-[color-mix(in_srgb,var(--paper)_35%,transparent)] md:border-l md:border-t-0',
-                            index === 0 && 'md:pr-7',
-                        ]}
-                        data-animate
-                    >
-                        <time class="eyebrow text-[var(--yellow)]">{chapter.period}</time>
-                        <h3 class="mt-5 text-3xl font-bold leading-[1.02] tracking-[-0.05em] text-[var(--paper)]">
-                            {chapter.title}
-                        </h3>
-                        <p class="mt-5 leading-relaxed text-[color-mix(in_srgb,var(--paper)_75%,transparent)]">
-                            {chapter.description}
-                        </p>
-                    </article>
-                ))
-            }
+            {chapters.map((chapter, index) => (
+                <article
+                    class:list={[
+                        'py-7 md:px-7 md:py-8',
+                        index > 0 &&
+                            'border-t border-[color-mix(in_srgb,var(--paper)_35%,transparent)] md:border-l md:border-t-0',
+                        index === 0 && 'md:pr-7',
+                    ]}
+                    data-animate
+                >
+                    <time class="eyebrow text-[var(--yellow)]">{chapter.period}</time>
+                    <h3 class="mt-5 text-3xl font-bold leading-[1.02] tracking-[-0.05em] text-[var(--paper)]">
+                        {chapter.title}
+                    </h3>
+                    <p class="mt-5 leading-relaxed text-[color-mix(in_srgb,var(--paper)_75%,transparent)]">
+                        {chapter.description}
+                    </p>
+                </article>
+            ))}
         </div>
     </div>
 </section>

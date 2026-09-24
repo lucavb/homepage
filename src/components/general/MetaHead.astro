@@ -37,11 +37,9 @@ const { title, description, ogImageUrl } = Astro.props as IMetaHead;
 <!-- Twitter -->
 {title && <meta property="twitter:card" content="summary_large_image" />}
 {title && <meta property="twitter:url" content={`${info.baseUrl}${Astro.url.pathname}`} />}
-{
-    title !== undefined && (
-        <meta property="twitter:title" content={title === '' ? info.name : `${title} - ${info.name}`} />
-    )
-}
+{title !== undefined && (
+    <meta property="twitter:title" content={title === '' ? info.name : `${title} - ${info.name}`} />
+)}
 {description && <meta property="twitter:description" content={description} />}
 {ogImageUrl && <meta property="twitter:image" content={`${info.baseUrl}${ogImageUrl}`} />}
 

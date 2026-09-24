@@ -132,18 +132,16 @@ const structuredData = {
         <meta property="og:site_name" content={info.name} />
         <meta property="og:locale" content="en_US" />
 
-        {
-            isArticle && publishDate && (
-                <>
-                    <meta property="article:author" content={author} />
-                    <meta property="article:published_time" content={publishDate.toISOString()} />
-                    <meta property="article:modified_time" content={publishDate.toISOString()} />
-                    {tags.map((tag) => (
-                        <meta property="article:tag" content={tag} />
-                    ))}
-                </>
-            )
-        }
+        {isArticle && publishDate && (
+            <>
+                <meta property="article:author" content={author} />
+                <meta property="article:published_time" content={publishDate.toISOString()} />
+                <meta property="article:modified_time" content={publishDate.toISOString()} />
+                {tags.map((tag) => (
+                    <meta property="article:tag" content={tag} />
+                ))}
+            </>
+        )}
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@lucabecker" />
@@ -154,7 +152,6 @@ const structuredData = {
         <meta name="twitter:image:alt" content={title || `${info.name} - ${info.jobDescription}`} />
 
         <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
-
         <link rel="alternate" type="application/rss+xml" title="Luca Becker — Writing" href="/rss.xml" />
 
         <!-- Umami Analytics - GDPR Compliant, Cookieless -->
@@ -165,7 +162,8 @@ const structuredData = {
             data-website-id="e8dfbda3-dc5e-4cd9-ae4d-a221b4c504ea"
             data-host-url="https://t.sunbury.xyz"
             data-do-not-track="true"
-            data-domains="luca-becker.me"></script>
+            data-domains="luca-becker.me"
+        ></script>
         <script is:inline>
             document.addEventListener('click', function (e) {
                 var link = e.target.closest('a');
@@ -185,7 +183,6 @@ const structuredData = {
                 }
             });
         </script>
-
         <!-- Critical CSS - inline the most important styles -->
         <style>
             /* Critical styles for above-the-fold content */
@@ -215,8 +212,9 @@ const structuredData = {
         <a
             href="#main-content"
             class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-[var(--orange)] focus:px-4 focus:py-2 focus:text-[var(--paper)]"
-            >Skip to content</a
         >
+            Skip to content
+        </a>
         <slot />
 
         <script>

@@ -3,23 +3,29 @@ import { info } from '@data';
 ---
 
 <footer class="border-t border-[var(--line)] py-8">
-    <div
-        class="site-shell flex flex-col justify-between gap-5 text-xs font-extrabold uppercase tracking-[0.1em] md:flex-row md:items-center"
-    >
-        <span>© {new Date().getFullYear()} {info.name}</span>
+    <div class="site-shell flex flex-col justify-between gap-5 text-xs font-extrabold uppercase tracking-[0.1em] md:flex-row md:items-center">
+        <span>
+            © {new Date().getFullYear()} {info.name}
+        </span>
         <nav aria-label="Footer links" class="flex flex-wrap gap-x-5 gap-y-3">
-            <a href={info.socialMedia.github} target="_blank" rel="noopener noreferrer" class="hover:underline"
-                >GitHub</a
-            >
-            <a href={info.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" class="hover:underline"
-                >LinkedIn</a
-            >
-            <a href={info.socialMedia.matrix} target="_blank" rel="noopener noreferrer" class="hover:underline"
-                >Matrix</a
-            >
-            <a id="footer-email-link" href="#" class="hover:underline">Email</a>
-            <a href="/impressum" class="hover:underline">Impressum</a>
-            <a href="/rss.xml" class="hover:underline">RSS</a>
+            <a href={info.socialMedia.github} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                GitHub
+            </a>
+            <a href={info.socialMedia.linkedin} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                LinkedIn
+            </a>
+            <a href={info.socialMedia.matrix} target="_blank" rel="noopener noreferrer" class="hover:underline">
+                Matrix
+            </a>
+            <a id="footer-email-link" href="#" class="hover:underline">
+                Email
+            </a>
+            <a href="/impressum" class="hover:underline">
+                Impressum
+            </a>
+            <a href="/rss.xml" class="hover:underline">
+                RSS
+            </a>
         </nav>
     </div>
 </footer>
