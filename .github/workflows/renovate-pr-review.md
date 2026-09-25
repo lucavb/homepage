@@ -19,6 +19,8 @@ permissions:
 network: defaults
 
 tools:
+  bash: false
+  cli-proxy: false
   github:
     lockdown: false
     min-integrity: none
@@ -44,7 +46,7 @@ safe-outputs:
           type: string
       steps:
         - name: Upsert review comment
-          uses: actions/github-script@v9
+          uses: actions/github-script@v9.0.0
           with:
             github-token: ${{ secrets.GH_AW_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
             script: |
