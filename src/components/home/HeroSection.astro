@@ -1,75 +1,121 @@
 ---
 import { info } from '@data';
+
+const stats = [
+    { label: 'Role', value: 'Principal Consultant' },
+    { label: 'Based in', value: 'Munich' },
+    { label: 'At TNG', value: 'Since 2019' },
+    { label: 'Background', value: 'IT security' },
+];
 ---
 
 <section class="site-shell py-8 sm:py-12">
-    <div class="grid gap-7 lg:min-h-[700px] lg:grid-cols-[1.2fr_0.8fr]">
+    <div class="flex flex-col gap-0 sm:gap-7">
         <div
-            class="relative flex min-h-[420px] flex-col overflow-hidden rounded-tr-[60px] bg-[var(--sky)] p-7 sm:min-h-[620px] sm:p-12 lg:rounded-tr-[90px]"
+            class="hero-band__shell max-sm:relative max-sm:overflow-hidden max-sm:rounded-tr-[52px] max-sm:bg-[var(--sky)] max-sm:px-[1.15rem] max-sm:pt-5 max-sm:pb-6"
         >
             <div
-                class="absolute -bottom-24 -right-20 size-72 rounded-full border-[42px] border-white/25"
-                aria-hidden="true"
+                class="hero-band__grid max-sm:grid max-sm:grid-cols-[minmax(0,1fr)_6.25rem] max-sm:items-start max-sm:gap-x-3 max-sm:gap-y-2.5 sm:flex sm:flex-row sm:items-stretch sm:gap-7 sm:max-[899px]:gap-[1.15rem]"
             >
-            </div>
-            <p class="eyebrow relative z-10">{info.jobDescription}</p>
-            <div class="relative z-10 mt-8">
-                <h1 class="text-[clamp(3.4rem,7.7vw,8rem)] font-bold leading-[0.8] tracking-[-0.04em]">
-                    I help teams get the most out of coding agents.
-                </h1>
-            </div>
-            <div class="relative z-10 mt-12 max-w-xl lg:mt-auto">
-                <p class="text-lg leading-relaxed sm:text-xl">{info.heroDescription}</p>
-                <a
-                    href="#focus"
-                    class="mt-6 inline-block font-extrabold underline decoration-2 underline-offset-4"
-                    data-umami-event="CTA Click"
-                    data-umami-event-label="Get to know me"
+                <div
+                    class="hero-band__sky max-sm:contents relative flex flex-[1.15] min-w-0 flex-col overflow-hidden rounded-tr-[60px] bg-[var(--sky)] p-7 sm:rounded-tr-[90px] sm:p-12 sm:max-[899px]:flex-[1.25] sm:max-[899px]:p-6"
                 >
-                    Get to know me ↓
-                </a>
+                    <div
+                        class="hero-band__orb pointer-events-none absolute -right-14 -bottom-20 size-72 rounded-full border-[42px] border-white/25 max-sm:right-[-3.5rem] max-sm:bottom-[-4.5rem] max-sm:size-44 max-sm:border-[26px] max-sm:opacity-85"
+                        aria-hidden="true"
+                    >
+                    </div>
+                    <p class="eyebrow relative z-10 max-sm:col-start-1 max-sm:row-start-1 max-sm:pr-1">
+                        {info.jobDescription}
+                    </p>
+                    <h1
+                        class="relative z-10 max-w-none text-[clamp(2.35rem,5.2vw,5rem)] font-bold leading-[0.88] tracking-[-0.04em] max-sm:col-span-2 max-sm:row-start-2 max-sm:mt-1.5 sm:mt-6 sm:max-[899px]:text-[clamp(1.85rem,4.8vw,2.75rem)]"
+                    >
+                        I help teams get the most out of coding agents.
+                    </h1>
+                    <div
+                        class="hero-band__footer relative z-10 max-w-xl max-sm:col-span-2 max-sm:row-start-3 max-sm:mt-0 sm:mt-7"
+                    >
+                        <p class="text-lg leading-relaxed sm:text-xl">{info.heroDescription}</p>
+                        <a
+                            href="#focus"
+                            class="mt-6 inline-block font-extrabold underline decoration-2 underline-offset-4"
+                            data-umami-event="CTA Click"
+                            data-umami-event-label="Get to know me"
+                        >
+                            Get to know me ↓
+                        </a>
+                    </div>
+                </div>
+
+                <div
+                    class="hero-band__photo relative max-sm:col-start-2 max-sm:row-start-1 max-sm:h-32 max-sm:w-[6.25rem] max-sm:overflow-hidden max-sm:rounded-[0_36px_0_36px] max-sm:shadow-[0_8px_22px_rgb(0_0_0_/_16%)] sm:flex-[0.85] sm:min-h-0 sm:min-w-0 sm:overflow-hidden sm:rounded-tr-[100px] sm:rounded-bl-[100px] sm:max-[899px]:max-w-[13.5rem] sm:max-[899px]:flex-[0.7] sm:max-[899px]:rounded-tr-[72px] sm:max-[899px]:rounded-bl-[72px]"
+                >
+                    <picture class="hero-band__picture block h-full w-full">
+                        <source
+                            srcset="/assets/images/hero/400.avif 1x, /assets/images/hero/800.avif 2x"
+                            type="image/avif"
+                        />
+                        <source
+                            srcset="/assets/images/hero/400.webp 1x, /assets/images/hero/800.webp 2x"
+                            type="image/webp"
+                        />
+                        <img
+                            src="/assets/images/hero/400.jpg"
+                            srcset="/assets/images/hero/400.jpg 1x, /assets/images/hero/800.jpg 2x"
+                            alt={info.name}
+                            class="hero-band__image"
+                            width="400"
+                            height="560"
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </picture>
+                </div>
             </div>
         </div>
 
-        <aside class="grid gap-7 sm:grid-cols-[0.9fr_1.1fr] lg:grid-cols-1 lg:grid-rows-[1.2fr_0.8fr]">
-            <div
-                class="min-h-[390px] overflow-hidden rounded-tr-[100px] rounded-bl-[100px] sm:h-full sm:min-h-0 lg:min-h-[390px]"
-            >
-                <picture>
-                    <source
-                        srcset="/assets/images/hero/400.avif 1x, /assets/images/hero/800.avif 2x"
-                        type="image/avif"
-                    />
-                    <source
-                        srcset="/assets/images/hero/400.webp 1x, /assets/images/hero/800.webp 2x"
-                        type="image/webp"
-                    />
-                    <img
-                        src="/assets/images/hero/400.jpg"
-                        srcset="/assets/images/hero/400.jpg 1x, /assets/images/hero/800.jpg 2x"
-                        alt={info.name}
-                        class="h-full w-full object-cover object-top saturate-75"
-                        width="400"
-                        height="560"
-                        loading="eager"
-                        decoding="async"
-                    />
-                </picture>
-            </div>
-            <div class="grid grid-cols-2 bg-[var(--yellow)]">
-                <div class="border-b border-r border-black/20 p-5">
-                    <span class="eyebrow">Role</span><strong class="mt-2 block text-xl">Principal Consultant</strong>
-                </div>
-                <div class="border-b border-black/20 p-5">
-                    <span class="eyebrow">Based in</span><strong class="mt-2 block text-xl">Munich</strong>
-                </div>
-                <div class="border-r border-black/20 p-5">
-                    <span class="eyebrow">At TNG</span><strong class="mt-2 block text-xl">Since 2019</strong>
-                </div>
-                <div class="p-5">
-                    <span class="eyebrow">Background</span><strong class="mt-2 block text-xl">IT security</strong>
-                </div>
-            </div>
-        </aside>
+        <div
+            class="grid grid-cols-2 divide-x divide-y divide-black/20 bg-[var(--yellow)] max-sm:border-t max-sm:border-[color-mix(in_srgb,var(--ink)_12%,transparent)] md:grid-cols-4 md:divide-y-0"
+        >
+            {
+                stats.map((stat) => (
+                    <div class="flex flex-col gap-1.5 p-4 sm:p-5">
+                        <span class="eyebrow">{stat.label}</span>
+                        <strong class="text-lg sm:text-xl">{stat.value}</strong>
+                    </div>
+                ))
+            }
+        </div>
     </div>
 </section>
+
+<style>
+    .hero-band__orb {
+        z-index: 0;
+    }
+
+    .hero-band__picture {
+        position: relative;
+        height: 100%;
+        min-height: 0;
+    }
+
+    .hero-band__image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        filter: saturate(0.75);
+    }
+
+    @media (max-width: 639px) {
+        .hero-band__sky > .eyebrow,
+        .hero-band__photo {
+            position: relative;
+            z-index: 1;
+        }
+    }
+</style>
