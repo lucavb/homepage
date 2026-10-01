@@ -14,9 +14,10 @@ const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } 
 
 <script>
     import mermaid from 'mermaid';
+    import { onThemeChange, getAppliedTheme } from '@lib/theme';
 
     function initMermaid() {
-        const isDark = document.documentElement.classList.contains('dark');
+        const isDark = getAppliedTheme() === 'dark';
 
         mermaid.initialize({
             startOnLoad: true,
@@ -52,18 +53,18 @@ const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } 
         });
     }
 
-    let currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    let currentTheme: 'light' | 'dark' = getAppliedTheme();
 
-    const observer = new MutationObserver(() => {
-        const newTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-        if (newTheme !== currentTheme) {
-            currentTheme = newTheme;
+    // Subscribing to the applied mode (never reading the class or attribute
+    // directly) keeps the same refresh trigger the class observer served.
+    onThemeChange((mode) => {
+        const applied: 'light' | 'dark' = mode === 'dark' ? 'dark' : 'light';
+        if (applied !== currentTheme) {
+            currentTheme = applied;
             initMermaid();
             renderMermaidDiagrams();
         }
     });
-
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
