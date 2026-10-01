@@ -2,9 +2,9 @@ import { getCollection } from 'astro:content';
 import { getImage } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import type { ImageMetadata } from 'astro';
+import { DEFAULT_OG_IMAGE } from './meta';
 
 const MAX_RELATED_POSTS = 3;
-const DEFAULT_OG_IMAGE = '/assets/images/og-image.png';
 
 const byPublishDateDesc = (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>): number =>
     b.data.publishDate.getTime() - a.data.publishDate.getTime();

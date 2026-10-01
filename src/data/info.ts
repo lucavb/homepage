@@ -6,6 +6,7 @@ export const info = {
     jobDescription: 'Principal Consultant for AI-assisted development',
     heroDescription: `My main focus is using AI coding tools effectively in day-to-day software development.`,
     metaDescription: `Principal Consultant at TNG focused on AI-assisted development, software engineering, team leadership, and AWS infrastructure.`,
+    blogDescription: 'Notes on AI-assisted development, infrastructure, and software engineering.',
     aboutHeading: `I write code, run infrastructure, and lead engineering teams.`,
     about: `At my current client, I'm responsible for infrastructure and dev-enablement, leading a team while still writing code - mostly AI-assisted these days. At TNG Technology Consulting, I'm driving initiatives around AI-assisted coding: how to use it effectively, how to teach it, and where it's taking professional software development.
 

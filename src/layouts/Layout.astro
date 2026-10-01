@@ -1,5 +1,6 @@
 ---
 import { info } from '@data';
+import { buildMeta } from '@lib/meta';
 import '../styles/style.css';
 
 export interface Props {
@@ -14,13 +15,10 @@ export interface Props {
     robots?: string;
 }
 
-const defaultOgImageUrl = '/assets/images/og-image.png';
-const socialPreviewVersion = '20260715';
-
 const {
     title = '',
     description = '',
-    ogImageUrl = defaultOgImageUrl,
+    ogImageUrl,
     class: _className = 'light',
     publishDate,
     tags = [],
@@ -29,42 +27,16 @@ const {
     robots = 'index, follow',
 } = Astro.props;
 
-const siteUrl = info.baseUrl;
-const currentUrl = new URL(Astro.url.pathname, siteUrl).toString();
-const resolvedOgImageUrl = ogImageUrl === defaultOgImageUrl ? `${ogImageUrl}?v=${socialPreviewVersion}` : ogImageUrl;
-const absoluteImageUrl = resolvedOgImageUrl.startsWith('http')
-    ? resolvedOgImageUrl
-    : new URL(resolvedOgImageUrl, siteUrl).toString();
-
-const pageTitle = title ? (title.startsWith(info.name) ? title : `${title} | ${info.name}`) : info.name;
-const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': isArticle ? 'Article' : 'WebPage',
-    name: pageTitle,
-    description: description,
-    url: currentUrl,
-    image: absoluteImageUrl,
-    author: {
-        '@type': 'Person',
-        name: author,
-        url: siteUrl,
-        jobTitle: info.jobDescription,
-        sameAs: [info.socialMedia.github, info.socialMedia.linkedin],
-    },
-    publisher: {
-        '@type': 'Person',
-        name: info.name,
-        url: siteUrl,
-    },
-    ...(isArticle && publishDate
-        ? {
-              datePublished: publishDate.toISOString(),
-              dateModified: publishDate.toISOString(),
-              headline: title,
-              keywords: tags.join(', '),
-          }
-        : {}),
-};
+const { pageTitle, currentUrl, absoluteImageUrl, structuredData } = buildMeta({
+    title,
+    description,
+    path: Astro.url.pathname,
+    ogImage: ogImageUrl,
+    publishDate,
+    tags,
+    isArticle,
+    author,
+});
 ---
 
 <!doctype html>

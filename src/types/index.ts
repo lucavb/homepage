@@ -2,12 +2,6 @@ import type { ImageMetadata } from 'astro';
 
 export * from './umami';
 
-export interface IMetaHead {
-    title: string;
-    description: string;
-    ogImageUrl: string;
-}
-
 export interface IExperience {
     name: string;
     location: string;

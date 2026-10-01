@@ -1,5 +1,6 @@
 ---
 import { getPublishedPosts, formatPostDate } from '@lib/posts';
+import { info } from '@data';
 import Layout from '@layouts/Layout.astro';
 import Header from '@components/home/Header.astro';
 import Footer from '@components/home/Footer.astro';
@@ -17,18 +18,10 @@ const groupedPosts = Object.entries(
 ).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
 ---
 
-<Layout
-    title="Writing"
-    description="Notes on AI-assisted development, infrastructure, and software engineering."
-    ogImageUrl="/assets/images/og-image.png"
->
+<Layout title="Writing" description={info.blogDescription}>
     <Header isHomePage={false} />
     <main id="main-content">
-        <PageHero
-            eyebrow="Archive"
-            title="Writing"
-            description="Notes on AI-assisted development, infrastructure, and software engineering."
-        />
+        <PageHero eyebrow="Archive" title="Writing" description={info.blogDescription} />
         <section class="site-shell pb-20 pt-8 sm:pb-28">
             <a href="/rss.xml" class="eyebrow inline-block hover:underline">
                 RSS feed →
