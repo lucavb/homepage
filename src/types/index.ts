@@ -35,15 +35,3 @@ export interface IProject {
 export interface IProjects {
     projects: IProject[];
 }
-
-export interface IBlogPost {
-    id: string;
-    title: string;
-    description: string;
-    publishDate: Date;
-    tags?: string[];
-    draft: boolean;
-    thumbnail?: string;
-    heroImagePath?: string;
-    relatedPosts?: string[];
-}

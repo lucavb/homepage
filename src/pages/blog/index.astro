@@ -1,13 +1,11 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedPosts, formatPostDate } from '@lib/posts';
 import Layout from '@layouts/Layout.astro';
 import Header from '@components/home/Header.astro';
 import Footer from '@components/home/Footer.astro';
 import PageHero from '@components/general/PageHero.astro';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-    (a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime(),
-);
+const posts = await getPublishedPosts();
 
 const groupedPosts = Object.entries(
     posts.reduce<Record<string, typeof posts>>((groups, post) => {
@@ -17,9 +15,6 @@ const groupedPosts = Object.entries(
         return groups;
     }, {}),
 ).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
-
-const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 ---
 
 <Layout
@@ -54,7 +49,7 @@ const formatDate = (date: Date) =>
                                         class="eyebrow text-[var(--muted)]"
                                         datetime={post.data.publishDate.toISOString()}
                                     >
-                                        {formatDate(post.data.publishDate)}
+                                        {formatPostDate(post.data.publishDate)}
                                     </time>
                                     <div>
                                         <h3 class="text-2xl font-bold leading-tight tracking-[-0.04em]">

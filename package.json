@@ -37,6 +37,7 @@
         "test:headed": "playwright test --headed",
         "test:ui": "playwright test --ui",
         "test:a11y": "playwright test accessibility.spec.ts",
+        "test:unit": "vitest run",
         "lighthouse": "lhci autorun"
     },
     "dependencies": {
@@ -60,7 +61,8 @@
         "husky": "9.1.7",
         "lint-staged": "17.6.0",
         "prettier": "3.9.9",
-        "prettier-plugin-astro": "1.1.0"
+        "prettier-plugin-astro": "1.1.0",
+        "vitest": "5.0.3"
     },
     "lint-staged": {
         "*.{js,ts,cjs,mjs,astro,json,md,mdx}": [

@@ -1,6 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
-import type { IBlogPost } from '@types';
+import { getPublishedPosts, selectRelatedPosts, formatPostDate } from '@lib/posts';
 
 interface Props {
     currentPostId: string;
@@ -10,93 +9,11 @@ interface Props {
 
 const { currentPostId, relatedPostIds, tags } = Astro.props;
 
-const MAX_RELATED_POSTS = 3;
+const posts = await getPublishedPosts();
 
-const allPosts = await getCollection('blog', ({ data }) => {
-    return data.draft !== true;
-});
-
-const getTagScore = (postTags: string[] | undefined, currentTags: string[] | undefined): number => {
-    if (!postTags || !currentTags || postTags.length === 0 || currentTags.length === 0) {
-        return 0;
-    }
-    const overlap = postTags.filter((tag) => currentTags.includes(tag)).length;
-    return overlap;
-};
-
-let relatedPosts: IBlogPost[] = [];
-
-if (relatedPostIds && relatedPostIds.length > 0) {
-    relatedPosts = allPosts
-        .filter((post) => relatedPostIds.includes(post.id))
-        .slice(0, MAX_RELATED_POSTS)
-        .map((post) => ({
-            id: post.id,
-            title: post.data.title,
-            description: post.data.description,
-            publishDate: post.data.publishDate,
-            tags: post.data.tags,
-            draft: post.data.draft,
-            thumbnail: post.data.thumbnail,
-            heroImagePath: post.data.heroImagePath,
-        }));
-}
-
-if (relatedPosts.length < MAX_RELATED_POSTS && tags && tags.length > 0) {
-    const tagBasedPosts = allPosts
-        .filter((post) => post.id !== currentPostId)
-        .filter((post) => !relatedPostIds?.includes(post.id))
-        .map((post) => ({
-            post,
-            score: getTagScore(post.data.tags, tags),
-        }))
-        .filter(({ score }) => score > 0)
-        .sort((a, b) => {
-            if (b.score !== a.score) {
-                return b.score - a.score;
-            }
-            return b.post.data.publishDate.getTime() - a.post.data.publishDate.getTime();
-        })
-        .slice(0, MAX_RELATED_POSTS - relatedPosts.length)
-        .map(({ post }) => ({
-            id: post.id,
-            title: post.data.title,
-            description: post.data.description,
-            publishDate: post.data.publishDate,
-            tags: post.data.tags,
-            draft: post.data.draft,
-            thumbnail: post.data.thumbnail,
-            heroImagePath: post.data.heroImagePath,
-        }));
-
-    relatedPosts = [...relatedPosts, ...tagBasedPosts];
-}
-
-if (relatedPosts.length < MAX_RELATED_POSTS) {
-    const recentPosts = allPosts
-        .filter((post) => post.id !== currentPostId)
-        .filter((post) => !relatedPosts.some((rp) => rp.id === post.id))
-        .sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime())
-        .slice(0, MAX_RELATED_POSTS - relatedPosts.length)
-        .map((post) => ({
-            id: post.id,
-            title: post.data.title,
-            description: post.data.description,
-            publishDate: post.data.publishDate,
-            tags: post.data.tags,
-            draft: post.data.draft,
-            thumbnail: post.data.thumbnail,
-            heroImagePath: post.data.heroImagePath,
-        }));
-
-    relatedPosts = [...relatedPosts, ...recentPosts];
-}
-
-relatedPosts.sort((a, b) => b.publishDate.getTime() - a.publishDate.getTime());
+const relatedPosts = selectRelatedPosts(posts, { currentId: currentPostId, relatedPostIds, tags });
 
 const shouldShowRelatedPosts = relatedPosts.length > 0;
-const formatDate = (date: Date) =>
-    new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
 ---
 
 {shouldShowRelatedPosts && (
@@ -113,9 +30,9 @@ const formatDate = (date: Date) =>
                         index === 2 && 'border-[var(--orange)]',
                     ]}
                 >
-                    <time class="eyebrow text-[var(--muted)]">{formatDate(post.publishDate)}</time>
+                    <time class="eyebrow text-[var(--muted)]">{formatPostDate(post.data.publishDate)}</time>
                     <h3 class="mt-4 text-xl font-bold leading-tight tracking-[-0.04em] group-hover:underline">
-                        {post.title}
+                        {post.data.title}
                     </h3>
                     <span class="mt-5 inline-block font-extrabold group-hover:translate-x-1 transition-transform">
                         Read article →
