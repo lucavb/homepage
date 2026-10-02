@@ -4,6 +4,10 @@ const baseURL = process.env.BASE_URL || 'http://localhost:4321';
 
 export default defineConfig({
     testDir: './tests',
+    // The browser suite owns *.spec.ts; the vitest unit layer owns
+    // tests/unit/*.test.ts. The default testMatch also collects *.test.ts,
+    // which would drag the unit files through Playwright's loader.
+    testMatch: '**/*.spec.ts',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
