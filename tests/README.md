@@ -89,7 +89,9 @@ Add these secrets in your GitHub repository settings (Settings → Secrets and v
     - `navigation.spec.ts` - New navigation flows
     - `interactive.spec.ts` - Interactive features like forms, toggles, etc.
     - `social-links.spec.ts` - External links and contact methods
-2. For page load tests, use the `setupConsoleErrorTracking()` helper (see `pages.spec.ts`)
+2. For page load tests, use the `preparePage()` helper (see `pages.spec.ts`). It collects
+   console errors and stubs third-party analytics, so a failure means our own code misbehaved
+   rather than the analytics host. Call it before navigating.
 3. Use descriptive test names that explain what's being tested
 4. Run tests locally before pushing: `npm test`
 5. Consider creating a new spec file if you're testing a distinct feature area

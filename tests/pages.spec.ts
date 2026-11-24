@@ -1,19 +1,35 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page, ConsoleMessage } from '@playwright/test';
 
-function setupConsoleErrorTracking(page: Page) {
+const ANALYTICS_URL = 'https://t.sunbury.xyz/**';
+
+/**
+ * Starts console error collection and stubs third-party analytics.
+ *
+ * The live Umami endpoint answers some browsers with a 403 and a `text/plain`
+ * body; the browser then refuses to execute it under `nosniff` and reports a
+ * console error. That is a property of the analytics host, not of this site,
+ * and because the tag is `async` it also raced the assertion below. Stubbing
+ * it keeps "no console errors" a claim about our own code only.
+ *
+ * Must be called before navigating.
+ */
+async function preparePage(page: Page) {
     const errors: string[] = [];
     page.on('pageerror', (error: Error) => errors.push(error.message));
-    page.on('console', (msg: any) => {
+    page.on('console', (msg: ConsoleMessage) => {
         if (msg.type() === 'error') {
             errors.push(msg.text());
         }
     });
+    await page.route(ANALYTICS_URL, (route) =>
+        route.fulfill({ status: 200, contentType: 'application/javascript', body: '/* stubbed in tests */' }),
+    );
     return errors;
 }
 
 test.describe('Homepage', () => {
     test('should load and display all key sections', async ({ page }) => {
-        const errors = setupConsoleErrorTracking(page);
+        const errors = await preparePage(page);
 
         await page.goto('/');
 
@@ -31,7 +47,7 @@ test.describe('Homepage', () => {
 
 test.describe('Blog', () => {
     test('should load blog index page', async ({ page }) => {
-        const errors = setupConsoleErrorTracking(page);
+        const errors = await preparePage(page);
 
         await page.goto('/blog/');
 
@@ -61,7 +77,7 @@ test.describe('Blog', () => {
 
 test.describe('Projects', () => {
     test('should load projects page', async ({ page }) => {
-        const errors = setupConsoleErrorTracking(page);
+        const errors = await preparePage(page);
 
         await page.goto('/projects/');
 
@@ -74,7 +90,7 @@ test.describe('Projects', () => {
 
 test.describe('Impressum', () => {
     test('should load impressum page', async ({ page }) => {
-        const errors = setupConsoleErrorTracking(page);
+        const errors = await preparePage(page);
 
         await page.goto('/impressum/');
 
