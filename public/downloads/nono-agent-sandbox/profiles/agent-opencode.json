@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "name": "agent-opencode",
+        "description": "OpenCode on top of agent-base: OpenCode state dirs, GitHub MCP via phantom token, loopback AWS MCP bridge"
+    },
+    "extends": ["agent-base", "nolabs-ai/opencode"],
+    "network": {
+        "open_port": [59074],
+        "credentials": ["github_mcp"],
+        "custom_credentials": {
+            "github_mcp": {
+                "upstream": "https://api.githubcopilot.com",
+                "credential_key": "cmd://github_mcp",
+                "env_var": "GITHUB_MCP_PAT",
+                "inject_header": "Authorization",
+                "credential_format": "Bearer {}"
+            }
+        }
+    },
+    "credential_capture": {
+        "github_mcp": {
+            "command": ["gh", "auth", "token"],
+            "timeout_secs": 5,
+            "cache_ttl_secs": 900
+        }
+    },
+    "command_policies": {
+        "commands": {
+            "aws": { "from": { "session": "deny" } }
+        }
+    }
+}

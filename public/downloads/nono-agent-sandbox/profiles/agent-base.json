@@ -1,0 +1,29 @@
+{
+    "meta": {
+        "name": "agent-base",
+        "description": "Shared baseline for sandboxed coding agents: default denies, toolchains, secret denies, allowlisted network"
+    },
+    "extends": "default",
+    "groups": {
+        "include": ["node_runtime", "python_runtime", "rust_runtime", "git_config"]
+    },
+    "workdir": {
+        "access": "readwrite"
+    },
+    "filesystem": {
+        "deny": ["**/.env", "**/.env.*", "**/secrets", "**/*.pem", "**/*.key"]
+    },
+    "environment": {
+        "deny_vars": ["AWS_*", "*_API_KEY", "*_SECRET*", "GITHUB_TOKEN", "GH_TOKEN", "NPM_TOKEN"]
+    },
+    "network": {
+        "network_profile": "developer"
+    },
+    "command_policies": {
+        "commands": {
+            "pbpaste": { "from": { "session": "deny" } },
+            "pbcopy": { "from": { "session": "deny" } },
+            "mdfind": { "from": { "session": "deny" } }
+        }
+    }
+}

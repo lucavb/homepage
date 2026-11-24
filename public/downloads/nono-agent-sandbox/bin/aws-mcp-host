@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Host-side AWS MCP bridge. Run this OUTSIDE the sandbox.
+# The sandboxed agent only gets a loopback port; SigV4 credentials stay here.
+#
+#   AWS_MCP_PROFILE=my-readonly-profile aws-mcp-host
+#
+# Requirements: aws CLI, uv (for uvx), npx (for supergateway).
+set -euo pipefail
+
+PORT="${AWS_MCP_PORT:-59074}"
+HOST=127.0.0.1
+ENDPOINT="${AWS_MCP_ENDPOINT:-https://aws-mcp.us-east-1.api.aws/mcp}"
+PROFILE="${AWS_MCP_PROFILE:?set AWS_MCP_PROFILE to a READ-ONLY IAM profile}"
+WORKLOAD_REGION="${AWS_MCP_WORKLOAD_REGION:-}"
+
+aws sts get-caller-identity --profile "$PROFILE" >/dev/null \
+  || { echo "aws-mcp-host: credentials for $PROFILE are invalid (try: aws sso login --profile $PROFILE)" >&2; exit 1; }
+
+# The endpoint must come FIRST: --metadata takes multiple values and would swallow it.
+# Do NOT pass --region unless it matches the endpoint's region; SigV4 is signed for the
+# endpoint, and a mismatched region returns 403s that look like expired credentials.
+stdio="env AWS_PROFILE=$PROFILE uvx mcp-proxy-for-aws-cli $ENDPOINT --profile $PROFILE"
+[[ -n $WORKLOAD_REGION ]] && stdio+=" --metadata AWS_REGION=$WORKLOAD_REGION"
+
+echo "aws-mcp-host: http://$HOST:$PORT/mcp -> $ENDPOINT as $(aws sts get-caller-identity --profile "$PROFILE" --query Arn --output text)" >&2
+exec npx -y supergateway \
+  --stdio "$stdio" \
+  --outputTransport streamableHttp \
+  --host "$HOST" --port "$PORT" --streamableHttpPath /mcp

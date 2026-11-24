@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Minimal sandboxed launcher: `agent opencode`, `agent --plain opencode`.
+# Extra writable roots: `agent --grant ../other-repo opencode`.
+# Add another agent by giving it a profile and a case below.
+# Read-only session: `AGENT_READONLY=1 agent opencode`.
+set -euo pipefail
+
+plain=0
+grants=()
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --plain) plain=1; shift ;;
+    --grant) grants+=("$(cd "$2" && pwd -P)"); shift 2 ;;
+    *) break ;;
+  esac
+done
+tool="${1:?usage: agent [--plain] [--grant PATH]... opencode [args...]}"
+shift
+
+if [[ $plain == 1 ]]; then
+  echo "agent: running $tool WITHOUT sandbox; keep its own approval prompts on" >&2
+  exec "$tool" "$@"
+fi
+
+case $tool in
+  opencode) profile=agent-opencode ;;
+  *) echo "agent: no profile for $tool" >&2; exit 1 ;;
+esac
+
+grant_flag=--allow
+[[ ${AGENT_READONLY:-0} == 1 ]] && grant_flag=--read
+
+argv=(nono run --profile "$profile" "$grant_flag" "$PWD")
+for g in "${grants[@]}"; do argv+=("$grant_flag" "$g"); done
+[[ ${AGENT_ROLLBACK:-0} == 1 ]] && argv+=(--rollback)
+
+# Let the agent (and any TUI plugin) know it is sandboxed.
+export AGENT_SANDBOX=nono AGENT_SANDBOX_PROFILE="$profile"
+
+exec "${argv[@]}" -- "$tool" "$@"

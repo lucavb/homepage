@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Global pre-commit hook (git config --global core.hooksPath ~/.config/git/hooks).
+# Runs repo pre-commit checks with an EMPTY environment plus a short allowlist,
+# so third-party hooks never see your tokens.
+set -euo pipefail
+root="$(git rev-parse --show-toplevel)"
+if [[ -f "$root/.pre-commit-config.yaml" ]] && command -v pre-commit >/dev/null; then
+  safe_env=(env -i)
+  for name in HOME PATH TMPDIR USER LOGNAME LANG LC_ALL \
+    GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX; do
+    if declare -p "$name" >/dev/null 2>&1; then
+      safe_env+=("$name=${!name}")
+    fi
+  done
+  exec "${safe_env[@]}" pre-commit run --hook-stage pre-commit
+fi
+exit 0

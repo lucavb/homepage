@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Run INSIDE a sandboxed session (ask the agent to run it, or `agent opencode` then `!bin/verify-sandbox`).
+# Every line should say PASS. A FAIL means the sandbox is wider than you think.
+set -uo pipefail
+pass=0 fail=0
+expect_fail() { # description, command...
+  local desc=$1; shift
+  if "$@" >/dev/null 2>&1; then echo "FAIL  $desc (succeeded)"; fail=$((fail+1)); else echo "PASS  $desc (blocked)"; pass=$((pass+1)); fi
+}
+expect_ok() {
+  local desc=$1; shift
+  if "$@" >/dev/null 2>&1; then echo "PASS  $desc"; pass=$((pass+1)); else echo "FAIL  $desc (blocked)"; fail=$((fail+1)); fi
+}
+
+expect_fail "read ~/.ssh"                 ls "$HOME/.ssh"
+expect_fail "read ~/.aws"                 ls "$HOME/.aws"
+expect_fail "read shell history"          cat "$HOME/.zsh_history"
+expect_fail "write to \$HOME"             touch "$HOME/.sandbox-probe"
+expect_fail "read clipboard"              pbpaste
+expect_fail "reach arbitrary host"        curl -fsS --max-time 5 https://example.com
+expect_fail "run aws CLI"                 aws sts get-caller-identity
+expect_ok   "write to working directory"  sh -c 'touch .sandbox-probe && rm .sandbox-probe'
+expect_ok   "reach GitHub API"            curl -fsS --max-time 5 -o /dev/null https://api.github.com
+
+for v in GITHUB_MCP_PAT ANTHROPIC_API_KEY OPENAI_API_KEY; do
+  val="${!v:-}"
+  [[ -z $val ]] && continue
+  if [[ $val == ghp_* || $val == github_pat_* || $val == sk-* ]]; then
+    echo "FAIL  $v looks like a REAL credential"; fail=$((fail+1))
+  else
+    echo "PASS  $v is a phantom token"; pass=$((pass+1))
+  fi
+done
+
+echo "--- $pass passed, $fail failed"
+[[ $fail == 0 ]]
