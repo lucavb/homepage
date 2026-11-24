@@ -3,14 +3,82 @@ export interface Props {
     diagram: string;
     id?: string;
     class?: string;
+    /** Adds a click-to-enlarge view on desktop, for diagrams that are too wide to read inline. */
+    expandable?: boolean;
+    /** Accessible name for the enlarged view, e.g. "Sandbox timeline". */
+    expandLabel?: string;
 }
 
-const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } = Astro.props;
+const {
+    diagram,
+    id = 'mermaid-diagram',
+    class: className = 'mermaid-diagram',
+    expandable = false,
+    expandLabel = 'Diagram',
+} = Astro.props;
+
+const modalId = `${id}-modal`;
 ---
 
-<div id={id} class={className} data-diagram={diagram}>
-    {diagram}
-</div>
+{expandable ? (
+    <>
+        <div class="mermaid-expandable relative md:cursor-zoom-in" data-mermaid-expand-trigger={modalId}>
+            <div id={id} class={className} data-diagram={diagram}>
+                {diagram}
+            </div>
+            <button
+                type="button"
+                class="hidden md:inline-flex absolute top-3 right-3 items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-white dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                aria-label={`Open ${expandLabel} in a larger view`}
+                aria-haspopup="dialog"
+                aria-controls={modalId}
+                data-mermaid-expand-button
+            >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                    />
+                </svg>
+                Click to enlarge
+            </button>
+        </div>
+
+        <div
+            id={modalId}
+            class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label={expandLabel}
+            data-mermaid-modal={modalId}
+        >
+            <div class="relative flex max-h-[92vh] w-full max-w-[96vw] flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
+                <button
+                    type="button"
+                    class="absolute top-3 right-3 z-10 rounded-full bg-gray-100 dark:bg-gray-700 p-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    aria-label="Close larger view"
+                    data-mermaid-modal-close={modalId}
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
+                    </svg>
+                </button>
+                <div class="overflow-auto p-6 pt-14" data-mermaid-modal-content />
+            </div>
+        </div>
+    </>
+) : (
+    <div id={id} class={className} data-diagram={diagram}>
+        {diagram}
+    </div>
+)}
 
 <script>
     import mermaid from 'mermaid';
@@ -66,11 +134,90 @@ const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } 
         }
     });
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', renderMermaidDiagrams);
-    } else {
-        renderMermaidDiagrams();
+    // Mermaid sizes each box from the measured text. If Inter hasn't loaded yet it measures
+    // the fallback font, and the real text then doesn't fit. Wait for the fonts first.
+    function renderWhenFontsReady() {
+        const fontsReady = document.fonts?.ready ?? Promise.resolve();
+        fontsReady.then(renderMermaidDiagrams, renderMermaidDiagrams);
     }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderWhenFontsReady);
+    } else {
+        renderWhenFontsReady();
+    }
+
+    // Click-to-enlarge, desktop only. The modal gets a copy of the rendered SVG at
+    // open time, so it always matches the current theme and never fights re-renders.
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    let lastTrigger: HTMLElement | null = null;
+
+    function openModal(modalId: string, trigger: HTMLElement) {
+        const modal = document.getElementById(modalId);
+        const content = modal?.querySelector('[data-mermaid-modal-content]');
+        const svg = trigger.querySelector('.mermaid-diagram svg');
+        if (!modal || !content || !svg) return;
+
+        const clone = svg.cloneNode(true) as SVGSVGElement;
+        const viewBox = clone.viewBox.baseVal;
+
+        // Fill the modal, but never shrink below the diagram's natural size, so the
+        // text stays readable. If it is wider than the screen, the modal scrolls.
+        clone.removeAttribute('height');
+        clone.style.maxWidth = 'none';
+        clone.style.width = '100%';
+        clone.style.height = 'auto';
+        if (viewBox && viewBox.width > 0) {
+            clone.style.minWidth = `${Math.round(viewBox.width)}px`;
+        }
+
+        content.replaceChildren(clone);
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        lastTrigger = trigger;
+        modal.querySelector<HTMLElement>('[data-mermaid-modal-close]')?.focus();
+    }
+
+    function closeModal(modal: HTMLElement) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.querySelector('[data-mermaid-modal-content]')?.replaceChildren();
+        document.body.style.overflow = '';
+        lastTrigger?.querySelector<HTMLElement>('[data-mermaid-expand-button]')?.focus();
+        lastTrigger = null;
+    }
+
+    document.addEventListener('click', (event) => {
+        const target = event.target as Element | null;
+        if (!target || typeof target.closest !== 'function') return;
+
+        const closeBtn = target.closest<HTMLElement>('[data-mermaid-modal-close]');
+        if (closeBtn) {
+            const modal = document.getElementById(closeBtn.getAttribute('data-mermaid-modal-close') ?? '');
+            if (modal) closeModal(modal);
+            return;
+        }
+
+        const modal = target.closest<HTMLElement>('[data-mermaid-modal]');
+        if (modal) {
+            // Clicking the backdrop closes it; clicking the diagram itself doesn't.
+            const insidePanel = target.closest('[data-mermaid-modal-content]');
+            if (!insidePanel && target === modal) closeModal(modal);
+            return;
+        }
+
+        const trigger = target.closest<HTMLElement>('[data-mermaid-expand-trigger]');
+        if (trigger && desktopQuery.matches) {
+            openModal(trigger.getAttribute('data-mermaid-expand-trigger') ?? '', trigger);
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const open = document.querySelector<HTMLElement>('[data-mermaid-modal].flex');
+        if (open) closeModal(open);
+    });
 </script>
 
 <style>
@@ -91,5 +238,20 @@ const { diagram, id = 'mermaid-diagram', class: className = 'mermaid-diagram' } 
 
     .mermaid-diagram svg {
         @apply max-w-full h-auto;
+    }
+
+    /* Mermaid's HTML labels wrap their text in a <p>. The blog's prose styles give every
+       <p> a bigger line-height and a bottom margin, so the text ends up taller than the
+       box Mermaid measured for it and gets cut off at the bottom. Reset it, in the inline
+       diagram and in the enlarged copy. The overflow rule is a safety net for rounding. */
+    .mermaid-diagram :global(foreignObject),
+    [data-mermaid-modal-content] :global(foreignObject) {
+        overflow: visible;
+    }
+
+    .mermaid-diagram :global(foreignObject p),
+    [data-mermaid-modal-content] :global(foreignObject p) {
+        margin: 0;
+        line-height: 1.5;
     }
 </style>
