@@ -26,6 +26,7 @@ tools:
     min-integrity: none
 
 safe-outputs:
+  group-reports: true
   mentions: false
   add-labels:
     max: 3

@@ -28,6 +28,7 @@ tools:
         min-integrity: none # This workflow is allowed to examine and comment on any issues
 
 safe-outputs:
+    group-reports: true
     mentions: false
     allowed-github-references: []
     create-issue:
