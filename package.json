@@ -50,7 +50,7 @@
         "astro": "7.4.13",
         "astro-robots-txt": "1.0.0",
         "fflate": "0.8.3",
-        "mermaid": "12.3.0",
+        "mermaid": "12.4.0",
         "tailwindcss": "4.3.5",
         "typescript": "6.0.3"
     },
